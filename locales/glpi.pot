@@ -1,0 +1,222 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Eventsmanager Development Team
+# This file is distributed under the same license as the GLPI - Eventsmanager plugin package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: GLPI - Eventsmanager plugin 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-20 10:30+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: setup.php:94 inc/dashboard.class.php:55 inc/dashboard.class.php:139
+#: inc/dashboard.class.php:144 inc/mailimport.class.php:58
+#: inc/mailimport.class.php:95 inc/menu.class.php:40 inc/profile.class.php:51
+#: inc/rssimport.class.php:57 inc/rssimport.class.php:97
+msgid "Event manager"
+msgid_plural "Events manager"
+msgstr[0] ""
+msgstr[1] ""
+
+#: front/config.form.php:51
+msgid "Please activate the plugin"
+msgstr ""
+
+#: inc/config.class.php:52
+msgid "Plugin Setup"
+msgstr ""
+
+#: inc/config.class.php:70
+msgid ""
+"Uto use the automatic closing of an event when creating a ticket from an "
+"event"
+msgstr ""
+
+#: inc/dashboard.class.php:76 inc/event.class.php:251 inc/event.class.php:399
+#: inc/ticket.class.php:267
+msgid "Event type"
+msgstr ""
+
+#: inc/dashboard.class.php:76 inc/event.class.php:165 inc/event.class.php:443
+msgid "Actions"
+msgstr ""
+
+#: inc/dashboard.class.php:116 inc/event.class.php:733
+msgid "No action avalable"
+msgstr ""
+
+#: inc/dashboard.class.php:129 inc/dashboard.class.php:132
+msgid "Add event"
+msgstr ""
+
+#: inc/event.class.php:89 inc/event.class.php:360 inc/ticket.class.php:264
+msgid "Origin"
+msgstr ""
+
+#: inc/event.class.php:209
+msgid "Assign date"
+msgstr ""
+
+#: inc/event.class.php:226
+msgid "Assign user"
+msgstr ""
+
+#: inc/event.class.php:243 inc/event.class.php:501
+msgid "User close"
+msgstr ""
+
+#: inc/event.class.php:346 inc/ticket.class.php:268 inc/ticket.class.php:430
+msgid "Associated element"
+msgstr ""
+
+#: inc/event.class.php:408
+msgid "User assigned"
+msgstr ""
+
+#: inc/event.class.php:447 inc/event.class.php:1035
+msgid "Assign me to this event"
+msgstr ""
+
+#: inc/event.class.php:448 inc/event.class.php:1037 inc/ticket.class.php:389
+msgid "Create a ticket from the event"
+msgstr ""
+
+#: inc/event.class.php:449 inc/event.class.php:1039
+msgid "Close the event"
+msgstr ""
+
+#: inc/event.class.php:490
+msgid "Date Assign"
+msgstr ""
+
+#: inc/event.class.php:801
+msgid "Affect entity for create event"
+msgstr ""
+
+#: inc/event.class.php:925
+msgctxt "status"
+msgid "New"
+msgstr ""
+
+#: inc/event.class.php:928
+msgctxt "status"
+msgid "Assigned"
+msgstr ""
+
+#: inc/event.class.php:931
+msgctxt "status"
+msgid "Closed"
+msgstr ""
+
+#: inc/event.class.php:980
+msgctxt "eventtype"
+msgid "Undefined"
+msgstr ""
+
+#: inc/event.class.php:983
+msgctxt "eventtype"
+msgid "Alert"
+msgstr ""
+
+#: inc/event.class.php:986
+msgctxt "eventtype"
+msgid "Exception"
+msgstr ""
+
+#: inc/event.class.php:989
+msgctxt "eventtype"
+msgid "Warning"
+msgstr ""
+
+#: inc/event.class.php:992
+msgctxt "eventtype"
+msgid "Information"
+msgstr ""
+
+#: inc/mailimport.class.php:46
+msgid "Import mails for events manager"
+msgstr ""
+
+#: inc/mailimport.class.php:98 inc/rssimport.class.php:112
+#: inc/rssimport.class.php:237
+msgid "Default impact"
+msgstr ""
+
+#: inc/mailimport.class.php:106 inc/rssimport.class.php:120
+#: inc/rssimport.class.php:246
+msgid "Default priority"
+msgstr ""
+
+#: inc/mailimport.class.php:114 inc/rssimport.class.php:128
+#: inc/rssimport.class.php:255
+msgid "Default event type"
+msgstr ""
+
+#: inc/origin.class.php:49
+msgid "Event origin"
+msgid_plural "Event origins"
+msgstr[0] ""
+msgstr[1] ""
+
+#: inc/rssimport.class.php:45 inc/rssimport.class.php:155
+msgid "Import RSS feeds for events manager"
+msgstr ""
+
+#: inc/rssimport.class.php:99
+msgid "Do you want to use this RSS feed to create event"
+msgstr ""
+
+#: inc/rssimport.class.php:229
+msgid "Use this feed to create events"
+msgstr ""
+
+#: inc/ticket.class.php:71 inc/ticket.class.php:256
+msgid "Linked event"
+msgid_plural "Linked events"
+msgstr[0] ""
+msgstr[1] ""
+
+#: inc/ticket.class.php:230
+msgid "Add a event"
+msgstr ""
+
+#: inc/ticket.class.php:345
+msgid "No event linked to this ticket yet"
+msgstr ""
+
+#: inc/ticket.class.php:381
+msgid "Link to tickets"
+msgstr ""
+
+#: inc/ticket.class.php:386
+msgid "Create a new ticket"
+msgstr ""
+
+#: inc/ticket.class.php:397
+msgid "Link a existant ticket"
+msgstr ""
+
+#: inc/ticket.class.php:422
+msgid "Linked tickets"
+msgstr ""
+
+#: scripts/jsForAction.js.php:8
+msgid "The current user will be added"
+msgstr ""
+
+#: scripts/jsForAction.js.php:9
+msgid "A ticket will be created from the event"
+msgstr ""
+
+#: scripts/jsForAction.js.php:10
+msgid "The event will be closed"
+msgstr ""

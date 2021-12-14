@@ -1,0 +1,5 @@
+
+Pb import RSS comment (balises html) : correction check
+Add itemtypes from list : correction check
+
+Need RSS import correction : OK by AMMA

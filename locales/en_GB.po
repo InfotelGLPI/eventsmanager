@@ -1,0 +1,230 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Tasklists Development Team
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: GLPI Project - Eventsmanager plugin\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-20 10:30+0200\n"
+"PO-Revision-Date: 2020-07-20 10:40+0200\n"
+"Last-Translator: Xavier CAILLAUD <tsmr@thetsmr.fr>\n"
+"Language-Team: English (United Kingdom) (http://www.transifex.com/tsmr/"
+"GLPI_tasklists/language/en_GB/)\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.3\n"
+
+#: setup.php:94 inc/dashboard.class.php:55 inc/dashboard.class.php:139
+#: inc/dashboard.class.php:144 inc/mailimport.class.php:58
+#: inc/mailimport.class.php:95 inc/menu.class.php:40 inc/profile.class.php:51
+#: inc/rssimport.class.php:57 inc/rssimport.class.php:97
+msgid "Event manager"
+msgid_plural "Events manager"
+msgstr[0] "Event manager"
+msgstr[1] "Events manager"
+
+#: front/config.form.php:51
+msgid "Please activate the plugin"
+msgstr "Please activate the plugin"
+
+#: inc/config.class.php:52
+msgid "Plugin Setup"
+msgstr "Plugin Setup"
+
+#: inc/config.class.php:70
+msgid ""
+"Uto use the automatic closing of an event when creating a ticket from an "
+"event"
+msgstr ""
+"Uto use the automatic closing of an event when creating a ticket from an "
+"event"
+
+#: inc/dashboard.class.php:76 inc/event.class.php:251 inc/event.class.php:399
+#: inc/ticket.class.php:267
+msgid "Event type"
+msgstr "Event type"
+
+#: inc/dashboard.class.php:76 inc/event.class.php:165 inc/event.class.php:443
+msgid "Actions"
+msgstr "Actions"
+
+#: inc/dashboard.class.php:116 inc/event.class.php:733
+msgid "No action avalable"
+msgstr "No action avalable"
+
+#: inc/dashboard.class.php:129 inc/dashboard.class.php:132
+msgid "Add event"
+msgstr "Add event"
+
+#: inc/event.class.php:89 inc/event.class.php:360 inc/ticket.class.php:264
+msgid "Origin"
+msgstr "Origin"
+
+#: inc/event.class.php:209
+msgid "Assign date"
+msgstr "Assign date"
+
+#: inc/event.class.php:226
+msgid "Assign user"
+msgstr "Assign user"
+
+#: inc/event.class.php:243 inc/event.class.php:501
+msgid "User close"
+msgstr "User close"
+
+#: inc/event.class.php:346 inc/ticket.class.php:268 inc/ticket.class.php:430
+msgid "Associated element"
+msgstr "Associated element"
+
+#: inc/event.class.php:408
+msgid "User assigned"
+msgstr "User assigned"
+
+#: inc/event.class.php:447 inc/event.class.php:1035
+msgid "Assign me to this event"
+msgstr "Assign me to this event"
+
+#: inc/event.class.php:448 inc/event.class.php:1037 inc/ticket.class.php:389
+msgid "Create a ticket from the event"
+msgstr "Create a ticket from the event"
+
+#: inc/event.class.php:449 inc/event.class.php:1039
+msgid "Close the event"
+msgstr "Close the event"
+
+#: inc/event.class.php:490
+msgid "Date Assign"
+msgstr "Date Assign"
+
+#: inc/event.class.php:801
+msgid "Affect entity for create event"
+msgstr "Affect entity for create event"
+
+#: inc/event.class.php:925
+msgctxt "status"
+msgid "New"
+msgstr "New"
+
+#: inc/event.class.php:928
+msgctxt "status"
+msgid "Assigned"
+msgstr "Assigned"
+
+#: inc/event.class.php:931
+msgctxt "status"
+msgid "Closed"
+msgstr "Closed"
+
+#: inc/event.class.php:980
+msgctxt "eventtype"
+msgid "Undefined"
+msgstr "Undefined"
+
+#: inc/event.class.php:983
+msgctxt "eventtype"
+msgid "Alert"
+msgstr "Alert"
+
+#: inc/event.class.php:986
+msgctxt "eventtype"
+msgid "Exception"
+msgstr "Exception"
+
+#: inc/event.class.php:989
+msgctxt "eventtype"
+msgid "Warning"
+msgstr "Warning"
+
+#: inc/event.class.php:992
+msgctxt "eventtype"
+msgid "Information"
+msgstr "Information"
+
+#: inc/mailimport.class.php:46
+msgid "Import mails for events manager"
+msgstr "Import mails for events manager"
+
+#: inc/mailimport.class.php:98 inc/rssimport.class.php:112
+#: inc/rssimport.class.php:237
+msgid "Default impact"
+msgstr "Default impact"
+
+#: inc/mailimport.class.php:106 inc/rssimport.class.php:120
+#: inc/rssimport.class.php:246
+msgid "Default priority"
+msgstr "Default priority"
+
+#: inc/mailimport.class.php:114 inc/rssimport.class.php:128
+#: inc/rssimport.class.php:255
+msgid "Default event type"
+msgstr "Default event type"
+
+#: inc/origin.class.php:49
+msgid "Event origin"
+msgid_plural "Event origins"
+msgstr[0] "Event origin"
+msgstr[1] "Event origins"
+
+#: inc/rssimport.class.php:45 inc/rssimport.class.php:155
+msgid "Import RSS feeds for events manager"
+msgstr "Import RSS feeds for events manager"
+
+#: inc/rssimport.class.php:99
+msgid "Do you want to use this RSS feed to create event"
+msgstr "Do you want to use this RSS feed to create event"
+
+#: inc/rssimport.class.php:229
+#| msgid "Do you want to use this RSS feed to create event"
+msgid "Use this feed to create events"
+msgstr "Use this feed to create events"
+
+#: inc/ticket.class.php:71 inc/ticket.class.php:256
+msgid "Linked event"
+msgid_plural "Linked events"
+msgstr[0] "Linked event"
+msgstr[1] "Linked events"
+
+#: inc/ticket.class.php:230
+#| msgid "Add event"
+msgid "Add a event"
+msgstr "Add a event"
+
+#: inc/ticket.class.php:345
+msgid "No event linked to this ticket yet"
+msgstr "No event linked to this ticket yet"
+
+#: inc/ticket.class.php:381
+msgid "Link to tickets"
+msgstr "Link to tickets"
+
+#: inc/ticket.class.php:386
+msgid "Create a new ticket"
+msgstr "Create a new ticket"
+
+#: inc/ticket.class.php:397
+msgid "Link a existant ticket"
+msgstr "Link a existant ticket"
+
+#: inc/ticket.class.php:422
+msgid "Linked tickets"
+msgstr "Linked tickets"
+
+#: scripts/jsForAction.js.php:8
+msgid "The current user will be added"
+msgstr "The current user will be added"
+
+#: scripts/jsForAction.js.php:9
+msgid "A ticket will be created from the event"
+msgstr "A ticket will be created from the event"
+
+#: scripts/jsForAction.js.php:10
+msgid "The event will be closed"
+msgstr "The event will be closed"
+
+#~ msgid "This plugin requires GLPI >= 9.2"
+#~ msgstr "This plugin requires GLPI >= 9.2"
