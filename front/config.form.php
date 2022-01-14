@@ -2,7 +2,7 @@
 /*
  -------------------------------------------------------------------------
  eventsmanager plugin for GLPI
- Copyright (C) 2009-2017 by the eventsmanager Development Team.
+ Copyright (C) 2017-2022 by the eventsmanager Development Team.
 
  https://github.com/InfotelGLPI/eventsmanager
  -------------------------------------------------------------------------
