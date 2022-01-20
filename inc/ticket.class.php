@@ -203,7 +203,7 @@ class PluginEventsmanagerTicket extends CommonDBTM {
       $canedit = $ticket->canEdit($ID);
       $rand    = mt_rand();
 
-      $query = "SELECT DISTINCT `glpi_plugin_eventsmanager_events`.* 
+      $query = "SELECT DISTINCT `glpi_plugin_eventsmanager_events`.*, `glpi_plugin_eventsmanager_tickets`.`id` AS LinkID
                 FROM `glpi_plugin_eventsmanager_tickets`
                 LEFT JOIN `glpi_plugin_eventsmanager_events`
                  ON (`glpi_plugin_eventsmanager_tickets`.`plugin_eventsmanager_events_id`=`glpi_plugin_eventsmanager_events`.`id`)
@@ -273,7 +273,7 @@ class PluginEventsmanagerTicket extends CommonDBTM {
 
             echo "<tr class='tab_bg_1'>";
             echo "<td>";
-            echo Html::getMassiveActionCheckBox(__CLASS__, $data['id']);
+            echo Html::getMassiveActionCheckBox(__CLASS__, $data['LinkID']);
             echo "</td>";
 
             echo "<td>";
