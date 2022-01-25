@@ -64,7 +64,7 @@ function plugin_init_eventsmanager() {
       }
 
       if (Session::haveRight("plugin_eventsmanager", READ)) {
-         $PLUGIN_HOOKS['menu_toadd']['eventsmanager'] = ['helpdesk' => 'PluginEventsmanagerMenu'];
+         $PLUGIN_HOOKS['menu_toadd']['eventsmanager'] = ['helpdesk' => 'PluginEventsmanagerEvent'];
       }
 
       if (class_exists('PluginMydashboardMenu')) {

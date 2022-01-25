@@ -84,7 +84,7 @@ if (isset($_POST["add"])) {
 
    $event->checkGlobal(READ);
 
-   Html::header(PluginEventsmanagerEvent::getTypeName(2), '', "helpdesk", "plugineventsmanagermenu");
+   Html::header(PluginEventsmanagerEvent::getTypeName(2), '', "helpdesk", "plugineventsmanagerevent");
 
    $event->display($_GET);
 

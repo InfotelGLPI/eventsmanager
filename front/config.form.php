@@ -37,7 +37,7 @@ if ($plugin->isActivated("eventsmanager")) {
         Html::back();
 
    } else {
-      Html::header(PluginEventsmanagerEvent::getTypeName(), '', "helpdesk", "plugineventsmanagermenu", "config");
+      Html::header(PluginEventsmanagerEvent::getTypeName(), '', "helpdesk", "plugineventsmanagerevent", "config");
       $config->showConfigForm();
       Html::footer();
    }

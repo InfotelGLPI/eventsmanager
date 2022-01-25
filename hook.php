@@ -92,7 +92,7 @@ function plugin_eventsmanager_uninstall() {
    foreach (PluginEventsmanagerProfile::getAllRights() as $right) {
       $profileRight->deleteByCriteria(['name' => $right['field']]);
    }
-   PluginEventsmanagerMenu::removeRightsFromSession();
+   PluginEventsmanagerEvent::removeRightsFromSession();
 
    PluginEventsmanagerProfile::removeRightsFromSession();
 

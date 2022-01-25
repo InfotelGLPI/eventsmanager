@@ -136,7 +136,7 @@ class PluginEventsmanagerDashboard extends CommonGLPI {
                $widget->setOption("bSort", false);
                $widget->toggleWidgetRefresh();
 
-               $link = "<div align='right'><a href='#' class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#event' title='" . __('Add event', 'eventsmanager') . "' >";
+               $link = "<div align='right'><a href='#' class='submit btn btn-primary' data-bs-toggle='modal' data-bs-target='#event' title='" . __('Add event', 'eventsmanager') . "' >";
                $link .= __('Add event', 'eventsmanager');
                $link .= "</a></div>";
 

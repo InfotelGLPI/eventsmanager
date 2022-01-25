@@ -53,13 +53,16 @@ class PluginEventsmanagerEvent extends CommonDBTM {
    /**
     * @param int $nb
     *
-    * @return translated
+    * @return string
     */
    static function getTypeName($nb = 0) {
 
       return _n('Event', 'Events', $nb);
    }
 
+   /**
+    * @return string
+    */
    static function getIcon() {
       return "ti ti-calendar-event";
    }
@@ -147,7 +150,7 @@ class PluginEventsmanagerEvent extends CommonDBTM {
                                         => 'child']],
                                 'condition'
                                 => $dbu->getEntitiesRestrictRequest('AND',
-                                                              'NEWTABLE')],
+                                                                    'NEWTABLE')],
             'forcegroupby'  => true,
             'massiveaction' => false
          ];
@@ -423,7 +426,7 @@ class PluginEventsmanagerEvent extends CommonDBTM {
       Html::showDateTimeField('time_to_resolve', ['value' => $this->fields["time_to_resolve"]]);
       echo "</td>";
       echo "</tr>";
-      
+
       echo "<tr class='tab_bg_1'>";
       if ($ID > 0) {
          echo "<td>" . __('Status') . "</td>";
@@ -435,12 +438,12 @@ class PluginEventsmanagerEvent extends CommonDBTM {
          }
          self::dropdownStatus(['value' => $status]);
          echo "</td>";
-         
+
       } else {
          echo "<td colspan='2'>";
          echo "</td>";
       }
-      
+
       if ($this->fields['status'] < self::CLOSED_STATE
           && $this->fields['status'] > 0) {
          //gestion of action
@@ -464,27 +467,27 @@ class PluginEventsmanagerEvent extends CommonDBTM {
          echo "</td>";
       }
       echo "</tr>";
-      
+
       echo "<tr class='tab_bg_1'>";
       echo "<td colspan='4'>";
       echo __('Description') . "</td>";
       echo "</tr>";
-      
+
       echo "<tr class='tab_bg_1'>";
       echo "<td colspan='4' class='middle'>";
       $rand_text  = mt_rand();
       $content_id = "comment$rand_text";
       $cols       = 100;
       $rows       = 15;
-      Html::textarea(['name'            => 'comment',
-                      'value'           => $this->fields["comment"],
-                      'rand'            => $rand_text,
-                      'editor_id'       => $content_id,
-                      'enable_richtext' => true,
+      Html::textarea(['name'              => 'comment',
+                      'value'             => $this->fields["comment"],
+                      'rand'              => $rand_text,
+                      'editor_id'         => $content_id,
+                      'enable_richtext'   => true,
                       'enable_fileupload' => false,
                       'enable_images'     => false,
-                      'cols'            => $cols,
-                      'rows'            => $rows]);
+                      'cols'              => $cols,
+                      'rows'              => $rows]);
       echo "</td>";
       echo "</tr>";
 
@@ -524,6 +527,13 @@ class PluginEventsmanagerEvent extends CommonDBTM {
       return true;
    }
 
+   /**
+    * Prepare input datas for adding the item
+    *
+    * @param array $input datas used to add the item
+    *
+    * @return array the modified $input array
+    **/
    function prepareInputForAdd($input) {
       if (isset($input["users_assigned"]) && $input["users_assigned"] > 0) {
          $input["status"] = self::ASSIGNED_STATE;
@@ -548,6 +558,13 @@ class PluginEventsmanagerEvent extends CommonDBTM {
    }
 
 
+   /**
+    * Actions done after the UPDATE of the item in the database
+    *
+    * @param boolean $history store changes history ? (default 1)
+    *
+    * @return void
+    **/
    function post_updateItem($history = 1) {
 
       if (!empty($this->input['items_id'])) {
@@ -575,6 +592,9 @@ class PluginEventsmanagerEvent extends CommonDBTM {
 
    }
 
+   /**
+    * @return int[]
+    */
    static function getClosedStatusArray() {
       return [self::CLOSED_STATE];
    }
@@ -603,13 +623,13 @@ class PluginEventsmanagerEvent extends CommonDBTM {
    }
 
    /**
+    * @param MassiveAction $ma
+    *
+    * @return bool|false
     * @since version 0.85
     *
     * @see CommonDBTM::showMassiveActionsSubForm()
     *
-    * @param MassiveAction $ma
-    *
-    * @return bool|false
     */
    static function showMassiveActionsSubForm(MassiveAction $ma) {
 
@@ -624,15 +644,15 @@ class PluginEventsmanagerEvent extends CommonDBTM {
    }
 
    /**
-    * @since version 0.85
-    *
-    * @see CommonDBTM::processMassiveActionsForOneItemtype()
-    *
     * @param MassiveAction $ma
     * @param CommonDBTM    $item
     * @param array         $ids
     *
     * @return nothing|void
+    * @since version 0.85
+    *
+    * @see CommonDBTM::processMassiveActionsForOneItemtype()
+    *
     */
    static function processMassiveActionsForOneItemtype(MassiveAction $ma, CommonDBTM $item, array $ids) {
 
@@ -660,10 +680,10 @@ class PluginEventsmanagerEvent extends CommonDBTM {
    /**
     * For other plugins, add a type to the linkable types
     *
-    * @since version 1.3.0
-    *
     * @param $type string class name
-    * */
+    * *@since version 1.3.0
+    *
+    */
    //   static function registerType($type) {
    //      if (!in_array($type, self::$types)) {
    //         self::$types[] = $type;
@@ -702,14 +722,14 @@ class PluginEventsmanagerEvent extends CommonDBTM {
    /**
     * display a value according to a field
     *
-    * @since version 0.83
-    *
     * @param $field     String         name of the field
     * @param $values    String / Array with the value to display
     * @param $options   Array          of option
     *
     * @return a string
-    * */
+    * *@since version 0.83
+    *
+    */
    static function getSpecificValueToDisplay($field, $values, array $options = []) {
 
       $dbu = new DbUtils();
@@ -752,15 +772,15 @@ class PluginEventsmanagerEvent extends CommonDBTM {
    }
 
    /**
-    * @since version 0.84
-    *
     * @param $field
     * @param $name (default '')
     * @param $values (default '')
     * @param $options   array
     *
     * @return string
-    * */
+    * *@since version 0.84
+    *
+    */
    static function getSpecificValueToSelect($field, $name = '', $values = '', array $options = []) {
 
       if (!is_array($values)) {
@@ -846,7 +866,7 @@ class PluginEventsmanagerEvent extends CommonDBTM {
 
                   $origin = new PluginEventsmanagerOrigin();
                   if (isset($params['mailcollector'])
-                      && $origin->getFromDBByCrit(['itemtype'    => PluginEventsmanagerOrigin::Collector,
+                      && $origin->getFromDBByCrit(['itemtype' => PluginEventsmanagerOrigin::Collector,
                                                    'items_id' => $params['mailcollector']])) {
                      $input['plugin_eventsmanager_origins_id'] = $origin->getID();
                   }
@@ -857,7 +877,7 @@ class PluginEventsmanagerEvent extends CommonDBTM {
 
                   $config = new PluginEventsmanagerMailimport();
                   if (isset($params['mailcollector'])
-                      && $config->getFromDBByCrit(['mailcollectors_id'    => $params['mailcollector']])) {
+                      && $config->getFromDBByCrit(['mailcollectors_id' => $params['mailcollector']])) {
                      $input['priority']  = $config->fields['default_priority'];
                      $input['impact']    = $config->fields['default_impact'];
                      $input['eventtype'] = $config->fields['default_eventtype'];
@@ -1042,8 +1062,39 @@ class PluginEventsmanagerEvent extends CommonDBTM {
                class='fas fa-user-plus fa-2x' style='float:left; cursor:pointer;'/></i>" .
                "<i onclick=\"createTicketEvent($val)\" title=\"" . __('Create a ticket from the event', 'eventsmanager') . "\"
                class='fas fa-bell fa-2x' style='float:left; cursor:pointer;'/></i>" .
-               "<i onclick=\"closeEvent($val)\" title=\"" .__('Close the event', 'eventsmanager') . "\"
+               "<i onclick=\"closeEvent($val)\" title=\"" . __('Close the event', 'eventsmanager') . "\"
                class='fas fa-archive fa-2x' style='float:left; cursor:pointer;'/></i>";
       }
    }
+
+   /**
+    * @return array
+    */
+   static function getMenuContent() {
+
+      $menu                    = [];
+      $menu['title']           = self::getMenuName(2);
+      $menu['page']            = self::getSearchURL(false);
+      $menu['links']['search'] = self::getSearchURL(false);
+      $menu['links']['lists']  = "";
+      if (self::canCreate()) {
+         $menu['links']['add'] = self::getFormURL(false);
+      }
+      if (Config::canView()) {
+         $menu['links']['config'] = PluginEventsmanagerConfig::getFormURL(false);
+      }
+      $menu['icon'] = self::getIcon();
+
+      return $menu;
+   }
+
+   static function removeRightsFromSession() {
+      if (isset($_SESSION['glpimenu']['helpdesk']['types']['PluginEventsmanagerEvent'])) {
+         unset($_SESSION['glpimenu']['helpdesk']['types']['PluginEventsmanagerEvent']);
+      }
+      if (isset($_SESSION['glpimenu']['helpdesk']['content']['plugineventsmanagerevent'])) {
+         unset($_SESSION['glpimenu']['helpdesk']['content']['plugineventsmanagerevent']);
+      }
+   }
+
 }

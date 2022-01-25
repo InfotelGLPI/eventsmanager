@@ -29,7 +29,7 @@
 
 include('../../../inc/includes.php');
 
-Html::header(PluginEventsmanagerEvent::getTypeName(2), '', "helpdesk", "plugineventsmanagermenu");
+Html::header(PluginEventsmanagerEvent::getTypeName(2), '', "helpdesk", "plugineventsmanagerevent");
 
 $event = new PluginEventsmanagerEvent();
 
