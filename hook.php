@@ -60,7 +60,6 @@ function plugin_eventsmanager_uninstall() {
    global $DB;
 
    include_once(PLUGIN_EVENTMANAGER_DIR . "/inc/profile.class.php");
-   include_once(PLUGIN_EVENTMANAGER_DIR . "/inc/menu.class.php");
 
    $tables = [
       "glpi_plugin_eventsmanager_events",
