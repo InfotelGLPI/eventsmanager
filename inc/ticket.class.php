@@ -45,8 +45,8 @@ class PluginEventsmanagerTicket extends CommonDBTM {
    /**
     * Return the name of the tab for item including forms like the config page
     *
-    * @param  CommonGLPI $item Instance of a CommonGLPI Item (The Config Item)
-    * @param  integer    $withtemplate
+    * @param CommonGLPI $item Instance of a CommonGLPI Item (The Config Item)
+    * @param integer    $withtemplate
     *
     * @return String                   Name to be displayed
     */
@@ -58,7 +58,7 @@ class PluginEventsmanagerTicket extends CommonDBTM {
                $nb = 0;
                if ($_SESSION['glpishow_count_on_tabs']) {
                   $nb = $dbu->countElementsInTable('glpi_plugin_eventsmanager_tickets',
-                                             ["plugin_eventsmanager_events_id" => $item->getID()]);
+                                                   ["plugin_eventsmanager_events_id" => $item->getID()]);
                }
                return self::createTabEntry(self::getTypeName($nb), $nb);
                break;
@@ -87,11 +87,11 @@ class PluginEventsmanagerTicket extends CommonDBTM {
 
       switch ($item->getType()) {
          case "PluginEventsmanagerEvent":
-            $ID     = $item->getField('id');
+            $ID = $item->getField('id');
             $ticket->showForEvent($ID);
             break;
          case "Ticket":
-            $ID     = $item->getField('id');
+            $ID = $item->getField('id');
             $ticket->showForTicket($item);
             break;
       }
@@ -124,56 +124,60 @@ class PluginEventsmanagerTicket extends CommonDBTM {
          }
 
          $tickets_id = $ticket->add(['name'               => addslashes($name),
-                                          'entities_id'        => $entities_id,
-                                          'date'               => $date,
-                                          'users_id_recipient' => $users_id_recipient,
-                                          'requesttypes_id'    => $requesttype,
-                                          'content'            => addslashes($evt->fields['comment']),
-                                          'priority'           => $evt->fields['priority'],
-                                          'impact'             => $evt->fields['impact'],
-                                          'time_to_resolve'    => $evt->fields['time_to_resolve'],
-                                          'type'               => Ticket::INCIDENT_TYPE]);
-/*
- * Modification association document to ticket
- */
-         $doc_item = new Document_Item();
-         $alldocs =$doc_item->find(["items_id" => $id,'itemtype'=>$evt->getType()]);
-         foreach ($alldocs as $key => $value){
+                                     'entities_id'        => $entities_id,
+                                     'date'               => $date,
+                                     'users_id_recipient' => $users_id_recipient,
+                                     'requesttypes_id'    => $requesttype,
+                                     'content'            => Glpi\Toolbox\Sanitizer::sanitize($evt->fields['comment']),
+                                     'priority'           => $evt->fields['priority'],
+                                     'impact'             => $evt->fields['impact'],
+                                     'time_to_resolve'    => $evt->fields['time_to_resolve'],
+                                     'type'               => Ticket::INCIDENT_TYPE]);
+         /*
+          * Modification association document to ticket
+          */
+         if ($tickets_id > 0) {
 
-            $input=[];
-            $input["documents_id"] = $value["documents_id"];
-            $input["itemtype"] = $ticket->getType();
-            $input["entities_id"] = $value["entities_id"];
-            $input["is_recursive"] = $value["is_recursive"];
-            $input["users_id"] = $value["users_id"];
-            $input["items_id"] = $tickets_id;
-            $doc_item->add($input);
-         }
-/*
- * End modification
- */
-         $event_item = new PluginEventsmanagerEvent_Item();
-         $items      = $event_item->getUsedItems($id);
+            $doc_item = new Document_Item();
+            $alldocs  = $doc_item->find(["items_id" => $id,
+                                         'itemtype' => $evt->getType()]);
+            foreach ($alldocs as $key => $value) {
 
-         foreach ($items as $itemtype => $obj) {
-            foreach ($obj as $object => $items_id) {
-               $item->add(['itemtype'   => $itemtype,
-                                'items_id'   => $items_id,
-                                'tickets_id' => $tickets_id]);
+               $input                 = [];
+               $input["documents_id"] = $value["documents_id"];
+               $input["itemtype"]     = $ticket->getType();
+               $input["entities_id"]  = $value["entities_id"];
+               $input["is_recursive"] = $value["is_recursive"];
+               $input["users_id"]     = $value["users_id"];
+               $input["items_id"]     = $tickets_id;
+               $doc_item->add($input);
             }
-         }
+            /*
+             * End modification
+             */
+            $event_item = new PluginEventsmanagerEvent_Item();
+            $items      = $event_item->getUsedItems($id);
 
-         $event_ticket->add(['plugin_eventsmanager_events_id' => $id,
-                                  'tickets_id'                     => $tickets_id]);
+            foreach ($items as $itemtype => $obj) {
+               foreach ($obj as $object => $items_id) {
+                  $item->add(['itemtype'   => $itemtype,
+                              'items_id'   => $items_id,
+                              'tickets_id' => $tickets_id]);
+               }
+            }
 
-         $config = new PluginEventsmanagerConfig();
-         $config->getFromDB(1);
+            $event_ticket->add(['plugin_eventsmanager_events_id' => $id,
+                                'tickets_id'                     => $tickets_id]);
 
-         if ($config->fields['use_automatic_close']) {
-            $evt->update(['id'          => $id,
-                               'ticket'      => $tickets_id,
-                               'users_close' => $user_id,
-                               'status'      => PluginEventsmanagerEvent::CLOSED_STATE]);
+            $config = new PluginEventsmanagerConfig();
+            $config->getFromDB(1);
+
+            if ($config->fields['use_automatic_close']) {
+               $evt->update(['id'          => $id,
+                             'ticket'      => $tickets_id,
+                             'users_close' => $user_id,
+                             'status'      => PluginEventsmanagerEvent::CLOSED_STATE]);
+            }
          }
       }
    }
@@ -218,20 +222,20 @@ class PluginEventsmanagerTicket extends CommonDBTM {
       if ($numrows = $DB->numrows($result)) {
          while ($data = $DB->fetchAssoc($result)) {
             $tickets[$data['id']] = $data;
-            $used[$data['id']] = $data['id'];
+            $used[$data['id']]    = $data['id'];
          }
       }
       if ($canedit) {
          echo "<div class='firstbloc'>";
          echo "<form name='eventticket_form$rand' id='eventticket_form$rand' method='post'
-               action='".Toolbox::getItemTypeFormURL(__CLASS__)."'>";
+               action='" . Toolbox::getItemTypeFormURL(__CLASS__) . "'>";
 
          echo "<table class='tab_cadre_fixe'>";
-         echo "<tr class='tab_bg_2'><th colspan='3'>".__('Add a event', 'eventsmanager')."</th></tr>";
+         echo "<tr class='tab_bg_2'><th colspan='3'>" . __('Add a event', 'eventsmanager') . "</th></tr>";
          echo "<tr class='tab_bg_2'><td>";
          echo Html::hidden('tickets_id', ['value' => $ID]);
-         PluginEventsmanagerEvent::dropdown(['used'        => $used,
-                                             'entity'      => $ticket->getEntityID()]);
+         PluginEventsmanagerEvent::dropdown(['used'   => $used,
+                                             'entity' => $ticket->getEntityID()]);
          echo "</td><td class='center'>";
          echo Html::submit(_sx('button', 'Add'), ['name' => 'add', 'class' => 'btn btn-primary']);
          echo "</td>";
@@ -242,7 +246,7 @@ class PluginEventsmanagerTicket extends CommonDBTM {
 
       echo "<div class='spaced'>";
       if ($canedit && $numrows) {
-         Html::openMassiveActionsForm('mass'.__CLASS__.$rand);
+         Html::openMassiveActionsForm('mass' . __CLASS__ . $rand);
          $massiveactionparams
             = ['num_displayed'    => min($_SESSION['glpilist_limit'], $numrows),
                'specific_actions' => ['purge' => _x('button', 'Delete permanently')],
@@ -258,7 +262,7 @@ class PluginEventsmanagerTicket extends CommonDBTM {
 
       if ($number > 0) {
          echo "<tr>";
-         echo "<th width='10'>" .Html::getCheckAllAsCheckbox('mass'.__CLASS__.$rand). "</th>";
+         echo "<th width='10'>" . Html::getCheckAllAsCheckbox('mass' . __CLASS__ . $rand) . "</th>";
          echo "<th>" . __('Name') . "</th>";
          echo "<th>" . __('Date') . "</th>";
          echo "<th>" . __('Origin', 'eventsmanager') . "</th>";
@@ -302,7 +306,7 @@ class PluginEventsmanagerTicket extends CommonDBTM {
             echo PluginEventsmanagerEvent::getStatusName($data['status']);
             echo "</td>";
 
-            $style = "style=\"background-color:".$_SESSION["glpipriority_".$data['priority']].";\" ";
+            $style = "style=\"background-color:" . $_SESSION["glpipriority_" . $data['priority']] . ";\" ";
             echo "<td $style>";
             echo CommonITILObject::getPriorityName($data['priority']);
             echo "</td>";
@@ -397,9 +401,9 @@ class PluginEventsmanagerTicket extends CommonDBTM {
          echo "<td colspan='2'>" . __('Link a existant ticket', 'eventsmanager') . "</td>";
          echo "<td colspan='2'>";
          Ticket::dropdown(['name'        => "tickets_id",
-                                'entity'      => $event->getEntityID(),
-                                'entity_sons' => $event->isRecursive(),
-                                'displaywith' => ['id']]);
+                           'entity'      => $event->getEntityID(),
+                           'entity_sons' => $event->isRecursive(),
+                           'displaywith' => ['id']]);
 
          echo "</td></tr>";
 
@@ -443,7 +447,7 @@ class PluginEventsmanagerTicket extends CommonDBTM {
                echo "<td class='center'>";
                echo Ticket::getStatus($ticket->fields["status"]);
                echo "</td>";
-               $style = "style=\"background-color:".$_SESSION["glpipriority_".$ticket->fields['priority']].";\" ";
+               $style = "style=\"background-color:" . $_SESSION["glpipriority_" . $ticket->fields['priority']] . ";\" ";
                echo "<td class='center' $style>";
                echo CommonITILObject::getPriorityName($ticket->fields["priority"]);
                echo "</td>";
