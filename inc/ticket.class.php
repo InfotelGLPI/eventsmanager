@@ -338,7 +338,7 @@ class PluginEventsmanagerTicket extends CommonDBTM {
             echo "</td>";
 
             echo "<td>";
-            echo Html::resume_text($data['comment'], 255);
+            echo Glpi\RichText\RichText::getTextFromHtml(Html::resume_text($data['comment'], 255));
             echo "</td>";
 
             echo "</tr>";
