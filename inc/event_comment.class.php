@@ -67,17 +67,6 @@ class PluginEventsmanagerEvent_Comment extends CommonDBTM {
     * @param $withtemplate    integer  withtemplate param (default 0)
     **/
    static function showForItem(CommonDBTM $item, $withtemplate = 0) {
-      global $DB, $CFG_GLPI;
-
-      $dbu       = new DbUtils();
-      $event_id  = null;
-      $item_id   = $item->getID();
-      $item_type = $item::getType();
-      if (isset($_GET["start"])) {
-         $start = intval($_GET["start"]);
-      } else {
-         $start = 0;
-      }
 
       // Total Number of comments
       $where    = [
@@ -87,7 +76,7 @@ class PluginEventsmanagerEvent_Comment extends CommonDBTM {
       $event    = new PluginEventsmanagerEvent();
       $event->getFromDB($event_id);
 
-      $number = $dbu->countElementsInTable(
+      $number = countElementsInTable(
          'glpi_plugin_eventsmanager_events_comments',
          $where
       );
@@ -115,7 +104,8 @@ class PluginEventsmanagerEvent_Comment extends CommonDBTM {
       echo "<div class='forcomments timeline_history'>";
       echo "<ul class='comments left'>";
       $comments = self::getCommentsForEvent($where['plugin_eventsmanager_events_id']);
-      $html     = self::displayComments($comments, $cancomment);
+
+      $html = self::displayComments($comments, $cancomment);
       echo $html;
 
       echo "</ul>";
@@ -147,7 +137,7 @@ class PluginEventsmanagerEvent_Comment extends CommonDBTM {
                        cache: false,
                        data: _data,
                        success: function(data) {
-                          var _form = $('<div class=\"newcomment\" id=\"newcomment'+_this.data('id')+'\">' + data + '</div>');
+                          var _form = $('<div class=\"newcomment ms-3\" id=\"newcomment'+_this.data('id')+'\">' + data + '</div>');
                           _bindForm(_form);
                           _this.parents('.h_item').after(_form);
                        },
@@ -235,7 +225,6 @@ class PluginEventsmanagerEvent_Comment extends CommonDBTM {
     */
    static public function displayComments($comments, $cancomment, $level = 0) {
       $html = '';
-      $dbu  = new DbUtils();
       foreach ($comments as $comment) {
          $user = new User();
          $user->getFromDB($comment['users_id']);
@@ -245,21 +234,19 @@ class PluginEventsmanagerEvent_Comment extends CommonDBTM {
          if ($level === 0) {
             $html .= '<hr/>';
          }
-         $html     .= "<div class='h_info'>";
-         $html     .= "<div class='h_date'>" . Html::convDateTime($comment['date_creation']) . "</div>";
-         $html     .= "<div class='h_user'>";
-         $html     .= "<div class='tooltip_picture_border'>";
-         $html     .= "<img class='user_picture' alt='' src='" .
-                      User::getThumbnailURLForPicture($user->fields['picture']) . "'>";
-         $html     .= "</div>";
-         $html     .= "<span class='h_user_name'>";
-         $userdata = $dbu->getUserName($user->getID(), 2);
-         $html     .= $user->getLink() . "&nbsp;";
-         $html     .= Html::showToolTip($userdata["comment"],
-                                        ['link' => $userdata['link'], 'display' => false]);
-         $html     .= "</span>";
-         $html     .= "</div>"; // h_user
-         $html     .= "</div>"; //h_info
+         $html          .= "<div class='h_info'>";
+         $html          .= "<div class='h_date'>" . Html::convDateTime($comment['date_creation']) . "</div>";
+         $html          .= "<div class='h_user'>";
+         $thumbnail_url = User::getThumbnailURLForPicture($user->fields['picture']);
+         $style         = !empty($thumbnail_url) ? "background-image: url(\"$thumbnail_url\")" : ("background-color: " . $user->getUserInitialsBgColor());
+         $html          .= '<a href="' . $user->getLinkURL() . '">';
+         $html          .= "<span class='avatar avatar-md rounded' style='{$style}'>";
+         if (empty($thumbnail_url)) {
+            $html .= $user->getUserInitials();
+         }
+         $html .= '</span></a>';
+         $html .= "</div>"; // h_user
+         $html .= "</div>"; //h_info
 
          $html .= "<div class='h_content TicketFollowup'>";
          $html .= "<div class='displayed_content'>";
@@ -274,7 +261,7 @@ class PluginEventsmanagerEvent_Comment extends CommonDBTM {
 
          $html .= "<div class='item_content'>";
          $html .= "<p>";
-         $html .= Toolbox::unclean_cross_side_scripting_deep($comment['comment']);
+         $html .= Glpi\Toolbox\Sanitizer::unsanitize($comment['comment']);
          $html .= "</p>";
          $html .= "</div>";
          $html .= "</div>"; // displayed_content
@@ -333,14 +320,8 @@ class PluginEventsmanagerEvent_Comment extends CommonDBTM {
       $html       .= "<tr class='tab_bg_2'><th colspan='3'>$form_title</th></tr>";
 
       $html .= "<tr class='tab_bg_1'><td><label for='comment'>" . __('Comment') . "</label>
-         &nbsp;<span class='red'>*</span></td><td>";
-      $html .= Html::textarea(['name'            => 'comment',
-                               'value'           => $content,
-                               'editor_id'       => 'comment',
-                               'required'        => 'required',
-                               'cols'            => 75,
-                               'rows'            => 5,
-                               'enable_richtext' => false]);
+         &nbsp;<span style='color:red'>*</span></td><td>";
+      $html .= "<textarea name='comment' id='comment' required='required'>{$content}</textarea>";
       $html .= "</td><td class='center'>";
 
       $btn_text = _sx('button', 'Add');
@@ -350,9 +331,9 @@ class PluginEventsmanagerEvent_Comment extends CommonDBTM {
          $btn_text = _sx('button', 'Edit');
          $btn_name = 'edit';
       }
-      $html .= Html::submit($btn_text, ['name' => $btn_name, 'class' => 'btn btn-primary']);
+      $html .= "<input type='submit' name='$btn_name' value='{$btn_text}' class='btn btn-primary'>";
       if ($edit !== false || $answer !== false) {
-         $html .= Html::submit(__('Cancel'), ['name' => 'cancel', 'class' => 'btn btn-primary']);
+         $html .= "<input type='reset' name='cancel' value='" . __('Cancel') . "' class='btn btn-primary'>";
       }
 
       $html .= Html::hidden('plugin_eventsmanager_events_id', ['value' => $event_id]);
