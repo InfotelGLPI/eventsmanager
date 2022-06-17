@@ -126,6 +126,7 @@ class PluginEventsmanagerTicket extends CommonDBTM {
          $tickets_id = $ticket->add(['name'               => addslashes($name),
                                      'entities_id'        => $entities_id,
                                      'date'               => $date,
+                                     '_users_id_requester' => $users_id_recipient,
                                      'users_id_recipient' => $users_id_recipient,
                                      'requesttypes_id'    => $requesttype,
                                      'content'            => Glpi\Toolbox\Sanitizer::sanitize($evt->fields['comment']),
