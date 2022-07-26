@@ -104,8 +104,7 @@ function plugin_eventsmanager_uninstall() {
  */
 function plugin_eventsmanager_getDatabaseRelations() {
 
-   $plugin = new Plugin();
-   if ($plugin->isActivated("eventsmanager")) {
+   if (Plugin::isPluginActive("eventsmanager")) {
       return ["glpi_users"          => ["glpi_plugin_eventsmanager_events" => "users_id",
                                                   "glpi_plugin_eventsmanager_events" => "users_assigned",
                                                   "glpi_plugin_eventsmanager_events" => "users_close"],
@@ -129,9 +128,7 @@ function plugin_eventsmanager_getDatabaseRelations() {
  */
 function plugin_eventsmanager_getDropdown() {
 
-   $plugin = new Plugin();
-
-   if ($plugin->isActivated("eventsmanager")) {
+   if (Plugin::isPluginActive("eventsmanager")) {
       return ['PluginEventsmanagerOrigin' => PluginEventsmanagerOrigin::getTypeName(2)];
    } else {
       return [];

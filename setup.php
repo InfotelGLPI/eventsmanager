@@ -83,8 +83,7 @@ function plugin_init_eventsmanager() {
       }
    }
 
-   $plugin = new Plugin();
-   if ($plugin->isActivated('mydashboard')) {
+   if (Plugin::isPluginActive('mydashboard')) {
       Plugin::registerClass('PluginMydashboardAlert',
                             ['addtabon' => 'PluginEventsmanagerEvent']);
    }

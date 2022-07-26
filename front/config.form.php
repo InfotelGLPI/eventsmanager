@@ -28,8 +28,7 @@
 
 include ('../../../inc/includes.php');
 
-$plugin = new Plugin();
-if ($plugin->isActivated("eventsmanager")) {
+if (Plugin::isPluginActive("eventsmanager")) {
    $config = new PluginEventsmanagerConfig();
    if (isset($_POST["update_config"])) {
         Session::checkRight("config", UPDATE);

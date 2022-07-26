@@ -76,8 +76,7 @@ class PluginEventsmanagerDashboard extends CommonGLPI {
       }
       switch ($widgetId) {
          case $this->getType() . "1":
-            $plugin = new Plugin();
-            if ($plugin->isActivated("eventsmanager")) {
+            if (Plugin::isPluginActive("eventsmanager")) {
                $widget  = new PluginMydashboardDatatable();
                $headers = [__('Name'),
                            __('Status'),
