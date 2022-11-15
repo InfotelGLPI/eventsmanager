@@ -47,20 +47,22 @@ class PluginEventsmanagerDashboard extends CommonGLPI {
 
    }
 
-   /**
-    * @return array
-    */
-   function getWidgetsForItem() {
 
-      $widgets = [
-         __('Tables', "mydashboard") => [
-            $this->getType() . "1" => ["title"   => _n('Event manager', 'Events manager', 2, 'eventsmanager'),
-                                       "icon"    => "ti ti-table",
-                                       "comment" => ""],
-         ],
-      ];
-      return $widgets;
-   }
+    /**
+     * @return \array[][]
+     */
+    public function getWidgetsForItem()
+    {
+        $widgets = [
+            PluginMydashboardMenu::$TOOLS => [
+                $this->getType() . "1" => ["title"   => _n('Event manager', 'Events manager', 2, 'eventsmanager'),
+                                           "type"    => PluginMydashboardWidget::$TABLE,
+                                           "comment" => ""],
+            ],
+        ];
+
+        return $widgets;
+    }
 
    /**
     * @param $widgetId
