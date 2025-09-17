@@ -423,7 +423,7 @@ class Ticket extends CommonDBTM
             $id_user = $_GET['id'];
             $msg5    = __('Create a ticket from the event', 'eventsmanager');
             echo "<i onclick=\"createTicketEvent($id_user)\" title=\"" . $msg5 . "\"
-               class='fas fa-bell fa-2x' style='float:left; cursor:pointer;'/></i>";
+               class='ti ti-bell fa-2x' style='float:left; cursor:pointer;'/></i>";
 
             echo "</td>";
             echo "</tr>";

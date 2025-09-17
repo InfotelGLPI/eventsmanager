@@ -481,11 +481,11 @@ class Event extends CommonDBTM
             $msg6    = __('Close the event', 'eventsmanager');
 
             echo "<i onclick=\"addUserEvent($id_user)\" title=\"" . $msg4 . "\"
-               class='fas fa-user-plus fa-2x' style='float:left; cursor:pointer;'/></i>";
+               class='ti ti-user-plus fa-2x' style='float:left; cursor:pointer;'/></i>";
             echo "<i onclick=\"createTicketEvent($id_user)\" title=\"" . $msg5 . "\"
-               class='fas fa-bell fa-2x' style='float:left; cursor:pointer;'/></i>";
+               class='ti ti-bell fa-2x' style='float:left; cursor:pointer;'/></i>";
             echo "<i onclick=\"closeEvent($id_user)\" title=\"" . $msg6 . "\"
-               class='fas fa-archive fa-2x' style='float:left; cursor:pointer;'/></i>";
+               class='ti ti-archive fa-2x' style='float:left; cursor:pointer;'/></i>";
             echo "</td>";
         } else {
             echo "<td colspan='2'>";
@@ -1098,11 +1098,11 @@ class Event extends CommonDBTM
             default:
                 return
                "<i onclick=\"addUserEvent($val)\" title=\"" . __('Assign me to this event', 'eventsmanager') . "\"
-               class='fas fa-user-plus fa-2x' style='float:left; cursor:pointer;'/></i>"
+               class='ti ti-user-plus fa-2x' style='float:left; cursor:pointer;'/></i>"
                . "<i onclick=\"createTicketEvent($val)\" title=\"" . __('Create a ticket from the event', 'eventsmanager') . "\"
-               class='fas fa-bell fa-2x' style='float:left; cursor:pointer;'/></i>"
+               class='ti ti-bell fa-2x' style='float:left; cursor:pointer;'/></i>"
                . "<i onclick=\"closeEvent($val)\" title=\"" . __('Close the event', 'eventsmanager') . "\"
-               class='fas fa-archive fa-2x' style='float:left; cursor:pointer;'/></i>";
+               class='ti ti-archive fa-2x' style='float:left; cursor:pointer;'/></i>";
         }
     }
 

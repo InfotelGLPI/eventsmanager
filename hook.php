@@ -43,11 +43,15 @@ function plugin_eventsmanager_install()
 
     if (!$DB->tableExists("glpi_plugin_eventsmanager_events")) {
         $update = false;
-        $DB->runFile(PLUGIN_EVENTMANAGER_DIR . "/sql/empty-3.0.0.sql");
+        $DB->runFile(PLUGIN_EVENTMANAGER_DIR . "/sql/empty-4.0.0.sql");
     }
 
     if ($update) {
         $DB->runFile(PLUGIN_EVENTMANAGER_DIR . "/sql/update-2.2.0.sql");
+    }
+
+    if ($update) {
+        $DB->runFile(PLUGIN_EVENTMANAGER_DIR . "/sql/update-4.0.0.sql");
     }
 
 

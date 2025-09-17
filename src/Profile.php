@@ -1,4 +1,5 @@
 <?php
+
 /*
  * @version $Id: HEADER 15930 2011-10-30 15:47:55Z tsmr $
  -------------------------------------------------------------------------
@@ -44,16 +45,15 @@ if (!defined('GLPI_ROOT')) {
  */
 class Profile extends \Profile
 {
+    public static $rightname = "profile";
 
-    static $rightname = "profile";
-
-   /**
-    * @param CommonGLPI $item
-    * @param int        $withtemplate
-    *
-    * @return string|translated
-    */
-    function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
+    /**
+     * @param CommonGLPI $item
+     * @param int        $withtemplate
+     *
+     * @return string|translated
+     */
+    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
 
         if ($item->getType() == 'Profile' && $item->getField('interface') != 'helpdesk'
@@ -63,19 +63,19 @@ class Profile extends \Profile
         return '';
     }
 
-    static function getIcon()
+    public static function getIcon()
     {
         return Event::getIcon();
     }
 
-   /**
-    * @param CommonGLPI $item
-    * @param int        $tabnum
-    * @param int        $withtemplate
-    *
-    * @return bool
-    */
-    static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
+    /**
+     * @param CommonGLPI $item
+     * @param int        $tabnum
+     * @param int        $withtemplate
+     *
+     * @return bool
+     */
+    public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
 
         if ($item->getType() == 'Profile') {
@@ -88,57 +88,63 @@ class Profile extends \Profile
         return true;
     }
 
-   /**
-    * @param $ID
-    */
-    static function createFirstAccess($ID)
+    /**
+     * @param $ID
+     */
+    public static function createFirstAccess($ID)
     {
-       //85
+        //85
         self::addDefaultProfileInfos($ID, ['plugin_eventsmanager' => ALLSTANDARDRIGHT + READNOTE + UPDATENOTE], true);
     }
 
-   /**
-    * @param      $profiles_id
-    * @param      $rights
-    * @param bool $drop_existing
-    *
-    * @internal param $profile
-    */
-    static function addDefaultProfileInfos($profiles_id, $rights, $drop_existing = false)
+    /**
+     * @param      $profiles_id
+     * @param      $rights
+     * @param bool $drop_existing
+     *
+     * @internal param $profile
+     */
+    public static function addDefaultProfileInfos($profiles_id, $rights, $drop_existing = false)
     {
 
         $profileRight = new ProfileRight();
-        $dbu = new DbUtils();
+        $dbu          = new DbUtils();
         foreach ($rights as $right => $value) {
-            if ($dbu->countElementsInTable('glpi_profilerights', ["profiles_id" => $profiles_id,
-                                                                     "name" => $right]) && $drop_existing) {
+            if ($dbu->countElementsInTable(
+                    'glpi_profilerights',
+                    ["profiles_id" => $profiles_id,
+                        "name" => $right]
+                ) && $drop_existing) {
                 $profileRight->deleteByCriteria(['profiles_id' => $profiles_id, 'name' => $right]);
             }
-            if (!$dbu->countElementsInTable('glpi_profilerights', ["profiles_id" => $profiles_id,
-                                                                      "name" => $right])) {
+            if (!$dbu->countElementsInTable(
+                'glpi_profilerights',
+                ["profiles_id" => $profiles_id,
+                    "name" => $right]
+            )) {
                 $myright['profiles_id'] = $profiles_id;
                 $myright['name']        = $right;
                 $myright['rights']      = $value;
                 $profileRight->add($myright);
 
-               //Add right to the current session
+                //Add right to the current session
                 $_SESSION['glpiactiveprofile'][$right] = $value;
             }
         }
     }
 
-   /**
-    * Show profile form
-    *
-    * @param int  $profiles_id
-    * @param bool $openform
-    * @param bool $closeform
-    *
-    * @return nothing
-    * @internal param int $items_id id of the profile
-    * @internal param value $target url of target
-    */
-    function showForm($profiles_id = 0, $openform = true, $closeform = true)
+    /**
+     * Show profile form
+     *
+     * @param int  $profiles_id
+     * @param bool $openform
+     * @param bool $closeform
+     *
+     * @return nothing
+     * @internal param int $items_id id of the profile
+     * @internal param value $target url of target
+     */
+    public function showForm($profiles_id = 0, $openform = true, $closeform = true)
     {
 
         echo "<div class='firstbloc'>";
@@ -152,8 +158,8 @@ class Profile extends \Profile
         if ($profile->getField('interface') == 'central') {
             $rights = $this->getAllRights();
             $profile->displayRightsChoiceMatrix($rights, ['canedit'       => $canedit,
-                                                            'default_class' => 'tab_bg_2',
-                                                            'title'         => __('General')]);
+                'default_class' => 'tab_bg_2',
+                'title'         => __('General')]);
         }
 
         if ($canedit && $closeform) {
@@ -166,31 +172,31 @@ class Profile extends \Profile
         echo "</div>";
     }
 
-   /**
-    * @param bool $all
-    *
-    * @return array
-    */
-    static function getAllRights($all = false)
+    /**
+     * @param bool $all
+     *
+     * @return array
+     */
+    public static function getAllRights($all = false)
     {
         $rights = [
-         ['itemtype' => Event::class,
-               'label'    => Event::getTypeName(2),
-               'field'    => 'plugin_eventsmanager'
-         ],
+            ['itemtype' => Event::class,
+                'label'    => Event::getTypeName(2),
+                'field'    => 'plugin_eventsmanager',
+            ],
         ];
 
         return $rights;
     }
 
-   /**
-    * Init profiles
-    *
-    * @param $old_right
-    *
-    * @return int
-    */
-    static function translateARight($old_right)
+    /**
+     * Init profiles
+     *
+     * @param $old_right
+     *
+     * @return int
+     */
+    public static function translateARight($old_right)
     {
         switch ($old_right) {
             case '':
@@ -208,31 +214,39 @@ class Profile extends \Profile
         }
     }
 
-   /**
-    * Initialize profiles, and migrate it necessary
-    */
-    static function initProfile()
+    /**
+     * Initialize profiles, and migrate it necessary
+     */
+    public static function initProfile()
     {
         global $DB;
         $profile = new self();
-        $dbu = new DbUtils();
-       //Add new rights in glpi_profilerights table
+        $dbu     = new DbUtils();
+        //Add new rights in glpi_profilerights table
         foreach ($profile->getAllRights(true) as $data) {
-            if ($dbu->countElementsInTable("glpi_profilerights", ["name" => $data['field']]) == 0
-            ) {
+            if ($dbu->countElementsInTable(
+                    "glpi_profilerights",
+                    ["name" => $data['field']]
+                ) == 0) {
                 ProfileRight::addProfileRights([$data['field']]);
             }
         }
 
-        foreach ($DB->request("SELECT *
-                           FROM `glpi_profilerights`
-                           WHERE `profiles_id`='" . $_SESSION['glpiactiveprofile']['id'] . "'
-                              AND `name` LIKE '%plugin_eventsmanager%'") as $prof) {
-            $_SESSION['glpiactiveprofile'][$prof['name']] = $prof['rights'];
+        $it = $DB->request([
+            'FROM' => 'glpi_profilerights',
+            'WHERE' => [
+                'profiles_id' => $_SESSION['glpiactiveprofile']['id'],
+                'name' => ['LIKE', '%plugin_eventsmanager%'],
+            ],
+        ]);
+        foreach ($it as $prof) {
+            if (isset($_SESSION['glpiactiveprofile'])) {
+                $_SESSION['glpiactiveprofile'][$prof['name']] = $prof['rights'];
+            }
         }
     }
 
-    static function removeRightsFromSession()
+    public static function removeRightsFromSession()
     {
         foreach (self::getAllRights(true) as $right) {
             if (isset($_SESSION['glpiactiveprofile'][$right['field']])) {

@@ -39,74 +39,79 @@ use GlpiPlugin\Mydashboard\Alert;
 
 global $CFG_GLPI;
 
-define('PLUGIN_EVENTMANAGER_VERSION', '3.0.0');
+define('PLUGIN_EVENTMANAGER_VERSION', '4.0.0');
 
 if (!defined("PLUGIN_EVENTMANAGER_DIR")) {
-   define("PLUGIN_EVENTMANAGER_DIR", Plugin::getPhpDir("eventsmanager"));
+    define("PLUGIN_EVENTMANAGER_DIR", Plugin::getPhpDir("eventsmanager"));
     $root = $CFG_GLPI['root_doc'] . '/plugins/eventsmanager';
     define("PLUGIN_EVENTMANAGER_WEBDIR", $root);
 }
 
 // Init the hooks of the plugins -Needed
-function plugin_init_eventsmanager() {
-   global $PLUGIN_HOOKS, $CFG_GLPI;
+function plugin_init_eventsmanager()
+{
+    global $PLUGIN_HOOKS, $CFG_GLPI;
 
-   $PLUGIN_HOOKS['csrf_compliant']['eventsmanager'] = true;
-   $PLUGIN_HOOKS['change_profile']['eventsmanager'] = [Profile::class, 'initProfile'];
+    $PLUGIN_HOOKS['csrf_compliant']['eventsmanager'] = true;
+    $PLUGIN_HOOKS['change_profile']['eventsmanager'] = [Profile::class, 'initProfile'];
 
-   $PLUGIN_HOOKS['use_rules']['eventsmanager'] = ['RuleMailCollector'];
+    $PLUGIN_HOOKS['use_rules']['eventsmanager'] = ['RuleMailCollector'];
 
-   Plugin::registerClass(Ticket::class, ['addtabon' => ['Ticket']]);
-   Plugin::registerClass(Rssimport::class, ['addtabon' => ['RSSFeed']]);
-   Plugin::registerClass(Mailimport::class, ['addtabon' => ['MailCollector']]);
+    Plugin::registerClass(Ticket::class, ['addtabon' => ['Ticket']]);
+    Plugin::registerClass(Rssimport::class, ['addtabon' => ['RSSFeed']]);
+    Plugin::registerClass(Mailimport::class, ['addtabon' => ['MailCollector']]);
 
-   if (Session::getLoginUserID()) {
-
-      Plugin::registerClass(Event::class, [
+    if (Session::getLoginUserID()) {
+        Plugin::registerClass(Event::class, [
          'assignable_types' => true,
-      ]);
+        ]);
 
-      Plugin::registerClass(Profile::class,
-                            ['addtabon' => 'Profile']);
+        Plugin::registerClass(
+            Profile::class,
+            ['addtabon' => 'Profile']
+        );
 
-      if (Session::haveRight("plugin_eventsmanager", UPDATE)) {
-         $PLUGIN_HOOKS['use_massive_action']['eventsmanager'] = 1;
-         $PLUGIN_HOOKS['config_page']['eventsmanager']        = 'front/config.form.php';
-      }
+        if (Session::haveRight("plugin_eventsmanager", UPDATE)) {
+            $PLUGIN_HOOKS['use_massive_action']['eventsmanager'] = 1;
+            $PLUGIN_HOOKS['config_page']['eventsmanager']        = 'front/config.form.php';
+        }
 
-      if (Session::haveRight("plugin_eventsmanager", READ)) {
-         $PLUGIN_HOOKS['menu_toadd']['eventsmanager'] = ['helpdesk' => Event::class];
-      }
+        if (Session::haveRight("plugin_eventsmanager", READ)) {
+            $PLUGIN_HOOKS['menu_toadd']['eventsmanager'] = ['helpdesk' => Event::class];
+        }
 
-      if (class_exists(Menu::class)) {
-         $PLUGIN_HOOKS['mydashboard']['eventsmanager'] = [Dashboard::class];
-      }
+        if (class_exists(Menu::class)) {
+            $PLUGIN_HOOKS['mydashboard']['eventsmanager'] = [Dashboard::class];
+        }
 
-      if (Session::haveRight("plugin_eventsmanager", CREATE)) {
-         $PLUGIN_HOOKS['use_massive_action']['eventsmanager'] = 1;
-      }
+        if (Session::haveRight("plugin_eventsmanager", CREATE)) {
+            $PLUGIN_HOOKS['use_massive_action']['eventsmanager'] = 1;
+        }
 
-      $PLUGIN_HOOKS['item_purge']['eventsmanager']['Ticket'] = [Ticket::class, 'cleanForTicket'];
+        $PLUGIN_HOOKS['item_purge']['eventsmanager']['Ticket'] = [Ticket::class, 'cleanForTicket'];
 
-      if (isset($_SESSION["glpiactiveprofile"])
+        if (isset($_SESSION["glpiactiveprofile"])
              && $_SESSION["glpiactiveprofile"]["interface"] != "helpdesk") {
-         $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['eventsmanager'][] = 'scripts/jsForAction.js.php';
-      }
-   }
+            $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['eventsmanager'][] = 'scripts/jsForAction.js.php';
+        }
+    }
 
-   if (Plugin::isPluginActive('mydashboard')) {
-      Plugin::registerClass(Alert::class,
-                            ['addtabon' => Event::class]);
-   }
+    if (Plugin::isPluginActive('mydashboard')) {
+        Plugin::registerClass(
+            Alert::class,
+            ['addtabon' => Event::class]
+        );
+    }
 }
 
 // Get the name and the version of the plugin - Needed
 /**
  * @return array
  */
-function plugin_version_eventsmanager() {
+function plugin_version_eventsmanager()
+{
 
-   return [
+    return [
       'name'           => _n('Event manager', 'Events manager', 2, 'eventsmanager'),
       'version'        => PLUGIN_EVENTMANAGER_VERSION,
       'license'        => 'GPLv2+',
@@ -119,5 +124,5 @@ function plugin_version_eventsmanager() {
             'dev' => false
          ]
       ]
-   ];
+    ];
 }
