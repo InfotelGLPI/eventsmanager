@@ -27,13 +27,14 @@
  --------------------------------------------------------------------------
  */
 
-include ('../../../inc/includes.php');
+use GlpiPlugin\Eventsmanager\Event;
+use GlpiPlugin\Eventsmanager\Event_Item;
 
 header("Content-Type: text/html; charset=UTF-8");
 Html::header_nocache();
 
 Session::checkLoginUser();
-
+$item_ticket = new Event_Item();
 switch ($_GET['action']) {
    case 'add':
       //      if (isset($_GET['my_items']) && !empty($_GET['my_items'])) {
@@ -42,7 +43,7 @@ switch ($_GET['action']) {
       if (isset($_GET['items_id']) && isset($_GET['itemtype']) && !empty($_GET['items_id'])) {
          $_GET['params']['items_id'][$_GET['itemtype']][$_GET['items_id']] = $_GET['items_id'];
       }
-      PluginEventsmanagerEvent_Item::itemAddForm(new PluginEventsmanagerEvent(), $_GET['params']);
+      Event_Item::itemAddForm(new Event(), $_GET['params']);
       break;
 
    case 'delete':
@@ -56,7 +57,7 @@ switch ($_GET['action']) {
          if ($deleted) {
             unset($_GET['params']['items_id'][$_GET['itemtype']][array_search($_GET['items_id'], $_GET['params']['items_id'][$_GET['itemtype']])]);
          }
-         PluginEventsmanagerEvent_Item::itemAddForm(new PluginEventsmanagerEvent(), $_GET['params']);
+         Event_Item::itemAddForm(new Event(), $_GET['params']);
       }
 
       break;

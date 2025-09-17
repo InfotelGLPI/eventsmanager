@@ -27,18 +27,19 @@
  --------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
+use Glpi\Exception\Http\AccessDeniedHttpException;
+use GlpiPlugin\Eventsmanager\Event;
 
-Html::header(PluginEventsmanagerEvent::getTypeName(2), '', "helpdesk", "plugineventsmanagerevent");
+Html::header(Event::getTypeName(2), '', "helpdesk", Event::class);
 
-$event = new PluginEventsmanagerEvent();
+$event = new Event();
 
 if ($event->canView()) {
 
-   Search::show("PluginEventsmanagerEvent");
+   Search::show(Event::class);
 
 } else {
-   Html::displayRightError();
+    throw new AccessDeniedHttpException();
 }
 
 Html::footer();

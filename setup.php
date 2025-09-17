@@ -27,12 +27,24 @@
  --------------------------------------------------------------------------
  */
 
+use Glpi\Plugin\Hooks;
+use GlpiPlugin\Eventsmanager\Dashboard;
+use GlpiPlugin\Eventsmanager\Event;
+use GlpiPlugin\Eventsmanager\Mailimport;
+use GlpiPlugin\Eventsmanager\Profile;
+use GlpiPlugin\Eventsmanager\Rssimport;
+use GlpiPlugin\Eventsmanager\Ticket;
+use GlpiPlugin\Mydashboard\Menu;
+use GlpiPlugin\Mydashboard\Alert;
+
+global $CFG_GLPI;
+
 define('PLUGIN_EVENTMANAGER_VERSION', '3.0.0');
 
 if (!defined("PLUGIN_EVENTMANAGER_DIR")) {
    define("PLUGIN_EVENTMANAGER_DIR", Plugin::getPhpDir("eventsmanager"));
-   define("PLUGIN_EVENTMANAGER_DIR_NOFULL", Plugin::getPhpDir("eventsmanager",false));
-   define("PLUGIN_EVENTMANAGER_WEBDIR", Plugin::getWebDir("eventsmanager"));
+    $root = $CFG_GLPI['root_doc'] . '/plugins/eventsmanager';
+    define("PLUGIN_EVENTMANAGER_WEBDIR", $root);
 }
 
 // Init the hooks of the plugins -Needed
@@ -40,22 +52,21 @@ function plugin_init_eventsmanager() {
    global $PLUGIN_HOOKS, $CFG_GLPI;
 
    $PLUGIN_HOOKS['csrf_compliant']['eventsmanager'] = true;
-   $PLUGIN_HOOKS['change_profile']['eventsmanager'] = ['PluginEventsmanagerProfile', 'initProfile'];
+   $PLUGIN_HOOKS['change_profile']['eventsmanager'] = [Profile::class, 'initProfile'];
 
    $PLUGIN_HOOKS['use_rules']['eventsmanager'] = ['RuleMailCollector'];
 
-   Plugin::registerClass('PluginEventsmanagerTicket', ['addtabon' => ['Ticket']]);
-   Plugin::registerClass('PluginEventsmanagerRssimport', ['addtabon' => ['RSSFeed']]);
-   Plugin::registerClass('PluginEventsmanagerMailimport', ['addtabon' => ['MailCollector']]);
+   Plugin::registerClass(Ticket::class, ['addtabon' => ['Ticket']]);
+   Plugin::registerClass(Rssimport::class, ['addtabon' => ['RSSFeed']]);
+   Plugin::registerClass(Mailimport::class, ['addtabon' => ['MailCollector']]);
 
    if (Session::getLoginUserID()) {
 
-      Plugin::registerClass('PluginEventsmanagerEvent', [
-         'linkuser_types'  => true,
-         'linkgroup_types' => true,
+      Plugin::registerClass(Event::class, [
+         'assignable_types' => true,
       ]);
 
-      Plugin::registerClass('PluginEventsmanagerProfile',
+      Plugin::registerClass(Profile::class,
                             ['addtabon' => 'Profile']);
 
       if (Session::haveRight("plugin_eventsmanager", UPDATE)) {
@@ -64,28 +75,28 @@ function plugin_init_eventsmanager() {
       }
 
       if (Session::haveRight("plugin_eventsmanager", READ)) {
-         $PLUGIN_HOOKS['menu_toadd']['eventsmanager'] = ['helpdesk' => 'PluginEventsmanagerEvent'];
+         $PLUGIN_HOOKS['menu_toadd']['eventsmanager'] = ['helpdesk' => Event::class];
       }
 
-      if (class_exists('PluginMydashboardMenu')) {
-         $PLUGIN_HOOKS['mydashboard']['eventsmanager'] = ["PluginEventsmanagerDashboard"];
+      if (class_exists(Menu::class)) {
+         $PLUGIN_HOOKS['mydashboard']['eventsmanager'] = [Dashboard::class];
       }
 
       if (Session::haveRight("plugin_eventsmanager", CREATE)) {
          $PLUGIN_HOOKS['use_massive_action']['eventsmanager'] = 1;
       }
 
-      $PLUGIN_HOOKS['item_purge']['eventsmanager']['Ticket'] = ['PluginEventsmanagerTicket', 'cleanForTicket'];
-      
+      $PLUGIN_HOOKS['item_purge']['eventsmanager']['Ticket'] = [Ticket::class, 'cleanForTicket'];
+
       if (isset($_SESSION["glpiactiveprofile"])
              && $_SESSION["glpiactiveprofile"]["interface"] != "helpdesk") {
-         $PLUGIN_HOOKS['add_javascript']['eventsmanager'][] = 'scripts/jsForAction.js.php';
+         $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['eventsmanager'][] = 'scripts/jsForAction.js.php';
       }
    }
 
    if (Plugin::isPluginActive('mydashboard')) {
-      Plugin::registerClass('PluginMydashboardAlert',
-                            ['addtabon' => 'PluginEventsmanagerEvent']);
+      Plugin::registerClass(Alert::class,
+                            ['addtabon' => Event::class]);
    }
 }
 
@@ -103,8 +114,8 @@ function plugin_version_eventsmanager() {
       'homepage'       => 'https://github.com/InfotelGLPI/eventsmanager',
       'requirements' => [
          'glpi' => [
-            'min' => '10.0',
-            'max' => '11.0',
+            'min' => '11.0',
+            'max' => '12.0',
             'dev' => false
          ]
       ]

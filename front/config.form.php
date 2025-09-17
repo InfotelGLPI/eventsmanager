@@ -26,23 +26,21 @@
  --------------------------------------------------------------------------
  */
 
-include ('../../../inc/includes.php');
+use GlpiPlugin\Eventsmanager\Event;
+use GlpiPlugin\Eventsmanager\Config;
 
 if (Plugin::isPluginActive("eventsmanager")) {
-   $config = new PluginEventsmanagerConfig();
+   $config = new Config();
    if (isset($_POST["update_config"])) {
         Session::checkRight("config", UPDATE);
         $config->update($_POST);
         Html::back();
 
    } else {
-      Html::header(PluginEventsmanagerEvent::getTypeName(), '', "helpdesk", "plugineventsmanagerevent", "config");
+      Html::header(Event::getTypeName(), '', "helpdesk", Event::class, "config");
       $config->showConfigForm();
       Html::footer();
    }
-
-
-
 } else {
    Html::header(__('Setup'), '', "config", "plugins");
    echo "<div class='alert alert-important alert-warning d-flex'>";

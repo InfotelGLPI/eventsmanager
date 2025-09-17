@@ -54,20 +54,20 @@ if ($json['session_token']) {
    $session_token = $json['session_token'];
    /////////////////////////////////////////////////////////////////////////////////////////
 
-   $input      = '{"input": {"name": "Alert 1", 
-                             "entities_id": "1", 
-                             "status": "1", 
-                             "eventtype": "1", 
+   $input      = '{"input": {"name": "Alert 1",
+                             "entities_id": "1",
+                             "status": "1",
+                             "eventtype": "1",
                              "plugin_eventsmanager_origins_id": "3",
-                             "impact": "1", 
-                             "priority":"1", 
+                             "impact": "1",
+                             "priority":"1",
                              "comment": "In conplurium in admissum vultu modo ruinas quod conplurium quosdam veritate Constanti iussa in ingenuorum."}}';
    $headers    = [
       'Content-Type: application/json',
       'Session-Token:' . $session_token,
       'App-Token:' . $app_token];
    $ch         = curl_init();
-   $url_events = $api_url . "/PluginEventsmanagerEvent/";
+   $url_events = $api_url . "/GlpiPlugin\Eventsmanager\Event/";
    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
    curl_setopt($ch, CURLOPT_URL, $url_events);
    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

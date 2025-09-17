@@ -27,9 +27,10 @@
  --------------------------------------------------------------------------
  */
 
+use GlpiPlugin\Eventsmanager\Event;
+
 if (strpos($_SERVER['PHP_SELF'], "closeevent.php")) {
    $AJAX_INCLUDE = 1;
-   include('../../../inc/includes.php');
    header("Content-Type: text/html; charset=UTF-8");
    Html::header_nocache();
 }
@@ -40,10 +41,10 @@ $user = $_SESSION['glpiID'];
 $date = $_SESSION['glpi_currenttime'];
 
 if (isset($_POST['id'])) {
-   $event = new PluginEventsmanagerEvent();
+   $event = new Event();
    $event->update(['id'          => $_POST['id'],
                         'users_close' => $user,
                         'date_close'  => $date,
-                        'status'       => PluginEventsmanagerEvent::CLOSED_STATE]);
+                        'status'       => Event::CLOSED_STATE]);
 }
 

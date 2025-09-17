@@ -27,12 +27,12 @@
  --------------------------------------------------------------------------
  */
 
-
-include ('../../../inc/includes.php');
+use Glpi\Exception\Http\BadRequestHttpException;
+use GlpiPlugin\Eventsmanager\Event_Item;
 
 Session ::checkLoginUser();
 
-$item = new PluginEventsmanagerEvent_Item();
+$item = new Event_Item();
 
 if (isset($_POST["add"])) {
    if (isset($_POST['my_items']) && !empty($_POST['my_items'])) {
@@ -56,11 +56,12 @@ if (isset($_POST["add"])) {
    Html::back();
 
 } else if (isset($_POST["delete"])) {
-   $item_ticket = new PluginEventsmanagerEvent_Item();
+   $item_ticket = new Event_Item();
    $deleted = $item_ticket->deleteByCriteria(['plugin_eventsmanager_events_id' => $_POST['plugin_eventsmanager_events_id'],
                                                    'items_id'   => $_POST['items_id'],
                                                    'itemtype'   => $_POST['itemtype']]);
    Html::back();
 }
 
-Html::displayErrorAndDie("lost");
+throw new BadRequestHttpException();
+

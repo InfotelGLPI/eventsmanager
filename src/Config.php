@@ -26,14 +26,22 @@
  --------------------------------------------------------------------------
  */
 
+namespace GlpiPlugin\Eventsmanager;
+
+use CommonDBTM;
+use CommonGLPI;
+use Dropdown;
+use Html;
+use Toolbox;
+
 if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
 /**
- * Class PluginEventsmanagerConfig
+ * Class Config
  */
-class PluginEventsmanagerConfig extends CommonDBTM {
+class Config extends CommonDBTM {
 
    /**
     * Get Tab Name used for itemtype
@@ -49,9 +57,13 @@ class PluginEventsmanagerConfig extends CommonDBTM {
     *  @return string tab name
     **/
    function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
-        return __('Plugin Setup', 'eventsmanager');
+        return self::createTabEntry(__('Plugin Setup', 'eventsmanager'));
    }
 
+    static function getIcon()
+    {
+        return Event::getIcon();
+    }
 
    /**
     *
@@ -62,7 +74,7 @@ class PluginEventsmanagerConfig extends CommonDBTM {
       $config->getFromDB(1);
 
       echo "<div class='center'>";
-      echo "<form method='post' action='" . Toolbox::getItemTypeFormURL('PluginEventsmanagerConfig') . "'>";
+      echo "<form method='post' action='" . Toolbox::getItemTypeFormURL(Config::class) . "'>";
       echo "<table class='tab_cadre_fixe'>";
       echo "<tr class='tab_bg_1'><th colspan='2'>" . __('General setup') . "</th></tr>";
       echo "<tr class='tab_bg_1'>";

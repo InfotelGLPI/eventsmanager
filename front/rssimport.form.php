@@ -27,11 +27,11 @@
  --------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
+use GlpiPlugin\Eventsmanager\Rssimport;
 
 if (isset($_POST['update'])) {
    if (isset($_POST['id'])) {
-      $rss = new PluginEventsmanagerRssimport();
+      $rss = new Rssimport();
       $rss->update($_POST);
       Html::back();
    }

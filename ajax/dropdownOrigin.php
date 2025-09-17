@@ -27,8 +27,9 @@
  --------------------------------------------------------------------------
  */
 
+use GlpiPlugin\Eventsmanager\Origin;
+
 if (strpos($_SERVER['PHP_SELF'], "dropdownOrigin.php")) {
-   include ("../../../inc/includes.php");
    header("Content-Type: text/html; charset=UTF-8");
    Html::header_nocache();
 }
@@ -38,11 +39,11 @@ Session::checkCentralAccess();
 // Make a select box
 if (isset($_POST["plugin_eventsmanager_origins_id"])) {
 
-   $origin = new PluginEventsmanagerOrigin();
+   $origin = new Origin();
    if ($origin->getFromDB($_POST["plugin_eventsmanager_origins_id"])) {
-      echo PluginEventsmanagerOrigin::getItemtypeOrigin($origin->fields['itemtype']);
+      echo Origin::getItemtypeOrigin($origin->fields['itemtype']);
       echo " - ";
-      echo PluginEventsmanagerOrigin::getItemOrigin('items_id', ["itemtype" => $origin->fields['itemtype'],
+      echo Origin::getItemOrigin('items_id', ["itemtype" => $origin->fields['itemtype'],
          "items_id" => $origin->fields['items_id']]);
 
    }

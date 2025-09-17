@@ -27,17 +27,19 @@
  --------------------------------------------------------------------------
  */
 
-include ('../../../inc/includes.php');
+use Glpi\Exception\Http\BadRequestHttpException;
+use GlpiPlugin\Eventsmanager\Event_Comment;
+use GlpiPlugin\Eventsmanager\Event;
 
 Session::checkLoginUser();
 
-$comment = new PluginEventsmanagerEvent_Comment();
+$comment = new Event_Comment();
 if (!isset($_POST['plugin_eventsmanager_events_id'])) {
    $message = __('Mandatory fields are not filled!');
    Session::addMessageAfterRedirect($message, false, ERROR);
    Html::back();
 }
-$event = new PluginEventsmanagerEvent();
+$event = new Event();
 $event->getFromDB($_POST['plugin_eventsmanager_events_id']);
 //if (!$event->canComment()) {
 //    Html::displayRightError();
@@ -81,4 +83,5 @@ if (isset($_POST["edit"])) {
    Html::back();
 }
 
-Html::displayErrorAndDie("lost");
+throw new BadRequestHttpException();
+

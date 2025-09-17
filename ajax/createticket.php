@@ -27,9 +27,10 @@
  --------------------------------------------------------------------------
  */
 
+use GlpiPlugin\Eventsmanager\Ticket;
+
 if (strpos($_SERVER['PHP_SELF'], "createticket.php")) {
    $AJAX_INCLUDE = 1;
-   include('../../../inc/includes.php');
    header("Content-Type: text/html; charset=UTF-8");
    Html::header_nocache();
 }
@@ -37,5 +38,5 @@ if (strpos($_SERVER['PHP_SELF'], "createticket.php")) {
 Session::checkCentralAccess();
 
 if ($_POST['id']) {
-   PluginEventsmanagerTicket::addTicketFromEvent($_POST['id']);
+   Ticket::addTicketFromEvent($_POST['id']);
 }

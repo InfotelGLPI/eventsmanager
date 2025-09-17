@@ -27,14 +27,17 @@
  --------------------------------------------------------------------------
  */
 
+use Glpi\Api\APIRest;
+use Glpi\Exception\Http\BadRequestHttpException;
+
 define('DO_NOT_CHECK_HTTP_REFERER', 1);
 ini_set('session.use_cookies', 0);
 
-include('../../inc/includes.php');
+global $CFG_GLPI;
 
-$api = new PluginEventsmanagerAPIRest;
+$api = new APIRest;
 if ($CFG_GLPI['enable_api']) {
    $api->call();
 } else {
-   Html::displayErrorAndDie(__("API disabled"), true);
+    throw new BadRequestHttpException();
 }

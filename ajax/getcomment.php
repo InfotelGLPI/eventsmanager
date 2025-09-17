@@ -27,7 +27,8 @@
  --------------------------------------------------------------------------
  */
 
-include ('../../../inc/includes.php');
+use GlpiPlugin\Eventsmanager\Event_Comment;
+
 header("Content-Type: text/html; charset=UTF-8");
 Html::header_nocache();
 
@@ -51,4 +52,4 @@ if (isset($_POST['answer'])) {
    $answer = $_POST['answer'];
 }
 
-echo PluginEventsmanagerEvent_Comment::getCommentForm($event_id, $edit, $answer);
+echo Event_Comment::getCommentForm($event_id, $edit, $answer);

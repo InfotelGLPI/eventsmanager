@@ -27,41 +27,45 @@
  --------------------------------------------------------------------------
  */
 
+use GlpiPlugin\Eventsmanager\Event;
+use GlpiPlugin\Eventsmanager\Origin;
+use GlpiPlugin\Eventsmanager\Profile;
+use GlpiPlugin\Eventsmanager\Rssimport;
+
 /**
  * @return bool
  */
-function plugin_eventsmanager_install() {
-   global $DB;
+function plugin_eventsmanager_install()
+{
+    global $DB;
 
-   include_once(PLUGIN_EVENTMANAGER_DIR . "/inc/profile.class.php");
-   $update = true;
+    $update = true;
 
-   if (!$DB->tableExists("glpi_plugin_eventsmanager_events")) {
-      $update = false;
-      $DB->runFile(PLUGIN_EVENTMANAGER_DIR . "/sql/empty-3.0.0.sql");
-   }
+    if (!$DB->tableExists("glpi_plugin_eventsmanager_events")) {
+        $update = false;
+        $DB->runFile(PLUGIN_EVENTMANAGER_DIR . "/sql/empty-3.0.0.sql");
+    }
 
-   if ($update) {
-      $DB->runFile(PLUGIN_EVENTMANAGER_DIR . "/sql/update-2.2.0.sql");
-   }
+    if ($update) {
+        $DB->runFile(PLUGIN_EVENTMANAGER_DIR . "/sql/update-2.2.0.sql");
+    }
 
 
-   PluginEventsmanagerProfile::initProfile();
-   PluginEventsmanagerProfile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);
-   CronTask::Register('PluginEventsmanagerRssimport', 'RssImport', DAY_TIMESTAMP);
+    Profile::initProfile();
+    Profile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);
+    CronTask::Register(Rssimport::class, 'RssImport', DAY_TIMESTAMP);
 
-   return true;
+    return true;
 }
 
 /**
  * @return bool
  */
-function plugin_eventsmanager_uninstall() {
-   global $DB;
+function plugin_eventsmanager_uninstall()
+{
+    global $DB;
 
-   include_once(PLUGIN_EVENTMANAGER_DIR . "/inc/profile.class.php");
-
-   $tables = [
+    $tables = [
       "glpi_plugin_eventsmanager_events",
       "glpi_plugin_eventmanager_eventtypes",
       "glpi_plugin_eventsmanager_rssimports",
@@ -72,40 +76,41 @@ function plugin_eventsmanager_uninstall() {
       "glpi_plugin_eventsmanager_events_comments",
       "glpi_plugin_eventsmanager_mailimports"];
 
-   foreach ($tables as $table) {
-      $DB->query("DROP TABLE IF EXISTS `$table`;");
-   }
+    foreach ($tables as $table) {
+        $DB->doQuery("DROP TABLE IF EXISTS `$table`;");
+    }
 
-   $tables_glpi = ["glpi_displaypreferences",
+    $tables_glpi = ["glpi_displaypreferences",
                         "glpi_notepads",
                         "glpi_documents_items",
                         "glpi_savedsearches",
                         "glpi_logs"];
 
-   foreach ($tables_glpi as $table_glpi) {
-      $DB->query("DELETE FROM `$table_glpi` WHERE `itemtype` LIKE 'PluginEventsmanagerEvent%';");
-   }
+    foreach ($tables_glpi as $table_glpi) {
+        $DB->doQuery("DELETE FROM `$table_glpi` WHERE `itemtype` LIKE 'GlpiPlugin\Eventsmanager\Event%';");
+    }
 
    //Delete rights associated with the plugin
-   $profileRight = new ProfileRight();
-   foreach (PluginEventsmanagerProfile::getAllRights() as $right) {
-      $profileRight->deleteByCriteria(['name' => $right['field']]);
-   }
-   PluginEventsmanagerEvent::removeRightsFromSession();
+    $profileRight = new ProfileRight();
+    foreach (Profile::getAllRights() as $right) {
+        $profileRight->deleteByCriteria(['name' => $right['field']]);
+    }
+    Event::removeRightsFromSession();
 
-   PluginEventsmanagerProfile::removeRightsFromSession();
+    Profile::removeRightsFromSession();
 
-   return true;
+    return true;
 }
 
 // Define dropdown relations
 /**
  * @return array
  */
-function plugin_eventsmanager_getDatabaseRelations() {
+function plugin_eventsmanager_getDatabaseRelations()
+{
 
-   if (Plugin::isPluginActive("eventsmanager")) {
-      return ["glpi_users"          => ["glpi_plugin_eventsmanager_events" => "users_id",
+    if (Plugin::isPluginActive("eventsmanager")) {
+        return ["glpi_users"          => ["glpi_plugin_eventsmanager_events" => "users_id",
                                                   "glpi_plugin_eventsmanager_events" => "users_assigned",
                                                   "glpi_plugin_eventsmanager_events" => "users_close"],
                    "glpi_groups"         => ["glpi_plugin_eventsmanager_events" => "groups_id",
@@ -117,34 +122,36 @@ function plugin_eventsmanager_getDatabaseRelations() {
                    "glpi_tickets"        => ["glpi_plugin_eventsmanager_tickets" => "tickets_id"],
                    "glpi_rssfeeds"       => ["glpi_plugin_eventsmanager_rssimports" => "rssfeeds_id"],
                    "glpi_mailcollectors" => ["glpi_plugin_eventsmanager_mailimports" => "mailcollectors_id"]];
-   } else {
-      return [];
-   }
+    } else {
+        return [];
+    }
 }
 
 // Define Dropdown tables to be manage in GLPI :
 /**
  * @return array
  */
-function plugin_eventsmanager_getDropdown() {
+function plugin_eventsmanager_getDropdown()
+{
 
-   if (Plugin::isPluginActive("eventsmanager")) {
-      return ['PluginEventsmanagerOrigin' => PluginEventsmanagerOrigin::getTypeName(2)];
-   } else {
-      return [];
-   }
+    if (Plugin::isPluginActive("eventsmanager")) {
+        return [Origin::class => Origin::getTypeName(2)];
+    } else {
+        return [];
+    }
 }
 
-function plugin_eventsmanager_getAddSearchOptions($itemtype) {
+function plugin_eventsmanager_getAddSearchOptions($itemtype)
+{
 
-   $sopt = [];
+    $sopt = [];
 
-   if ($itemtype == 'RSSFeed') {
-      if (Session::haveRight("plugin_eventsmanager", READ)) {
-         $sopt = PluginEventsmanagerRssimport::addSearchOptions($sopt);
-      }
-   }
-   return $sopt;
+    if ($itemtype == 'RSSFeed') {
+        if (Session::haveRight("plugin_eventsmanager", READ)) {
+            $sopt = Rssimport::addSearchOptions($sopt);
+        }
+    }
+    return $sopt;
 }
 
 /**
@@ -155,24 +162,25 @@ function plugin_eventsmanager_getAddSearchOptions($itemtype) {
  *
  * @return string
  */
-function plugin_eventsmanager_displayConfigItem($type, $ID, $data, $num) {
+function plugin_eventsmanager_displayConfigItem($type, $ID, $data, $num)
+{
 
-   $searchopt =& Search::getOptions($type);
-   $table     = $searchopt[$ID]["table"];
-   $field     = $searchopt[$ID]["field"];
+    $searchopt = Search::getOptions($type);
+    $table     = $searchopt[$ID]["table"];
+    $field     = $searchopt[$ID]["field"];
 
-   switch ($table . '.' . $field) {
-      case "glpi_plugin_eventsmanager_events.priority" :
-         return " style=\"background-color:" . $_SESSION["glpipriority_" . $data[$num][0]['name']] . ";\" ";
+    switch ($table . '.' . $field) {
+        case "glpi_plugin_eventsmanager_events.priority":
+            return " style=\"background-color:" . $_SESSION["glpipriority_" . $data[$num][0]['name']] . ";\" ";
          break;
-      case "glpi_plugin_eventsmanager_events.eventtype" :
-         return ' style="' . PluginEventsmanagerEvent::getTypeColor($data[$num][0]['name']) . ';"';
+        case "glpi_plugin_eventsmanager_events.eventtype":
+            return ' style="' . Event::getTypeColor($data[$num][0]['name']) . ';"';
          break;
-      case "glpi_plugin_eventsmanager_events.action" :
-         return ' style="min-width:100px;"';
+        case "glpi_plugin_eventsmanager_events.action":
+            return ' style="min-width:100px;"';
          break;
-   }
-   return "";
+    }
+    return "";
 }
 
 /**
@@ -180,9 +188,10 @@ function plugin_eventsmanager_displayConfigItem($type, $ID, $data, $num) {
  *
  * @return array
  */
-function plugin_eventsmanager_getRuleActions($options) {
-   $event = new PluginEventsmanagerEvent();
-   return $event->getActions();
+function plugin_eventsmanager_getRuleActions($options)
+{
+    $event = new Event();
+    return $event->getActions();
 }
 
 /**
@@ -190,9 +199,10 @@ function plugin_eventsmanager_getRuleActions($options) {
  *
  * @return mixed
  */
-function plugin_eventsmanager_getRuleCriterias($options) {
-   $event = new PluginEventsmanagerEvent();
-   return $event->getCriterias();
+function plugin_eventsmanager_getRuleCriterias($options)
+{
+    $event = new Event();
+    return $event->getCriterias();
 }
 
 /**
@@ -200,7 +210,8 @@ function plugin_eventsmanager_getRuleCriterias($options) {
  *
  * @return the
  */
-function plugin_eventsmanager_executeActions($options) {
-   $event = new PluginEventsmanagerEvent();
-   return $event->executeActions($options['action'], $options['output'], $options['params']);
+function plugin_eventsmanager_executeActions($options)
+{
+    $event = new Event();
+    return $event->executeActions($options['action'], $options['output'], $options['params']);
 }

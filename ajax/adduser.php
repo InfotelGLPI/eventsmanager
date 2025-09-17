@@ -27,11 +27,12 @@
  --------------------------------------------------------------------------
  */
 
+use GlpiPlugin\Eventsmanager\Event;
+
 if (strpos($_SERVER['PHP_SELF'], "adduser.php")) {
-   $AJAX_INCLUDE = 1;
-   include('../../../inc/includes.php');
-   header("Content-Type: text/html; charset=UTF-8");
-   Html::header_nocache();
+    $AJAX_INCLUDE = 1;
+    header("Content-Type: text/html; charset=UTF-8");
+    Html::header_nocache();
 }
 
 Session::checkCentralAccess();
@@ -40,11 +41,9 @@ $user = $_SESSION['glpiID'];
 $date = $_SESSION['glpi_currenttime'];
 
 if (isset($_POST['id'])) {
-   $event = new PluginEventsmanagerEvent();
-   $event->update(['id'             => $_POST['id'],
-                        'users_assigned' => $user,
-                        'date_assign'    => $date,
-                        'status'          => PluginEventsmanagerEvent::ASSIGNED_STATE]);
+    $event = new Event();
+    $event->update(['id'             => $_POST['id'],
+        'users_assigned' => $user,
+        'date_assign'    => $date,
+        'status'          => Event::ASSIGNED_STATE]);
 }
-
-

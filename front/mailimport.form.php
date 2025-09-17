@@ -27,14 +27,12 @@
  --------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
+use GlpiPlugin\Eventsmanager\Mailimport;
 
 if (isset($_POST['update'])) {
-   if (isset($_POST['id'])) {
-      $mail = new PluginEventsmanagerMailimport();
-      $mail->update($_POST);
-      Html::back();
-   }
+    if (isset($_POST['id'])) {
+        $mail = new Mailimport();
+        $mail->update($_POST);
+        Html::back();
+    }
 }
-
-

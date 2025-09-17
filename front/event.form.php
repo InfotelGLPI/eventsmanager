@@ -27,66 +27,59 @@
  --------------------------------------------------------------------------
  */
 
-include('../../../inc/includes.php');
+use GlpiPlugin\Eventsmanager\Event;
+use GlpiPlugin\Eventsmanager\Ticket;
 
 if (!isset($_GET["id"])) {
-   $_GET["id"] = "";
+    $_GET["id"] = "";
 }
 
-$event = new PluginEventsmanagerEvent();
+$event = new Event();
 
 if (isset($_POST["add"])) {
-   $event->check(-1, CREATE, $_POST);
-   $newID = $event->add($_POST);
-   if ($_SESSION['glpibackcreated']) {
-      Html::redirect($event->getFormURL() . "?id=" . $newID);
-   }
-   Html::back();
-} else if (isset($_POST["update"])) {
-   $event->check($_POST['id'], UPDATE);
-   $event->update($_POST);
-   Html::back();
-
-} else if (isset($_POST["delete"])) {
-   $event->check($_POST['id'], DELETE);
-   $event->delete($_POST);
-   $event->redirectToList();
-
-} else if (isset($_POST["restore"])) {
-   $event->check($_POST['id'], PURGE);
-   $event->restore($_POST);
-   $event->redirectToList();
-
-} else if (isset($_POST["purge"])) {
-   $event->check($_POST['id'], PURGE);
-   $event->delete($_POST, 1);
-   $event->redirectToList();
-
-} else if (isset($_POST["ticket_link"])) {
-
-   $ticket = new PluginEventsmanagerTicket();
-   $event  = new PluginEventsmanagerEvent();
-   $event->check($_POST['plugin_eventsmanager_events_id'], UPDATE);
-   //   $_POST['id'] = PluginEventsmanagerEvent::CLOSED_STATE;
+    $event->check(-1, CREATE, $_POST);
+    $newID = $event->add($_POST);
+    if ($_SESSION['glpibackcreated']) {
+        Html::redirect($event->getFormURL() . "?id=" . $newID);
+    }
+    Html::back();
+} elseif (isset($_POST["update"])) {
+    $event->check($_POST['id'], UPDATE);
+    $event->update($_POST);
+    Html::back();
+} elseif (isset($_POST["delete"])) {
+    $event->check($_POST['id'], DELETE);
+    $event->delete($_POST);
+    $event->redirectToList();
+} elseif (isset($_POST["restore"])) {
+    $event->check($_POST['id'], PURGE);
+    $event->restore($_POST);
+    $event->redirectToList();
+} elseif (isset($_POST["purge"])) {
+    $event->check($_POST['id'], PURGE);
+    $event->delete($_POST, 1);
+    $event->redirectToList();
+} elseif (isset($_POST["ticket_link"])) {
+    $ticket = new Ticket();
+    $event  = new Event();
+    $event->check($_POST['plugin_eventsmanager_events_id'], UPDATE);
+   //   $_POST['id'] = Event::CLOSED_STATE;
    //      $_POST['status'] = $_POST['plugin_eventsmanager_events_id'];
    //      $event->update($_POST);
-   $ticket->add(['tickets_id'                     => $_POST['tickets_id'],
+    $ticket->add(['tickets_id'                     => $_POST['tickets_id'],
                       'plugin_eventsmanager_events_id' => $_POST['plugin_eventsmanager_events_id']]);
-   Html::back();
-
-} else if (isset($_POST["assign"])) {
-   $event->check($_POST['id'], UPDATE);
-   $_POST['status'] = PluginEventsmanagerEvent::ASSIGNED_STATE;
-   $event->update($_POST);
-   Html::back();
-
+    Html::back();
+} elseif (isset($_POST["assign"])) {
+    $event->check($_POST['id'], UPDATE);
+    $_POST['status'] = Event::ASSIGNED_STATE;
+    $event->update($_POST);
+    Html::back();
 } else {
+    $event->checkGlobal(READ);
 
-   $event->checkGlobal(READ);
+    Html::header(Event::getTypeName(2), '', "helpdesk", Event::class);
 
-   Html::header(PluginEventsmanagerEvent::getTypeName(2), '', "helpdesk", "plugineventsmanagerevent");
+    $event->display($_GET);
 
-   $event->display($_GET);
-
-   Html::footer();
+    Html::footer();
 }

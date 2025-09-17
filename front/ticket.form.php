@@ -26,11 +26,12 @@
  --------------------------------------------------------------------------
  */
 
-include ('../../../inc/includes.php');
+use Glpi\Exception\Http\BadRequestHttpException;
+use GlpiPlugin\Eventsmanager\Ticket;
 
 Session::checkLoginUser();
 
-$ticket = new PluginEventsmanagerTicket();
+$ticket = new Ticket();
 if (isset($_POST["add"])) {
    $ticket->check(-1, CREATE, $_POST);
 
@@ -39,4 +40,5 @@ if (isset($_POST["add"])) {
 
 }
 
-Html::displayErrorAndDie("lost");
+throw new BadRequestHttpException();
+

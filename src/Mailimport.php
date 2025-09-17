@@ -27,24 +27,36 @@
  --------------------------------------------------------------------------
  */
 
+namespace GlpiPlugin\Eventsmanager;
+
+use CommonDBTM;
+use CommonGLPI;
+use CommonITILObject;
+use Html;
+
 if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access directly to this file");
 }
 
 /**
- * Class PluginEventsmanagerMailimport
+ * Class Mailimport
  */
-class PluginEventsmanagerMailimport extends CommonDBTM {
+class Mailimport extends CommonDBTM {
 
    /**
     * @param int $nb
     *
-    * @return translated
+    * @return string
     */
    static function getTypeName($nb = 0) {
 
       return __('Import mails for events manager', 'eventsmanager');
    }
+
+    static function getIcon()
+    {
+        return Event::getIcon();
+    }
 
    /**
     * @param CommonGLPI $item
@@ -55,7 +67,7 @@ class PluginEventsmanagerMailimport extends CommonDBTM {
    function getTabNameForItem(CommonGLPI $item, $withtemplate = 0) {
 
       if ($item->getType() == 'MailCollector') {
-         return _n('Event manager', 'Events manager', 2, 'eventsmanager');
+         return self::createTabEntry(_n('Event manager', 'Events manager', 2, 'eventsmanager'));
       }
       return '';
    }
@@ -96,7 +108,7 @@ class PluginEventsmanagerMailimport extends CommonDBTM {
 
       echo "<tr class='tab_bg_2'>";
       echo "<td>" . __('Default impact', 'eventsmanager') . "</td><td>";
-      Ticket::dropdownImpact(['name'      => 'default_impact',
+      \Ticket::dropdownImpact(['name'      => 'default_impact',
                               'value'     => $this->fields['default_impact'],
                               'withmajor' => 1]);
       echo "</td>";
@@ -112,7 +124,7 @@ class PluginEventsmanagerMailimport extends CommonDBTM {
 
       echo "<tr class='tab_bg_2'>";
       echo "<td>" . __('Default event type', 'eventsmanager') . "</td><td>";
-      PluginEventsmanagerEvent::dropdownType(['name'  => 'default_eventtype',
+      Event::dropdownType(['name'  => 'default_eventtype',
                                               'value' => $this->fields['default_eventtype']]);
       echo "</td>";
       echo "</tr>";

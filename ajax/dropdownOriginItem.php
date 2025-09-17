@@ -27,19 +27,20 @@
  --------------------------------------------------------------------------
  */
 
+use GlpiPlugin\Eventsmanager\Origin;
+
 if (strpos($_SERVER['PHP_SELF'], "dropdownOriginItem.php")) {
-   include('../../../inc/includes.php');
    header("Content-Type: text/html; charset=UTF-8");
    Html::header_nocache();
 }
 
 Session::checkCentralAccess();
 
-$field = new PluginEventsmanagerOrigin();
+$field = new Origin();
 if ($_POST['id'] > 0) {
    $field->getFromDB($_POST['id']);
 } else {
    $field->getEmpty();
    $field->fields['itemtype'] = $_POST['itemtype'];
 }
-PluginEventsmanagerOrigin::selectItems($field);
+Origin::selectItems($field);
