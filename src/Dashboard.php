@@ -29,6 +29,7 @@
 
 namespace GlpiPlugin\Eventsmanager;
 
+use Ajax;
 use CommonGLPI;
 use CommonITILObject;
 use DbUtils;

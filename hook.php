@@ -84,14 +84,20 @@ function plugin_eventsmanager_uninstall()
         $DB->doQuery("DROP TABLE IF EXISTS `$table`;");
     }
 
-    $tables_glpi = ["glpi_displaypreferences",
-                        "glpi_notepads",
-                        "glpi_documents_items",
-                        "glpi_savedsearches",
-                        "glpi_logs"];
-
-    foreach ($tables_glpi as $table_glpi) {
-        $DB->doQuery("DELETE FROM `$table_glpi` WHERE `itemtype` LIKE 'GlpiPlugin\Eventsmanager\Event%';");
+    $itemtypes = ['Alert',
+        'DisplayPreference',
+        'Document_Item',
+        'ImpactItem',
+        'Item_Ticket',
+        'Link_Itemtype',
+        'Notepad',
+        'SavedSearch',
+        'DropdownTranslation',
+        'NotificationTemplate',
+        'Notification'];
+    foreach ($itemtypes as $itemtype) {
+        $item = new $itemtype;
+        $item->deleteByCriteria(['itemtype' => Event::class]);
     }
 
    //Delete rights associated with the plugin
@@ -114,11 +120,12 @@ function plugin_eventsmanager_getDatabaseRelations()
 {
 
     if (Plugin::isPluginActive("eventsmanager")) {
-        return ["glpi_users"          => ["glpi_plugin_eventsmanager_events" => "users_id",
-                                                  "glpi_plugin_eventsmanager_events" => "users_assigned",
-                                                  "glpi_plugin_eventsmanager_events" => "users_close"],
-                   "glpi_groups"         => ["glpi_plugin_eventsmanager_events" => "groups_id",
-                                                  "glpi_plugin_eventsmanager_events" => "groups_assigned"],
+        return [
+//            "glpi_users"          => ["glpi_plugin_eventsmanager_events" => "users_id",
+//                                                  "glpi_plugin_eventsmanager_events" => "users_assigned",
+//                                                  "glpi_plugin_eventsmanager_events" => "users_close"],
+//                   "glpi_groups"         => ["glpi_plugin_eventsmanager_events" => "groups_id",
+//                                                  "glpi_plugin_eventsmanager_events" => "groups_assigned"],
                    "glpi_entities"       => ["glpi_plugin_eventsmanager_events"     => "entities_id",
                                                   "glpi_plugin_eventsmanager_rssimports" => "entities_id_import"],
                    "glpi_reminders"      => ["glpi_plugin_eventsmanager_events" => "reminders_id"],

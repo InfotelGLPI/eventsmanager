@@ -111,10 +111,10 @@ class Profile extends \Profile
         $dbu          = new DbUtils();
         foreach ($rights as $right => $value) {
             if ($dbu->countElementsInTable(
-                    'glpi_profilerights',
-                    ["profiles_id" => $profiles_id,
+                'glpi_profilerights',
+                ["profiles_id" => $profiles_id,
                         "name" => $right]
-                ) && $drop_existing) {
+            ) && $drop_existing) {
                 $profileRight->deleteByCriteria(['profiles_id' => $profiles_id, 'name' => $right]);
             }
             if (!$dbu->countElementsInTable(
@@ -225,9 +225,9 @@ class Profile extends \Profile
         //Add new rights in glpi_profilerights table
         foreach ($profile->getAllRights(true) as $data) {
             if ($dbu->countElementsInTable(
-                    "glpi_profilerights",
-                    ["name" => $data['field']]
-                ) == 0) {
+                "glpi_profilerights",
+                ["name" => $data['field']]
+            ) == 0) {
                 ProfileRight::addProfileRights([$data['field']]);
             }
         }
