@@ -54,6 +54,77 @@ function plugin_eventsmanager_install()
         $DB->runFile(PLUGIN_EVENTMANAGER_DIR . "/sql/update-4.0.0.sql");
     }
 
+    //DisplayPreferences Migration
+    $classes = ['PluginEventsmanagerEvent' => Event::class];
+
+    foreach ($classes as $old => $new) {
+        $displayusers = $DB->request([
+            'SELECT' => [
+                'users_id'
+            ],
+            'DISTINCT' => true,
+            'FROM' => 'glpi_displaypreferences',
+            'WHERE' => [
+                'itemtype' => $old,
+            ],
+        ]);
+
+        if (count($displayusers) > 0) {
+            foreach ($displayusers as $displayuser) {
+                $iterator = $DB->request([
+                    'SELECT' => [
+                        'num',
+                        'id'
+                    ],
+                    'FROM' => 'glpi_displaypreferences',
+                    'WHERE' => [
+                        'itemtype' => $old,
+                        'users_id' => $displayuser['users_id'],
+                        'interface' => 'central'
+                    ],
+                ]);
+
+                if (count($iterator) > 0) {
+                    foreach ($iterator as $data) {
+                        $iterator2 = $DB->request([
+                            'SELECT' => [
+                                'id'
+                            ],
+                            'FROM' => 'glpi_displaypreferences',
+                            'WHERE' => [
+                                'itemtype' => $new,
+                                'users_id' => $displayuser['users_id'],
+                                'num' => $data['num'],
+                                'interface' => 'central'
+                            ],
+                        ]);
+                        if (count($iterator2) > 0) {
+                            foreach ($iterator2 as $dataid) {
+                                $query = $DB->buildDelete(
+                                    'glpi_displaypreferences',
+                                    [
+                                        'id' => $dataid['id'],
+                                    ]
+                                );
+                                $DB->doQuery($query);
+                            }
+                        } else {
+                            $query = $DB->buildUpdate(
+                                'glpi_displaypreferences',
+                                [
+                                    'itemtype' => $new,
+                                ],
+                                [
+                                    'id' => $data['id'],
+                                ]
+                            );
+                            $DB->doQuery($query);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     Profile::initProfile();
     Profile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);

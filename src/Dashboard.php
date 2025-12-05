@@ -39,7 +39,9 @@ use GlpiPlugin\Mydashboard\Widget;
 use Group_User;
 use Html;
 use Plugin;
+use AllowDynamicProperties;
 
+#[AllowDynamicProperties]
 class Dashboard extends CommonGLPI
 {
 
