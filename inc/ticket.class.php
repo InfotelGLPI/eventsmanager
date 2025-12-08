@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /*
  * @version $Id: HEADER 15930 2011-10-30 15:47:55Z tsmr $
  -------------------------------------------------------------------------
@@ -27,7 +28,7 @@
  --------------------------------------------------------------------------
  */
 
-class PluginEventsmanagerTicket extends CommonDBTM {
+class PluginEventsmanagerTicket extends \CommonDBTM {
 
    public static $rightname = 'plugin_eventsmanager';
 

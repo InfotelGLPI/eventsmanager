@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /*
  * @version $Id: HEADER 15930 2011-10-30 15:47:55Z tsmr $
  -------------------------------------------------------------------------
@@ -102,11 +103,11 @@ function plugin_version_eventsmanager() {
       'author'         => "<a href='http://infotel.com/services/expertise-technique/glpi/'>Infotel</a>",
       'homepage'       => 'https://github.com/InfotelGLPI/eventsmanager',
       'requirements' => [
-         'glpi' => [
-            'min' => '10.0',
-            'max' => '11.0',
-            'dev' => false
-         ]
+            'glpi' => [
+               'min' => '11.0',
+               'max' => '11.99',
+               'dev' => false
+            ]
       ]
    ];
 }

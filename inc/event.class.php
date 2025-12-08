@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /*
  * @version $Id: HEADER 15930 2011-10-30 15:47:55Z tsmr $
  -------------------------------------------------------------------------
@@ -34,7 +35,7 @@ if (!defined('GLPI_ROOT')) {
 /**
  * Class PluginEventsmanagerEvent
  */
-class PluginEventsmanagerEvent extends CommonDBTM {
+class PluginEventsmanagerEvent extends \CommonDBTM {
 
    public    $dohistory  = true;
    static    $rightname  = 'plugin_eventsmanager';
