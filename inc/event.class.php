@@ -228,11 +228,10 @@ class PluginEventsmanagerEvent extends \CommonDBTM {
 
       $tab[] = [
          'id'        => '16',
-         'table'     => 'glpi_users',
-         'field'     => 'name',
-         'linkfield' => 'users_assigned',
+         'table'     => $this->getTable(),
+         'field'     => 'users_assigned',
          'name'      => __('Assign user', 'eventsmanager'),
-         'datatype'  => 'dropdown',
+         'datatype'  => 'number',
       ];
 
       $tab[] = [
@@ -245,11 +244,10 @@ class PluginEventsmanagerEvent extends \CommonDBTM {
 
       $tab[] = [
          'id'        => '18',
-         'table'     => 'glpi_users',
-         'field'     => 'name',
-         'linkfield' => 'users_close',
+         'table'     => $this->getTable(),
+         'field'     => 'users_close',
          'name'      => __('User close', 'eventsmanager'),
-         'datatype'  => 'dropdown',
+         'datatype'  => 'number',
       ];
 
       $tab[] = [

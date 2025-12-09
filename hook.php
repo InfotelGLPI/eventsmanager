@@ -46,6 +46,32 @@ function plugin_eventsmanager_install() {
       $DB->runFile(PLUGIN_EVENTMANAGER_DIR . "/sql/update-2.2.0.sql");
    }
 
+   // Ensure foreign key constraints exist (fix for GLPI 11 compatibility)
+   try {
+      $fk_constraints = [
+         'fk_eventsmanager_events_users_assigned' => "ALTER TABLE `glpi_plugin_eventsmanager_events` ADD CONSTRAINT `fk_eventsmanager_events_users_assigned` FOREIGN KEY (`users_assigned`) REFERENCES `glpi_users` (`id`) ON DELETE SET DEFAULT",
+         'fk_eventsmanager_events_users_close' => "ALTER TABLE `glpi_plugin_eventsmanager_events` ADD CONSTRAINT `fk_eventsmanager_events_users_close` FOREIGN KEY (`users_close`) REFERENCES `glpi_users` (`id`) ON DELETE SET DEFAULT",
+         'fk_eventsmanager_events_groups_assigned' => "ALTER TABLE `glpi_plugin_eventsmanager_events` ADD CONSTRAINT `fk_eventsmanager_events_groups_assigned` FOREIGN KEY (`groups_assigned`) REFERENCES `glpi_groups` (`id`) ON DELETE SET DEFAULT"
+      ];
+      
+      foreach ($fk_constraints as $fk_name => $sql) {
+         $constraint_exists = $DB->request([
+            'FROM' => 'information_schema.TABLE_CONSTRAINTS',
+            'WHERE' => [
+               'CONSTRAINT_SCHEMA' => $DB->dbdefault,
+               'TABLE_NAME' => 'glpi_plugin_eventsmanager_events',
+               'CONSTRAINT_NAME' => $fk_name
+            ]
+         ])->count() > 0;
+         
+         if (!$constraint_exists) {
+            $DB->doQuery($sql);
+         }
+      }
+   } catch (Exception $e) {
+      // Foreign keys may already exist or fail silently in some MySQL versions
+      error_log("Warning: Could not add foreign key constraints to eventsmanager plugin: " . $e->getMessage());
+   }
 
    PluginEventsmanagerProfile::initProfile();
    PluginEventsmanagerProfile::createFirstAccess($_SESSION['glpiactiveprofile']['id']);
@@ -74,7 +100,7 @@ function plugin_eventsmanager_uninstall() {
       "glpi_plugin_eventsmanager_mailimports"];
 
    foreach ($tables as $table) {
-      $DB->query("DROP TABLE IF EXISTS `$table`;");
+      $DB->doQuery("DROP TABLE IF EXISTS `$table`");
    }
 
    $tables_glpi = ["glpi_displaypreferences",
@@ -84,7 +110,10 @@ function plugin_eventsmanager_uninstall() {
                         "glpi_logs"];
 
    foreach ($tables_glpi as $table_glpi) {
-      $DB->query("DELETE FROM `$table_glpi` WHERE `itemtype` LIKE 'PluginEventsmanagerEvent%';");
+      $DB->deleteOrDie(
+         $table_glpi,
+         ['itemtype' => ['LIKE', 'PluginEventsmanagerEvent%']]
+      );
    }
 
    //Delete rights associated with the plugin
@@ -106,12 +135,9 @@ function plugin_eventsmanager_uninstall() {
 function plugin_eventsmanager_getDatabaseRelations() {
 
    if (Plugin::isPluginActive("eventsmanager")) {
-      return ["glpi_users"          => ["glpi_plugin_eventsmanager_events" => "users_id",
-                                                  "glpi_plugin_eventsmanager_events" => "users_assigned",
-                                                  "glpi_plugin_eventsmanager_events" => "users_close"],
-                   "glpi_groups"         => ["glpi_plugin_eventsmanager_events" => "groups_id",
-                                                  "glpi_plugin_eventsmanager_events" => "groups_assigned"],
-                   "glpi_entities"       => ["glpi_plugin_eventsmanager_events"     => "entities_id",
+      // Note: users_assigned, users_close, and groups_assigned relations are commented out
+      // because they require foreign key constraints that will be added during plugin upgrade
+      return ["glpi_entities"       => ["glpi_plugin_eventsmanager_events"     => "entities_id",
                                                   "glpi_plugin_eventsmanager_rssimports" => "entities_id_import"],
                    "glpi_reminders"      => ["glpi_plugin_eventsmanager_events" => "reminders_id"],
                    "glpi_requesttypes"   => ["glpi_plugin_eventsmanager_origins" => "requesttypes_id"],

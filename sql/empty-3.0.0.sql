@@ -12,8 +12,8 @@ CREATE TABLE `glpi_plugin_eventsmanager_events` (
    `time_to_resolve`  timestamp NULL default '0000-00-00 00:00:00',
    `action` int unsigned default '1',
    `eventtype` int unsigned default '0',
-   `users_id` int unsigned NOT NULL default '0' COMMENT 'RELATION to glpi_users (id)',
-   `groups_id` int unsigned NOT NULL default '0' COMMENT 'RELATION to glpi_groups (id)',
+   `users_id` int unsigned NOT NULL default '0',
+   `groups_id` int unsigned NOT NULL default '0',
    `comment` text collate utf8mb4_unicode_ci,
    `date_mod` timestamp NULL default '0000-00-00 00:00:00',
    `is_deleted` tinyint NOT NULL default '0',
@@ -21,9 +21,9 @@ CREATE TABLE `glpi_plugin_eventsmanager_events` (
    `date_assign` timestamp NULL default '0000-00-00 00:00:00',
    `date_close` timestamp NULL default '0000-00-00 00:00:00',
    `date_ticket` timestamp NULL default '0000-00-00 00:00:00',
-   `users_assigned` int unsigned NOT NULL default '0' COMMENT 'RELATION to glpi_users (id)',
-   `groups_assigned` int unsigned NOT NULL default '0' COMMENT 'RELATION to glpi_groups (id)',
-   `users_close` int unsigned NOT NULL default '0' COMMENT 'RELATION to glpi_users (id)',
+   `users_assigned` int unsigned NOT NULL default '0',
+   `groups_assigned` int unsigned NOT NULL default '0',
+   `users_close` int unsigned NOT NULL default '0',
    `plugin_eventsmanager_origins_id` int unsigned NOT NULL default '0',
    `impact` int unsigned NOT NULL DEFAULT '1',
    `reminders_id` int unsigned default NULL,
@@ -36,7 +36,10 @@ CREATE TABLE `glpi_plugin_eventsmanager_events` (
    KEY `groups_id` (`groups_id`),
    KEY `groups_assigned` (`groups_assigned`),
    KEY `reminders_id` (`reminders_id`),
-   KEY `is_deleted` (`is_deleted`)
+   KEY `is_deleted` (`is_deleted`),
+   CONSTRAINT `fk_eventsmanager_events_users_assigned` FOREIGN KEY (`users_assigned`) REFERENCES `glpi_users` (`id`) ON DELETE SET DEFAULT,
+   CONSTRAINT `fk_eventsmanager_events_users_close` FOREIGN KEY (`users_close`) REFERENCES `glpi_users` (`id`) ON DELETE SET DEFAULT,
+   CONSTRAINT `fk_eventsmanager_events_groups_assigned` FOREIGN KEY (`groups_assigned`) REFERENCES `glpi_groups` (`id`) ON DELETE SET DEFAULT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 --
@@ -142,12 +145,12 @@ CREATE TABLE `glpi_plugin_eventsmanager_events_comments` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
-INSERT INTO `glpi_displaypreferences` VALUES(NULL, 'PluginEventsmanagerEvent', 3, 5, 0),
-                                            (NULL, 'PluginEventsmanagerEvent', 11, 2, 0),
-                                            (NULL, 'PluginEventsmanagerEvent', 8, 3, 0),
-                                            (NULL, 'PluginEventsmanagerEvent', 9, 4, 0),
-                                            (NULL, 'PluginEventsmanagerEvent', 6, 5, 0),
-                                            (NULL, 'PluginEventsmanagerEvent', 19, 6, 0),
-                                            (NULL, 'PluginEventsmanagerEvent', 5, 7, 0),
-                                            (NULL, 'PluginEventsmanagerEvent', 7, 8, 0),
-                                            (NULL, 'PluginEventsmanagerEvent', 12, 9, 0);
+INSERT INTO `glpi_displaypreferences` VALUES(NULL, 'PluginEventsmanagerEvent', 3, 5, 0, 'central'),
+                                            (NULL, 'PluginEventsmanagerEvent', 11, 2, 0, 'central'),
+                                            (NULL, 'PluginEventsmanagerEvent', 8, 3, 0, 'central'),
+                                            (NULL, 'PluginEventsmanagerEvent', 9, 4, 0, 'central'),
+                                            (NULL, 'PluginEventsmanagerEvent', 6, 5, 0, 'central'),
+                                            (NULL, 'PluginEventsmanagerEvent', 19, 6, 0, 'central'),
+                                            (NULL, 'PluginEventsmanagerEvent', 5, 7, 0, 'central'),
+                                            (NULL, 'PluginEventsmanagerEvent', 7, 8, 0, 'central'),
+                                            (NULL, 'PluginEventsmanagerEvent', 12, 9, 0, 'central');

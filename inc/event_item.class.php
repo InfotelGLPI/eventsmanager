@@ -63,7 +63,7 @@ class PluginEventsmanagerEvent_Item extends CommonDBRelation {
     * @since version 0.85.5
     * @see CommonDBRelation::canCreateItem()
     **/
-   function canCreateItem() {
+   function canCreateItem(): bool {
 
       $event = new PluginEventsmanagerEvent();
       // Not item linked for closed events
