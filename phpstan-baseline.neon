@@ -1,0 +1,265 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to an undefined static method Session\:\:checkCentralAccess\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: ajax/adduser.php
+
+		-
+			message: '#^Call to an undefined static method Session\:\:checkCentralAccess\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: ajax/closeevent.php
+
+		-
+			message: '#^Call to an undefined static method Session\:\:checkCentralAccess\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: ajax/createticket.php
+
+		-
+			message: '#^Call to an undefined static method Session\:\:checkCentralAccess\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: ajax/dropdownOrigin.php
+
+		-
+			message: '#^Call to an undefined static method Session\:\:checkCentralAccess\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: ajax/dropdownOriginItem.php
+
+		-
+			message: '#^Instantiated class PluginEventsmanagerAPIRest not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: apirest.php
+
+		-
+			message: '#^Call to an undefined static method Search\:\:getOptions\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Call to static method Register\(\) on an unknown class CronTask\.$#'
+			identifier: class.notFound
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Access to an undefined property PluginEventsmanagerDashboard\:\:\$interfaces\.$#'
+			identifier: property.notFound
+			count: 1
+			path: inc/dashboard.class.php
+
+		-
+			message: '#^Access to static property \$TABLE on an unknown class PluginMydashboardWidget\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/dashboard.class.php
+
+		-
+			message: '#^Access to static property \$TOOLS on an unknown class PluginMydashboardMenu\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/dashboard.class.php
+
+		-
+			message: '#^Call to an undefined method PluginEventsmanagerDashboard\:\:getType\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: inc/dashboard.class.php
+
+		-
+			message: '#^Instantiated class PluginMydashboardDatatable not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: inc/dashboard.class.php
+
+		-
+			message: '#^Method PluginEventsmanagerDashboard\:\:getWidgetContentForItem\(\) should return PluginMydashboardDatatable but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: inc/dashboard.class.php
+
+		-
+			message: '#^Call to an undefined static method Html\:\:initEditorSystem\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: inc/event.class.php
+
+		-
+			message: '#^Call to an undefined static method Html\:\:showDateTimeField\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: inc/event.class.php
+
+		-
+			message: '#^Call to an undefined static method Html\:\:textarea\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: inc/event.class.php
+
+		-
+			message: '#^Call to an undefined static method Session\:\:isMultiEntitiesMode\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: inc/event.class.php
+
+		-
+			message: '#^Call to static method canView\(\) on an unknown class Config\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/event.class.php
+
+		-
+			message: '#^Static call to instance method CommonDBTM\:\:showMassiveActionsSubForm\(\)\.$#'
+			identifier: method.staticCall
+			count: 1
+			path: inc/event.class.php
+
+		-
+			message: '#^Call to an undefined static method Html\:\:jsAlertCallback\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: inc/event_comment.class.php
+
+		-
+			message: '#^Call to static method unsanitize\(\) on an unknown class Glpi\\Toolbox\\Sanitizer\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/event_comment.class.php
+
+		-
+			message: '#^Result of static method Html\:\:closeForm\(\) \(void\) is used\.$#'
+			identifier: staticMethod.void
+			count: 1
+			path: inc/event_comment.class.php
+
+		-
+			message: '#^Access to an undefined property PluginEventsmanagerEvent_Item\:\:\$auto_message_on_action\.$#'
+			identifier: property.notFound
+			count: 2
+			path: inc/event_item.class.php
+
+		-
+			message: '#^Access to undefined constant PluginEventsmanagerEvent_Item\:\:HAVE_VIEW_RIGHT_ON_ITEM\.$#'
+			identifier: classConstant.notFound
+			count: 1
+			path: inc/event_item.class.php
+
+		-
+			message: '#^Access to undefined constant Ticket\:\:HELPDESK_ALL_HARDWARE\.$#'
+			identifier: classConstant.notFound
+			count: 1
+			path: inc/event_item.class.php
+
+		-
+			message: '#^Access to undefined constant Ticket\:\:HELPDESK_MY_HARDWARE\.$#'
+			identifier: classConstant.notFound
+			count: 1
+			path: inc/event_item.class.php
+
+		-
+			message: '#^Method PluginEventsmanagerEvent_Item\:\:itemAddForm\(\) should return Nothing but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: inc/event_item.class.php
+
+		-
+			message: '#^Method PluginEventsmanagerEvent_Item\:\:showForEvent\(\) should return Nothing but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: inc/event_item.class.php
+
+		-
+			message: '#^Call to static method dropdown\(\) on an unknown class MailCollector\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/origin.class.php
+
+		-
+			message: '#^Call to static method dropdown\(\) on an unknown class RSSFeed\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/origin.class.php
+
+		-
+			message: '#^Instantiated class MailCollector not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/origin.class.php
+
+		-
+			message: '#^Instantiated class RSSFeed not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/origin.class.php
+
+		-
+			message: '#^Method PluginEventsmanagerOrigin\:\:dropdownItemOrigin\(\) should return type but return statement is missing\.$#'
+			identifier: return.missing
+			count: 2
+			path: inc/origin.class.php
+
+		-
+			message: '#^Method PluginEventsmanagerOrigin\:\:getItemOrigin\(\) should return an but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: inc/origin.class.php
+
+		-
+			message: '#^Method PluginEventsmanagerProfile\:\:showForm\(\) should return nothing but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: inc/profile.class.php
+
+		-
+			message: '#^Call to static method getRSSFeed\(\) on an unknown class RSSFeed\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/rssimport.class.php
+
+		-
+			message: '#^Instantiated class RSSFeed not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/rssimport.class.php
+
+		-
+			message: '#^Access to undefined constant Ticket\:\:INCIDENT_TYPE\.$#'
+			identifier: classConstant.notFound
+			count: 1
+			path: inc/ticket.class.php
+
+		-
+			message: '#^Call to an undefined static method Html\:\:getMassiveActionCheckBox\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: inc/ticket.class.php
+
+		-
+			message: '#^Call to static method getTextFromHtml\(\) on an unknown class Glpi\\RichText\\RichText\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/ticket.class.php
+
+		-
+			message: '#^Call to static method sanitize\(\) on an unknown class Glpi\\Toolbox\\Sanitizer\.$#'
+			identifier: class.notFound
+			count: 1
+			path: inc/ticket.class.php
+
+		-
+			message: '#^Class Html referenced with incorrect case\: html\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: inc/ticket.class.php
+
+		-
+			message: '#^Method PluginEventsmanagerTicket\:\:displayTabContentForItem\(\) should return bool but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: inc/ticket.class.php
