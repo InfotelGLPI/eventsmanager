@@ -35,8 +35,6 @@ use CommonDBTM;
 use CommonITILObject;
 use DbUtils;
 use Dropdown;
-use GlpiPlugin\Eventsmanager\Config;
-use GlpiPlugin\Eventsmanager\Ticket;
 use Html;
 use MassiveAction;
 use Session;
