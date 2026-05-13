@@ -283,7 +283,7 @@ class Event_Comment extends CommonDBTM
 
             $html .= "<div class='item_content'>";
             $html .= "<p>";
-            $html .= $comment['comment'];
+            $html .= htmlspecialchars($comment['comment'], ENT_QUOTES);
             $html .= "</p>";
             $html .= "</div>";
             $html .= "</div>"; // displayed_content

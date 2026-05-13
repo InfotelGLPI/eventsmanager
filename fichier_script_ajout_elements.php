@@ -38,10 +38,10 @@ include('../../inc/includes.php');
 
 //AUthentication
 $ch      = curl_init();
-$api_url = "http://172.16.6.4/glpi92/apirest.php/";
+$api_url = "https://monglpi.fr/apirest.php/";
 //API token field (user)
-$user_token = "n4nKdfrNA2tase9gihOS3EWXw5EE3Sl6uNocWxrX";
-$app_token  = "1b6MGWga8xcSrw2m7p9gvuovYmy7sIYymwE5W2zp";
+$user_token = "xxxxxxxxxxxxxxxxxxxxxxxx";
+$app_token  = "xxxxxxxxxxxxxxxxxxxxxxxxxx";
 $url        = $api_url . "initSession?Content-Type=%20application/json&app_token=" . $app_token . "&user_token=" . $user_token;
 curl_setopt($ch, CURLOPT_URL, $url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

@@ -52,10 +52,9 @@ function plugin_init_eventsmanager()
 {
     global $PLUGIN_HOOKS, $CFG_GLPI;
 
-    $PLUGIN_HOOKS['csrf_compliant']['eventsmanager'] = true;
-    $PLUGIN_HOOKS['change_profile']['eventsmanager'] = [Profile::class, 'initProfile'];
+    $PLUGIN_HOOKS[Hooks::CHANGE_PROFILE]['eventsmanager'] = [Profile::class, 'initProfile'];
 
-    $PLUGIN_HOOKS['use_rules']['eventsmanager'] = ['RuleMailCollector'];
+    $PLUGIN_HOOKS[Hooks::USE_RULES]['eventsmanager'] = ['RuleMailCollector'];
 
     Plugin::registerClass(Ticket::class, ['addtabon' => ['Ticket']]);
     Plugin::registerClass(Rssimport::class, ['addtabon' => ['RSSFeed']]);
@@ -72,12 +71,12 @@ function plugin_init_eventsmanager()
         );
 
         if (Session::haveRight("plugin_eventsmanager", UPDATE)) {
-            $PLUGIN_HOOKS['use_massive_action']['eventsmanager'] = 1;
-            $PLUGIN_HOOKS['config_page']['eventsmanager']        = 'front/config.form.php';
+            $PLUGIN_HOOKS[Hooks::USE_MASSIVE_ACTION]['eventsmanager'] = 1;
+            $PLUGIN_HOOKS[Hooks::CONFIG_PAGE]['eventsmanager']        = 'front/config.form.php';
         }
 
         if (Session::haveRight("plugin_eventsmanager", READ)) {
-            $PLUGIN_HOOKS['menu_toadd']['eventsmanager'] = ['helpdesk' => Event::class];
+            $PLUGIN_HOOKS[Hooks::MENU_TOADD]['eventsmanager'] = ['helpdesk' => Event::class];
         }
 
         if (class_exists(Menu::class)) {
@@ -85,10 +84,10 @@ function plugin_init_eventsmanager()
         }
 
         if (Session::haveRight("plugin_eventsmanager", CREATE)) {
-            $PLUGIN_HOOKS['use_massive_action']['eventsmanager'] = 1;
+            $PLUGIN_HOOKS[Hooks::USE_MASSIVE_ACTION]['eventsmanager'] = 1;
         }
 
-        $PLUGIN_HOOKS['item_purge']['eventsmanager']['Ticket'] = [Ticket::class, 'cleanForTicket'];
+        $PLUGIN_HOOKS[Hooks::ITEM_PURGE]['eventsmanager']['Ticket'] = [Ticket::class, 'cleanForTicket'];
 
         if (isset($_SESSION["glpiactiveprofile"])
              && $_SESSION["glpiactiveprofile"]["interface"] != "helpdesk") {

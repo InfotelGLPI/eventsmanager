@@ -28,6 +28,7 @@
  */
 
 use Glpi\Exception\Http\BadRequestHttpException;
+use GlpiPlugin\Eventsmanager\Event;
 use GlpiPlugin\Eventsmanager\Event_Item;
 
 Session ::checkLoginUser();
@@ -56,6 +57,8 @@ if (isset($_POST["add"])) {
    Html::back();
 
 } else if (isset($_POST["delete"])) {
+   $event = new Event();
+   $event->check((int) $_POST['plugin_eventsmanager_events_id'], UPDATE);
    $item_ticket = new Event_Item();
    $deleted = $item_ticket->deleteByCriteria(['plugin_eventsmanager_events_id' => $_POST['plugin_eventsmanager_events_id'],
                                                    'items_id'   => $_POST['items_id'],

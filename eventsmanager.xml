@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <name>Events Manager</name>
+    <key>eventsmanager</key>
+    <state>stable</state>
+    <logo>https://raw.githubusercontent.com/InfotelGLPI/eventsmanager/master/eventsmanager.png</logo>
+    <description>
+        <short>
+            <fr><![CDATA[Gestion d'évenements]]></fr>
+            <en><![CDATA[Event management]]></en>
+         </short>
+        <long>
+            <fr><![CDATA[Gestion d'évenements]]></fr>
+            <en><![CDATA[Event management]]></en>
+           </long>
+    </description>
+    <homepage>https://github.com/InfotelGLPI/eventsmanager</homepage>
+    <download>https://github.com/InfotelGLPI/eventsmanager/releases</download>
+    <issues>https://github.com/InfotelGLPI/eventsmanager/issues</issues>
+    <readme>https://raw.githubusercontent.com/InfotelGLPI/eventsmanager/master/README.md</readme>
+    <authors>
+        <author>Xavier Caillaud</author>
+        <author>Infotel</author>
+    </authors>
+    <versions>
+        <version>
+            <num>4.0.0</num>
+            <compatibility>~11.0</compatibility>
+            <download_url>https://github.com/InfotelGLPI/eventsmanager/releases/download/4.0.0/glpi-eventsmanager-4.0.0.tar.bz2</download_url>
+        </version>
+    </versions>
+    <langs>
+        <lang>en_GB</lang>
+        <lang>fr_FR</lang>
+    </langs>
+    <license><![CDATA[GPL v2+]]></license>
+    <tags>
+        <fr>
+            <tag>Evénement</tag>
+            <tag>Gestion</tag>
+        </fr>
+        <en>
+            <tag>Evenement</tag>
+            <tag>Management</tag>
+        </en>
+    </tags>
+</root>

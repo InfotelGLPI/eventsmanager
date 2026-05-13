@@ -886,10 +886,10 @@ class Event extends CommonDBTM
                 switch ($action->fields["field"]) {
                     case "eventsmanager":
                         if (isset($params['headers']['subject'])) {
-                            $input['name'] = addslashes($params['headers']['subject']);
+                            $input['name'] = $params['headers']['subject'];
                         }
                         if (isset($params['ticket'])) {
-                            $input['comment'] = addslashes(strip_tags($params['ticket']['content']));
+                            $input['comment'] = strip_tags($params['ticket']['content']);
                         }
                         if (isset($params['headers']['from'])) {
                             $input['users_id'] = User::getOrImportByEmail($params['headers']['from']);
@@ -1098,11 +1098,11 @@ class Event extends CommonDBTM
             default:
                 return
                "<i onclick=\"addUserEvent($val)\" title=\"" . __('Assign me to this event', 'eventsmanager') . "\"
-               class='ti ti-user-plus fa-2x' style='float:left; cursor:pointer;'/></i>"
+               class='ti ti-user-plus' style='float:left; cursor:pointer;'/></i>"
                . "<i onclick=\"createTicketEvent($val)\" title=\"" . __('Create a ticket from the event', 'eventsmanager') . "\"
-               class='ti ti-bell fa-2x' style='float:left; cursor:pointer;'/></i>"
+               class='ti ti-bell' style='float:left; cursor:pointer;'/></i>"
                . "<i onclick=\"closeEvent($val)\" title=\"" . __('Close the event', 'eventsmanager') . "\"
-               class='ti ti-archive fa-2x' style='float:left; cursor:pointer;'/></i>";
+               class='ti ti-archive' style='float:left; cursor:pointer;'/></i>";
         }
     }
 

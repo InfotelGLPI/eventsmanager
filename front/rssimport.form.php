@@ -29,6 +29,8 @@
 
 use GlpiPlugin\Eventsmanager\Rssimport;
 
+Session::checkLoginUser();
+
 if (isset($_POST['update'])) {
    if (isset($_POST['id'])) {
       $rss = new Rssimport();

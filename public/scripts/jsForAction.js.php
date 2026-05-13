@@ -1,6 +1,8 @@
 <?php
 
-include("../../../../inc/includes.php");
+if (!defined('GLPI_ROOT')) {
+    die("Sorry. You can't access this file directly.");
+}
 
 //change mimetype
 header("Content-type: application/javascript");

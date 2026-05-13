@@ -29,6 +29,8 @@
 use GlpiPlugin\Eventsmanager\Event;
 use GlpiPlugin\Eventsmanager\Config;
 
+Session::checkLoginUser();
+
 if (Plugin::isPluginActive("eventsmanager")) {
    $config = new Config();
    if (isset($_POST["update_config"])) {

@@ -91,7 +91,7 @@ class Rssimport extends CommonDBTM
         if ($item->getType() == 'RSSFeed') {
             $idr = $item->getID();
             if (!$rss->getFromDBByCrit(['rssfeeds_id' => $idr])) {
-                $id = $rss->add(['number'             => '0',
+                $id = $rss->add(['last_rssfeed_url'   => '',
                              'rssfeeds_id'        => $idr,
                              'use_with_plugin'    => '0',
                              'default_impact'     => '0',
@@ -199,44 +199,51 @@ class Rssimport extends CommonDBTM
         $rssfeed   = new RSSFeed();
         $origin    = new Origin();
 
-        $query  = "SELECT DISTINCT `glpi_plugin_eventsmanager_rssimports`.*
-                 FROM `glpi_plugin_eventsmanager_rssimports`
-                 LEFT JOIN `glpi_rssfeeds` ON `glpi_rssfeeds`.id = `glpi_plugin_eventsmanager_rssimports`.`rssfeeds_id`
-                 WHERE `use_with_plugin`= '1' AND `is_active` AND NOT `have_error`";
-        $result = $DB->doQuery($query);
-        $number = $DB->numrows($result);
+        $iterator = $DB->request([
+            'SELECT'    => ['glpi_plugin_eventsmanager_rssimports.*'],
+            'DISTINCT'  => true,
+            'FROM'      => 'glpi_plugin_eventsmanager_rssimports',
+            'LEFT JOIN' => [
+                'glpi_rssfeeds' => [
+                    'ON' => [
+                        'glpi_rssfeeds'                          => 'id',
+                        'glpi_plugin_eventsmanager_rssimports'   => 'rssfeeds_id',
+                    ],
+                ],
+            ],
+            'WHERE'     => [
+                'use_with_plugin' => 1,
+                'is_active'       => 1,
+                'have_error'      => 0,
+            ],
+        ]);
 
-        if ($number > 0) {
-            while ($data = $DB->fetchAssoc($result)) {
-                $id = $data['id'];
-                if ($rssfeed->getFromDB($data['rssfeeds_id'])) {
-                    if (($feed = RSSFeed::getRSSFeed($rssfeed->fields['url'])) !== false) {
-                        foreach ($feed->get_items(0, $rssfeed->fields['max_items']) as $item) {
-                          //test if already imported item based on the url
-                            if ($data['last_rssfeed_url'] != $item->get_link()) {
-                                 $input['date_creation'] = $item->get_date('Y-m-d H:i:s');
-                                 $input['name']          = addslashes($item->get_title());
-                                 $input['comment']       = addslashes(strip_tags(($item->get_content())));
-                                 $input['priority']      = $data['default_priority'];
-                                 $input['impact']        = $data['default_impact'];
-                                 $input['eventtype']     = $data['default_eventtype'];
-                                 $input['entities_id']   = $data['entities_id_import'];
-                                if ($origin->getFromDBByCrit(['itemtype' => Origin::RSS,
-                                                      'items_id' => $data['rssfeeds_id']])) {
-                                    $input['plugin_eventsmanager_origins_id'] = $origin->getID();
-                                }
-                                 $event->add($input);
-                                 $task->addVolume(1);
-                            } else {
-                              //if already imported element stops the flow path
-                                break;
+        foreach ($iterator as $data) {
+            $id = $data['id'];
+            if ($rssfeed->getFromDB($data['rssfeeds_id'])) {
+                if (($feed = RSSFeed::getRSSFeed($rssfeed->fields['url'])) !== false) {
+                    foreach ($feed->get_items(0, $rssfeed->fields['max_items']) as $item) {
+                        if ($data['last_rssfeed_url'] != $item->get_link()) {
+                            $input['date_creation'] = $item->get_date('Y-m-d H:i:s');
+                            $input['name']          = $item->get_title();
+                            $input['comment']       = strip_tags($item->get_content());
+                            $input['priority']      = $data['default_priority'];
+                            $input['impact']        = $data['default_impact'];
+                            $input['eventtype']     = $data['default_eventtype'];
+                            $input['entities_id']   = $data['entities_id_import'];
+                            if ($origin->getFromDBByCrit(['itemtype' => Origin::RSS,
+                                                  'items_id' => $data['rssfeeds_id']])) {
+                                $input['plugin_eventsmanager_origins_id'] = $origin->getID();
                             }
+                            $event->add($input);
+                            $task->addVolume(1);
+                        } else {
+                            break;
                         }
-                        //first url
-                        $item = $feed->get_item(0);
-                        $rssimport->update(['id'               => $id,
-                                      'last_rssfeed_url' => $item->get_link()], 0);
                     }
+                    $item = $feed->get_item(0);
+                    $rssimport->update(['id'               => $id,
+                                  'last_rssfeed_url' => $item->get_link()], 0);
                 }
             }
         }

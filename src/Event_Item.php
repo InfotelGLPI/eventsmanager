@@ -334,13 +334,14 @@ class Event_Item extends CommonDBRelation
         $canedit = $event->canAddItem($instID);
         $rand    = mt_rand();
 
-        $query = "SELECT DISTINCT `itemtype`
-                FROM `glpi_plugin_eventsmanager_events_items`
-                WHERE `glpi_plugin_eventsmanager_events_items`.`plugin_eventsmanager_events_id` = '$instID'
-                ORDER BY `itemtype`";
-
-        $result = $DB->doQuery($query);
-        $number = $DB->numrows($result);
+        $itemtype_iterator = $DB->request([
+            'SELECT'   => ['itemtype'],
+            'DISTINCT' => true,
+            'FROM'     => 'glpi_plugin_eventsmanager_events_items',
+            'WHERE'    => ['plugin_eventsmanager_events_id' => $instID],
+            'ORDER'    => 'itemtype',
+        ]);
+        $number = count($itemtype_iterator);
 
         if ($canedit) {
             echo "<div class='firstbloc'>";
@@ -394,46 +395,58 @@ class Event_Item extends CommonDBRelation
         echo $header_begin . $header_top . $header_end;
 
         $totalnb = 0;
-        for ($i = 0; $i < $number; $i++) {
-            $itemtype = $DB->result($result, $i, "itemtype");
+        foreach ($itemtype_iterator as $itemtype_row) {
+            $itemtype = $itemtype_row['itemtype'];
             if (!($item = $dbu->getItemForItemtype($itemtype))) {
                 continue;
             }
 
             if (in_array($itemtype, $_SESSION["glpiactiveprofile"]["helpdesk_item_type"])) {
                 $itemtable = $dbu->getTableForItemType($itemtype);
-                $query     = "SELECT `$itemtable`.*,
-                             `glpi_plugin_eventsmanager_events_items`.`id` AS IDD,
-                             `glpi_entities`.`id` AS entity
-                      FROM `glpi_plugin_eventsmanager_events_items`,
-                           `$itemtable`";
 
-                if ($itemtype != 'Entity') {
-                    $query .= " LEFT JOIN `glpi_entities`
-                                 ON (`$itemtable`.`entities_id`=`glpi_entities`.`id`) ";
+                $criteria = [
+                    'SELECT'     => [
+                        "$itemtable.*",
+                        'glpi_plugin_eventsmanager_events_items.id AS IDD',
+                        'glpi_entities.id AS entity',
+                    ],
+                    'FROM'       => 'glpi_plugin_eventsmanager_events_items',
+                    'INNER JOIN' => [
+                        $itemtable => [
+                            'ON' => [
+                                $itemtable                               => 'id',
+                                'glpi_plugin_eventsmanager_events_items' => 'items_id',
+                            ],
+                        ],
+                    ],
+                    'WHERE'      => [
+                        'glpi_plugin_eventsmanager_events_items.itemtype'                          => $itemtype,
+                        'glpi_plugin_eventsmanager_events_items.plugin_eventsmanager_events_id'    => $instID,
+                    ],
+                    'ORDER'      => ["glpi_entities.completename ASC", "$itemtable.name ASC"],
+                ];
+
+                if ($itemtype !== 'Entity') {
+                    $criteria['LEFT JOIN'] = [
+                        'glpi_entities' => [
+                            'ON' => [
+                                $itemtable      => 'entities_id',
+                                'glpi_entities' => 'id',
+                            ],
+                        ],
+                    ];
                 }
-
-                $query .= " WHERE `$itemtable`.`id` = `glpi_plugin_eventsmanager_events_items`.`items_id`
-                              AND `glpi_plugin_eventsmanager_events_items`.`itemtype` = '$itemtype'
-                              AND `glpi_plugin_eventsmanager_events_items`.`plugin_eventsmanager_events_id` = '$instID'";
 
                 if ($item->maybeTemplate()) {
-                    $query .= " AND `$itemtable`.`is_template` = '0'";
+                    $criteria['WHERE']["$itemtable.is_template"] = 0;
                 }
 
-                $query .= $dbu->getEntitiesRestrictRequest(
-                    " AND",
-                    $itemtable,
-                    '',
-                    '',
-                    $item->maybeRecursive()
-                ) . "
-                      ORDER BY `glpi_entities`.`completename`, `$itemtable`.`name`";
+                $criteria['WHERE'] += $dbu->getEntitiesRestrictCriteria($itemtable, '', '', $item->maybeRecursive());
 
-                $result_linked = $DB->doQuery($query);
-                $nb            = $DB->numrows($result_linked);
-
-                for ($prem = true; $data = $DB->fetchAssoc($result_linked); $prem = false) {
+                $result_linked = $DB->request($criteria);
+                $nb            = count($result_linked);
+                $prem          = true;
+                foreach ($result_linked as $data) {
                     $name = $data["name"];
                     if ($_SESSION["glpiis_ids_visible"]
                      || empty($data["name"])) {
@@ -473,6 +486,7 @@ class Event_Item extends CommonDBRelation
                     }
 
                     echo "</tr>";
+                    $prem = false;
                 }
                 $totalnb += $nb;
             }

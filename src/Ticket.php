@@ -150,7 +150,7 @@ class Ticket extends CommonDBTM
                 }
             }
 
-            $tickets_id = $ticket->add(['name'               => addslashes($name),
+            $tickets_id = $ticket->add(['name'               => $name,
                 'entities_id'        => $entities_id,
                 'date'               => $date,
                 '_users_id_requester' => $users_id_recipient,
@@ -237,24 +237,33 @@ class Ticket extends CommonDBTM
         $canedit = $ticket->canEdit($ID);
         $rand    = mt_rand();
 
-        $query = "SELECT DISTINCT `glpi_plugin_eventsmanager_events`.*, `glpi_plugin_eventsmanager_tickets`.`id` AS LinkID
-                FROM `glpi_plugin_eventsmanager_tickets`
-                LEFT JOIN `glpi_plugin_eventsmanager_events`
-                 ON (`glpi_plugin_eventsmanager_tickets`.`plugin_eventsmanager_events_id`=`glpi_plugin_eventsmanager_events`.`id`)
-                WHERE `glpi_plugin_eventsmanager_tickets`.`tickets_id` = '$ID'
-                ORDER BY `glpi_plugin_eventsmanager_events`.`date_creation`";
-
-        $result = $DB->doQuery($query);
-        $number = $DB->numrows($result);
+        $iterator = $DB->request([
+            'SELECT'    => [
+                'glpi_plugin_eventsmanager_events.*',
+                'glpi_plugin_eventsmanager_tickets.id AS LinkID',
+            ],
+            'DISTINCT'  => true,
+            'FROM'      => 'glpi_plugin_eventsmanager_tickets',
+            'LEFT JOIN' => [
+                'glpi_plugin_eventsmanager_events' => [
+                    'ON' => [
+                        'glpi_plugin_eventsmanager_tickets' => 'plugin_eventsmanager_events_id',
+                        'glpi_plugin_eventsmanager_events'  => 'id',
+                    ],
+                ],
+            ],
+            'WHERE'     => ['glpi_plugin_eventsmanager_tickets.tickets_id' => $ID],
+            'ORDER'     => 'glpi_plugin_eventsmanager_events.date_creation ASC',
+        ]);
 
         $tickets = [];
         $used    = [];
-        if ($numrows = $DB->numrows($result)) {
-            while ($data = $DB->fetchAssoc($result)) {
-                $tickets[$data['id']] = $data;
-                $used[$data['id']]    = $data['id'];
-            }
+        foreach ($iterator as $data) {
+            $tickets[$data['id']] = $data;
+            $used[$data['id']]    = $data['id'];
         }
+        $number  = count($tickets);
+        $numrows = $number;
         if ($canedit) {
             echo "<div class='firstbloc'>";
             echo "<form name='eventticket_form$rand' id='eventticket_form$rand' method='post'
@@ -354,9 +363,12 @@ class Ticket extends CommonDBTM
                 echo "<td>";
                 $event_item = new Event_Item();
                 $items      = $event_item->getUsedItems($data['id']);
+                $dbu_inner  = new DbUtils();
 
                 foreach ($items as $itemtype => $items_id) {
-                    $item = new $itemtype();
+                    if (!($item = $dbu_inner->getItemForItemtype($itemtype))) {
+                        continue;
+                    }
                     foreach ($items_id as $item_id) {
                         echo $item::getTypeName();
                     }
@@ -485,8 +497,11 @@ class Ticket extends CommonDBTM
                     echo "<td class='center'>";
                     $item_ticket = new Item_Ticket();
                     $items       = $item_ticket->getUsedItems($ticket->fields["id"]);
+                    $dbu_inner   = new DbUtils();
                     foreach ($items as $itemtype => $items_id) {
-                        $item = new $itemtype();
+                        if (!($item = $dbu_inner->getItemForItemtype($itemtype))) {
+                            continue;
+                        }
                         foreach ($items_id as $item_id) {
                             echo $item::getTypeName();
                         }
