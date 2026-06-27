@@ -1,8 +1,9 @@
 <?php
+
 /*
  -------------------------------------------------------------------------
  eventsmanager plugin for GLPI
- Copyright (C) 2017-2022 by the eventsmanager Development Team.
+ Copyright (C) 2017-2026 by the eventsmanager Development Team.
 
  https://github.com/InfotelGLPI/eventsmanager
  -------------------------------------------------------------------------
@@ -13,7 +14,7 @@
 
  eventsmanager is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
+ the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
 
  eventsmanager is distributed in the hope that it will be useful,
@@ -79,7 +80,7 @@ class Config extends CommonDBTM {
       echo "<tr class='tab_bg_1'><th colspan='2'>" . __('General setup') . "</th></tr>";
       echo "<tr class='tab_bg_1'>";
       echo "<td>";
-      echo __('Uto use the automatic closing of an event when creating a ticket from an event', 'eventsmanager');
+      echo __('Use the automatic closing of an event when creating a ticket from an event', 'eventsmanager');
       echo "</td>";
       echo "<td>";
       Dropdown::showYesNo('use_automatic_close', $config->fields['use_automatic_close']);

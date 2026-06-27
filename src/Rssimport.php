@@ -1,8 +1,9 @@
 <?php
+
 /*
  -------------------------------------------------------------------------
  eventsmanager plugin for GLPI
- Copyright (C) 2017-2022 by the eventsmanager Development Team.
+ Copyright (C) 2017-2026 by the eventsmanager Development Team.
 
  https://github.com/InfotelGLPI/eventsmanager
  -------------------------------------------------------------------------
@@ -13,7 +14,7 @@
 
  eventsmanager is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
+ the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
 
  eventsmanager is distributed in the hope that it will be useful,
