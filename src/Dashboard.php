@@ -133,7 +133,7 @@ class Dashboard extends CommonGLPI
                             }
                             $rand = mt_rand();
                             $url = PLUGIN_EVENTMANAGER_WEBDIR . "/front/event.form.php" . "?id=" . $data['id'];
-                            $events[$data['id']][0] = "<a id='event" . $data["id"] . $rand . "' target='_blank' href='$url'>" . $data['name'] . "</a>";
+                            $events[$data['id']][0] = "<a id='event" . $data["id"] . $rand . "' target='_blank' href='$url'>" . htmlspecialchars($data['name'], ENT_QUOTES) . "</a>";
 
                             $events[$data['id']][0] .= Html::showToolTip($data['comment'], [
                                 'applyto' => 'event' . $data["id"] . $rand,

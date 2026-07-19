@@ -27,6 +27,7 @@
  --------------------------------------------------------------------------
  */
 
+use Glpi\Exception\Http\AccessDeniedHttpException;
 use GlpiPlugin\Eventsmanager\Event;
 use GlpiPlugin\Eventsmanager\Event_Item;
 
@@ -48,10 +49,17 @@ switch ($_GET['action']) {
 
    case 'delete':
       if (isset($_GET['items_id']) && isset($_GET['itemtype']) && !empty($_GET['items_id'])) {
-         $deleted = true;
-         if ($_GET['params']['id'] > 0) {
-            $deleted = $item_ticket->deleteByCriteria(['plugin_eventsmanager_events_id' => $_GET['params']['id'],
-                                                            'items_id'   => $_GET['items_id'],
+         $deleted   = true;
+         $events_id = (int) ($_GET['params']['id'] ?? 0);
+         if ($events_id > 0) {
+            // Enforce right + entity access on the parent event before deleting any
+            // association (defends against IDOR / broken access control).
+            $event = new Event();
+            if (!$event->can($events_id, UPDATE)) {
+                throw new AccessDeniedHttpException();
+            }
+            $deleted = $item_ticket->deleteByCriteria(['plugin_eventsmanager_events_id' => $events_id,
+                                                            'items_id'   => (int) $_GET['items_id'],
                                                             'itemtype'   => $_GET['itemtype']]);
          }
          if ($deleted) {

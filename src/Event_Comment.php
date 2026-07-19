@@ -342,7 +342,7 @@ class Event_Comment extends CommonDBTM
 
         $html .= "<tr class='tab_bg_1'><td><label for='comment'>" . __('Comment') . "</label>
          &nbsp;<span style='color:red'>*</span></td><td>";
-        $html .= "<textarea name='comment' id='comment' required='required'>{$content}</textarea>";
+        $html .= "<textarea name='comment' id='comment' required='required'>" . htmlspecialchars($content, ENT_QUOTES) . "</textarea>";
         $html .= "</td><td class='center'>";
 
         $btn_text = _sx('button', 'Add');

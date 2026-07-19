@@ -27,7 +27,9 @@
  --------------------------------------------------------------------------
  */
 
+use Glpi\Exception\Http\AccessDeniedHttpException;
 use GlpiPlugin\Eventsmanager\Event_Comment;
+use GlpiPlugin\Eventsmanager\Event;
 
 header("Content-Type: text/html; charset=UTF-8");
 Html::header_nocache();
@@ -38,13 +40,27 @@ if (!isset($_POST['plugin_eventsmanager_events_id'])) {
    throw new \RuntimeException('Required argument missing!');
 }
 
-$event_id = $_POST['plugin_eventsmanager_events_id'];
+$event_id = (int) $_POST['plugin_eventsmanager_events_id'];
 $lang = null;
 
+// Enforce plugin right + entity access on the parent event before returning any
+// comment form (prevents cross-entity disclosure of comment content).
+$event = new Event();
+if (!$event->can($event_id, UPDATE)) {
+    throw new AccessDeniedHttpException();
+}
 
 $edit = false;
 if (isset($_POST['edit'])) {
-   $edit = $_POST['edit'];
+   $edit = (int) $_POST['edit'];
+   // Only the author may load the edit form of a comment, and it must belong to
+   // this event (defends against IDOR read of arbitrary comments).
+   $comment = new Event_Comment();
+   if (!$comment->getFromDB($edit)
+       || (int) $comment->fields['users_id'] !== Session::getLoginUserID()
+       || (int) $comment->fields['plugin_eventsmanager_events_id'] !== $event_id) {
+       throw new AccessDeniedHttpException();
+   }
 }
 
 $answer = false;

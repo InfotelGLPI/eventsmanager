@@ -27,6 +27,7 @@
  --------------------------------------------------------------------------
  */
 
+use Glpi\Exception\Http\AccessDeniedHttpException;
 use Glpi\Exception\Http\BadRequestHttpException;
 use GlpiPlugin\Eventsmanager\Event_Comment;
 use GlpiPlugin\Eventsmanager\Event;
@@ -39,11 +40,13 @@ if (!isset($_POST['plugin_eventsmanager_events_id'])) {
    Session::addMessageAfterRedirect($message, false, ERROR);
    Html::back();
 }
+$events_id = (int) $_POST['plugin_eventsmanager_events_id'];
 $event = new Event();
-$event->getFromDB($_POST['plugin_eventsmanager_events_id']);
-//if (!$event->canComment()) {
-//    Html::displayRightError();
-//}
+// Enforce the plugin right + entity access on the parent event before any comment
+// mutation (checkLoginUser above only checks authentication, not authorization).
+if (!$event->can($events_id, UPDATE)) {
+    throw new AccessDeniedHttpException();
+}
 
 if (isset($_POST["add"])) {
    if (!isset($_POST['plugin_eventsmanager_events_id']) || !isset($_POST['comment'])) {
@@ -69,7 +72,13 @@ if (isset($_POST["edit"])) {
       Html::back();
    }
 
-   $comment->getFromDB($_POST['id']);
+   // Prevent IDOR: only the comment's author may edit it, and it must belong to
+   // the event the caller is authorized on.
+   if (!$comment->getFromDB((int) $_POST['id'])
+       || (int) $comment->fields['users_id'] !== Session::getLoginUserID()
+       || (int) $comment->fields['plugin_eventsmanager_events_id'] !== $events_id) {
+       throw new AccessDeniedHttpException();
+   }
    $data = array_merge($comment->fields, $_POST);
    if ($comment->update($data)) {
       //\Glpi\Event::log($_POST["knowbaseitems_id"], "knowbaseitem_comment", 4, "tracking",

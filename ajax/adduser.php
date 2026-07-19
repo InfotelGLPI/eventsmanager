@@ -27,6 +27,7 @@
  --------------------------------------------------------------------------
  */
 
+use Glpi\Exception\Http\AccessDeniedHttpException;
 use GlpiPlugin\Eventsmanager\Event;
 
 if (strpos($_SERVER['PHP_SELF'], "adduser.php")) {
@@ -41,8 +42,13 @@ $user = $_SESSION['glpiID'];
 $date = $_SESSION['glpi_currenttime'];
 
 if (isset($_POST['id'])) {
+    $id    = (int) $_POST['id'];
     $event = new Event();
-    $event->update(['id'             => $_POST['id'],
+    // can(UPDATE) enforces the plugin right AND entity access on the target event.
+    if (!$event->can($id, UPDATE)) {
+        throw new AccessDeniedHttpException();
+    }
+    $event->update(['id'             => $id,
         'users_assigned' => $user,
         'date_assign'    => $date,
         'status'          => Event::ASSIGNED_STATE]);

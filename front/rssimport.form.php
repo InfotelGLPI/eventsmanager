@@ -30,6 +30,8 @@
 use GlpiPlugin\Eventsmanager\Rssimport;
 
 Session::checkLoginUser();
+// Import configuration drives automated event creation; require the plugin UPDATE right.
+Session::checkRight('plugin_eventsmanager', UPDATE);
 
 if (isset($_POST['update'])) {
    if (isset($_POST['id'])) {

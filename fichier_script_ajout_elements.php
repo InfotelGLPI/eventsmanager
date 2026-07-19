@@ -28,74 +28,72 @@
  */
 
 ///init Session
-define('DO_NOT_CHECK_HTTP_REFERER', 1);
-ini_set('session.use_cookies', 0);
-
-include('../../inc/includes.php');
+//define('DO_NOT_CHECK_HTTP_REFERER', 1);
+//ini_set('session.use_cookies', 0);
 
 //ini_set("memory_limit", "-1");
 //ini_set("max_execution_time", "0");
 
 //AUthentication
-$ch      = curl_init();
-$api_url = "https://monglpi.fr/apirest.php/";
+//$ch      = curl_init();
+//$api_url = "https://monglpi.fr/apirest.php/";
 //API token field (user)
-$user_token = "xxxxxxxxxxxxxxxxxxxxxxxx";
-$app_token  = "xxxxxxxxxxxxxxxxxxxxxxxxxx";
-$url        = $api_url . "initSession?Content-Type=%20application/json&app_token=" . $app_token . "&user_token=" . $user_token;
-curl_setopt($ch, CURLOPT_URL, $url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-$json = curl_exec($ch);
-$json = json_decode($json, true);
-print_r($json);
+//$user_token = "xxxxxxxxxxxxxxxxxxxxxxxx";
+//$app_token  = "xxxxxxxxxxxxxxxxxxxxxxxxxx";
+//$url        = $api_url . "initSession?Content-Type=%20application/json&app_token=" . $app_token . "&user_token=" . $user_token;
+//curl_setopt($ch, CURLOPT_URL, $url);
+//curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+//$json = curl_exec($ch);
+//$json = json_decode($json, true);
+//print_r($json);
 //curl_close ($ch);
 
-if ($json['session_token']) {
-   $session_token = $json['session_token'];
+//if ($json['session_token']) {
+//   $session_token = $json['session_token'];
    /////////////////////////////////////////////////////////////////////////////////////////
 
-   $input      = '{"input": {"name": "Alert 1",
-                             "entities_id": "1",
-                             "status": "1",
-                             "eventtype": "1",
-                             "plugin_eventsmanager_origins_id": "3",
-                             "impact": "1",
-                             "priority":"1",
-                             "comment": "In conplurium in admissum vultu modo ruinas quod conplurium quosdam veritate Constanti iussa in ingenuorum."}}';
-   $headers    = [
-      'Content-Type: application/json',
-      'Session-Token:' . $session_token,
-      'App-Token:' . $app_token];
-   $ch         = curl_init();
-   $url_events = $api_url . "/GlpiPlugin\Eventsmanager\Event/";
-   curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-   curl_setopt($ch, CURLOPT_URL, $url_events);
-   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-   curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-   curl_setopt($ch, CURLOPT_POSTFIELDS, $input);
-   $events = curl_exec($ch);
-   $events = json_decode($events, true);
-   printf("<br>");
-   print_r($events);
-   if ($events != null) {
-      printf("<br>");
-      printf("Events added");
-   }
+//   $input      = '{"input": {"name": "Alert 1",
+//                             "entities_id": "1",
+//                             "status": "1",
+//                             "eventtype": "1",
+//                             "plugin_eventsmanager_origins_id": "3",
+//                             "impact": "1",
+//                             "priority":"1",
+//                             "comment": "In conplurium in admissum vultu modo ruinas quod conplurium quosdam veritate Constanti iussa in ingenuorum."}}';
+//   $headers    = [
+//      'Content-Type: application/json',
+//      'Session-Token:' . $session_token,
+//      'App-Token:' . $app_token];
+//   $ch         = curl_init();
+//   $url_events = $api_url . "/GlpiPlugin\Eventsmanager\Event/";
+//   curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+//   curl_setopt($ch, CURLOPT_URL, $url_events);
+//   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+//   curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+//   curl_setopt($ch, CURLOPT_POSTFIELDS, $input);
+//   $events = curl_exec($ch);
+//   $events = json_decode($events, true);
+//   printf("<br>");
+//   print_r($events);
+//   if ($events != null) {
+//      printf("<br>");
+//      printf("Events added");
+//   }
 
    ////////////////////////////////////////////////////////////////////////////////////
    //Kill Session
-   $headers = [
-      'Content-Type: application/json',
-      'Session-Token:' . $session_token,
-      'App-Token:' . $app_token];
-   $ch      = curl_init();
-   curl_setopt($ch, CURLOPT_URL, $api_url . "killSession/");
-   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-   $end = curl_exec($ch);
-   curl_close($ch);
-   printf("<br>");
-   printf("End");
-} else {
-   printf("Authentication Error");
-}
+//   $headers = [
+//      'Content-Type: application/json',
+//      'Session-Token:' . $session_token,
+//      'App-Token:' . $app_token];
+//   $ch      = curl_init();
+//   curl_setopt($ch, CURLOPT_URL, $api_url . "killSession/");
+//   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+//   $end = curl_exec($ch);
+//   curl_close($ch);
+//   printf("<br>");
+//   printf("End");
+//} else {
+//   printf("Authentication Error");
+//}
 

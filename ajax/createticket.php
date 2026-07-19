@@ -27,7 +27,9 @@
  --------------------------------------------------------------------------
  */
 
+use Glpi\Exception\Http\AccessDeniedHttpException;
 use GlpiPlugin\Eventsmanager\Ticket;
+use GlpiPlugin\Eventsmanager\Event;
 
 if (strpos($_SERVER['PHP_SELF'], "createticket.php")) {
    $AJAX_INCLUDE = 1;
@@ -37,6 +39,12 @@ if (strpos($_SERVER['PHP_SELF'], "createticket.php")) {
 
 Session::checkCentralAccess();
 
-if ($_POST['id']) {
-   Ticket::addTicketFromEvent($_POST['id']);
+if (isset($_POST['id'])) {
+   $id    = (int) $_POST['id'];
+   $event = new Event();
+   // can(UPDATE) enforces the plugin right AND entity access on the source event.
+   if (!$event->can($id, UPDATE)) {
+       throw new AccessDeniedHttpException();
+   }
+   Ticket::addTicketFromEvent($id);
 }

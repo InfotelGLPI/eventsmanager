@@ -320,7 +320,7 @@ class Ticket extends CommonDBTM
 
                 echo "<td>";
                 $url = Toolbox::getItemTypeFormURL(Event::class) . "?id=" . $data['id'];
-                echo "<a id='event" . $data['id'] . "' href='$url'>" . $data['name'] . "</a>";
+                echo "<a id='event" . $data['id'] . "' href='$url'>" . htmlspecialchars($data['name'], ENT_QUOTES) . "</a>";
                 echo "</td>";
 
                 echo "<td>";
