@@ -40,6 +40,7 @@ if (Plugin::isPluginActive("eventsmanager")) {
         Html::back();
 
    } else {
+      Session::checkRight("config", READ);
       Html::header(Event::getTypeName(), '', "helpdesk", Event::class, "config");
       $config->showConfigForm();
       Html::footer();

@@ -31,8 +31,7 @@ namespace GlpiPlugin\Eventsmanager;
 
 use CommonDBTM;
 use CommonGLPI;
-use Dropdown;
-use Html;
+use Glpi\Application\View\TemplateRenderer;
 use Toolbox;
 
 if (!defined('GLPI_ROOT')) {
@@ -74,24 +73,9 @@ class Config extends CommonDBTM {
       $config = new self();
       $config->getFromDB(1);
 
-      echo "<div class='center'>";
-      echo "<form method='post' action='" . Toolbox::getItemTypeFormURL(Config::class) . "'>";
-      echo "<table class='tab_cadre_fixe'>";
-      echo "<tr class='tab_bg_1'><th colspan='2'>" . __('General setup') . "</th></tr>";
-      echo "<tr class='tab_bg_1'>";
-      echo "<td>";
-      echo __('Use the automatic closing of an event when creating a ticket from an event', 'eventsmanager');
-      echo "</td>";
-      echo "<td>";
-      Dropdown::showYesNo('use_automatic_close', $config->fields['use_automatic_close']);
-      echo "</td></tr>";
-
-      echo "<tr><th colspan='2'>";
-      echo Html::hidden('id', ['value' => 1]);
-      echo Html::submit(_sx('button', 'Post'), ['name' => 'update_config', 'class' => 'btn btn-primary']);
-      echo "</th></tr>";
-      echo "</table></div>";
-      Html::closeForm();
-
+      TemplateRenderer::getInstance()->display('@eventsmanager/config.html.twig', [
+          'config'      => $config,
+          'form_action' => Toolbox::getItemTypeFormURL(self::class),
+      ]);
    }
 }

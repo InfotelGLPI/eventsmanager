@@ -34,6 +34,7 @@ use CommonDBTM;
 use CommonITILObject;
 use DbUtils;
 use Dropdown;
+use Glpi\Application\View\TemplateRenderer;
 use Html;
 use MassiveAction;
 use Session;
@@ -358,37 +359,27 @@ class Event extends CommonDBTM
      */
     public function showForm($ID, $options = [])
     {
-        global $CFG_GLPI;
-
         $dbu = new DbUtils();
         $this->initForm($ID, $options);
         $this->showFormHeader($options);
 
-        Html::initEditorSystem('comment');
+        // Name field
+        $name_field = Html::input('name', ['value' => $this->fields['name'], 'size' => 40]);
 
-        echo "<tr class='tab_bg_1'>";
-        echo "<td>" . __('Name') . "</td>";
-        echo "<td>";
-        echo Html::input('name', ['value' => $this->fields['name'], 'size' => 40]);
-        echo "</td>";
-        echo "<td>" . __('Associated element', 'eventsmanager') . "</td><td>";
+        // Associated item add form (echoes HTML + JS)
+        ob_start();
         Event_Item::itemAddForm($this, $options);
+        $item_add_form = ob_get_clean();
 
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr class='tab_bg_1'>";
-        echo "<td>" . __('Impact') . "</td><td>";
+        // Impact
+        ob_start();
         \Ticket::dropdownImpact(['value'     => $this->fields['impact'],
             'withmajor' => 1]);
-        echo "</td>";
+        $impact_field = ob_get_clean();
 
-        echo "</td>";
-
-        echo "<td>" . __('Origin', 'eventsmanager') . "</td>";
-
+        // Origin (with dynamic dropdown updated on select)
         $rand = mt_rand();
-        echo "<td>";
+        ob_start();
         Origin::dropdown([
             'name'  => "plugin_eventsmanager_origins_id",
             'rand'  => $rand,
@@ -406,101 +397,72 @@ class Event extends CommonDBTM
             $params
         );
 
-        echo "<span id='show_items_id$rand'>";
+        $origin_field = ob_get_clean();
+
+        $origin_itemtype_label = '';
+        $origin_item_name      = '';
         $origin = new Origin();
         if ($origin->getFromDB($this->fields["plugin_eventsmanager_origins_id"])) {
-            echo Origin::getItemtypeOrigin($origin->fields['itemtype']);
-            echo " - ";
-            echo Origin::getItemOrigin('items_id', ["itemtype" => $origin->fields['itemtype'],
+            $origin_itemtype_label = Origin::getItemtypeOrigin($origin->fields['itemtype']);
+            $origin_item_name      = Origin::getItemOrigin('items_id', ["itemtype" => $origin->fields['itemtype'],
                 "items_id" => $origin->fields['items_id']]);
         }
-        echo "</span>\n";
+        $origin_field .= TemplateRenderer::getInstance()->render('@eventsmanager/origin_item.html.twig', [
+            'rand'           => $rand,
+            'itemtype_label' => $origin_itemtype_label,
+            'item_name'      => $origin_item_name,
+        ]);
 
-        echo "</td>";
-
-        echo "</tr>";
-
-        echo "<tr class='tab_bg_1'>";
-        echo "<td>" . __('Priority') . "</td>";
-        echo "<td>";
+        // Priority
+        ob_start();
         CommonITILObject::dropdownPriority(['value'     => $this->fields['priority'],
             'withmajor' => 1]);
-        echo "</td>";
-        echo "<td>" . __('Event type', 'eventsmanager');
-        echo "</td>";
-        echo "<td>";
-        self::dropdownType(['value' => $this->fields['eventtype']]);
-        echo "</td>";
-        echo "</tr>";
+        $priority_field = ob_get_clean();
 
-        echo "<tr class='tab_bg_1'>";
-        echo "<td>";
-        echo __('User assigned', 'eventsmanager') . "</td>";
-        echo "<td>";
+        // Event type
+        ob_start();
+        self::dropdownType(['value' => $this->fields['eventtype']]);
+        $type_field = ob_get_clean();
+
+        // User assigned
+        ob_start();
         User::dropdown(['name'   => "users_assigned",
             'value'  => $this->fields["users_assigned"],
             'entity' => $this->fields["entities_id"],
             'right'  => 'all']);
-        echo "</td>";
+        $user_field = ob_get_clean();
 
-        echo "<td>" . __('Time to resolve');
-        echo "</td>";
-        echo "<td>";
+        // Time to resolve
+        ob_start();
         Html::showDateTimeField('time_to_resolve', ['value' => $this->fields["time_to_resolve"]]);
-        echo "</td>";
-        echo "</tr>";
+        $time_field = ob_get_clean();
 
-        echo "<tr class='tab_bg_1'>";
-        if ($ID > 0) {
-            echo "<td>" . __('Status') . "</td>";
-            echo "<td>";
-            if ($this->fields['status'] > 0) {
-                $status = $this->fields['status'];
-            } else {
-                $status = self::NEW_STATE;
-            }
+        // Status
+        $show_status  = ($ID > 0);
+        $status_field = '';
+        if ($show_status) {
+            $status = ($this->fields['status'] > 0) ? $this->fields['status'] : self::NEW_STATE;
+            ob_start();
             self::dropdownStatus(['value' => $status]);
-            echo "</td>";
-        } else {
-            echo "<td colspan='2'>";
-            echo "</td>";
+            $status_field = ob_get_clean();
         }
 
-        if ($this->fields['status'] < self::CLOSED_STATE
-          && $this->fields['status'] > 0) {
-            //gestion of action
-            echo "<td >" . __('Actions', 'eventsmanager') . "</td>";
-            echo "<td >";
-
-            $id_user = $_GET['id'];
-            $msg4    = __('Assign me to this event', 'eventsmanager');
-            $msg5    = __('Create a ticket from the event', 'eventsmanager');
-            $msg6    = __('Close the event', 'eventsmanager');
-
-            echo "<i onclick=\"addUserEvent($id_user)\" title=\"" . $msg4 . "\"
-               class='ti ti-user-plus fa-2x' style='float:left; cursor:pointer;'/></i>";
-            echo "<i onclick=\"createTicketEvent($id_user)\" title=\"" . $msg5 . "\"
-               class='ti ti-bell fa-2x' style='float:left; cursor:pointer;'/></i>";
-            echo "<i onclick=\"closeEvent($id_user)\" title=\"" . $msg6 . "\"
-               class='ti ti-archive fa-2x' style='float:left; cursor:pointer;'/></i>";
-            echo "</td>";
-        } else {
-            echo "<td colspan='2'>";
-            echo "</td>";
+        // Actions (assign / create ticket / close)
+        $show_actions = ($this->fields['status'] < self::CLOSED_STATE
+                       && $this->fields['status'] > 0);
+        $actions = '';
+        if ($show_actions) {
+            $actions = TemplateRenderer::getInstance()->render('@eventsmanager/event_actions.html.twig', [
+                'event_id' => (int) $this->fields['id'],
+                'large'    => true,
+            ]);
         }
-        echo "</tr>";
 
-        echo "<tr class='tab_bg_1'>";
-        echo "<td colspan='4'>";
-        echo __('Description') . "</td>";
-        echo "</tr>";
-
-        echo "<tr class='tab_bg_1'>";
-        echo "<td colspan='4' class='middle'>";
+        // Description richtext editor
         $rand_text  = mt_rand();
         $content_id = "comment$rand_text";
-        $cols       = 100;
-        $rows       = 15;
+        ob_start();
+        Html::initEditorSystem('comment');
         Html::textarea(['name'              => 'comment',
             'value'             => $this->fields["comment"],
             'rand'              => $rand_text,
@@ -508,42 +470,53 @@ class Event extends CommonDBTM
             'enable_richtext'   => true,
             'enable_fileupload' => false,
             'enable_images'     => false,
-            'cols'              => $cols,
-            'rows'              => $rows]);
-        echo "</td>";
-        echo "</tr>";
+            'cols'              => 100,
+            'rows'              => 15]);
+        $comment_editor = ob_get_clean();
 
-        echo "<tr class='tab_bg_1'>";
-        if ($this->fields["users_assigned"] > 0
+        // Date assign
+        $show_date_assign = ($this->fields["users_assigned"] > 0
           && isset($this->fields['date_assign'])
-          && $this->fields['status'] == self::ASSIGNED_STATE) {
-            echo "<td>";
-            echo __('Date Assign', 'eventsmanager') . "</td>";
-            echo "<td>";
-            echo Html::convDateTime($this->fields['date_assign'], 1);
-            echo "</td>";
+          && $this->fields['status'] == self::ASSIGNED_STATE);
+        $date_assign = $show_date_assign
+            ? Html::convDateTime($this->fields['date_assign'], 1)
+            : '';
+
+        // User close
+        $show_user_close    = ($this->fields["status"] == self::CLOSED_STATE
+          && $this->fields["users_close"] > 0);
+        $user_close_name    = '';
+        $user_close_tooltip = '';
+        $date_close         = '';
+        if ($show_user_close) {
+            $user               = $dbu->getUserName($this->fields["users_close"], 2);
+            $user_close_name    = $user["name"];
+            $user_close_tooltip = Html::showToolTip($user["comment"], ['display' => false]);
+            $date_close         = Html::convDateTime($this->fields['date_close'], 1);
         }
 
+        TemplateRenderer::getInstance()->display('@eventsmanager/event.html.twig', [
+            'name_field'         => $name_field,
+            'item_add_form'      => $item_add_form,
+            'impact_field'       => $impact_field,
+            'origin_field'       => $origin_field,
+            'priority_field'     => $priority_field,
+            'type_field'         => $type_field,
+            'user_field'         => $user_field,
+            'time_field'         => $time_field,
+            'show_status'        => $show_status,
+            'status_field'       => $status_field,
+            'show_actions'       => $show_actions,
+            'actions'            => $actions,
+            'comment_editor'     => $comment_editor,
+            'show_date_assign'   => $show_date_assign,
+            'date_assign'        => $date_assign,
+            'show_user_close'    => $show_user_close,
+            'user_close_name'    => $user_close_name,
+            'user_close_tooltip' => $user_close_tooltip,
+            'date_close'         => $date_close,
+        ]);
 
-        if ($this->fields["status"] == self::CLOSED_STATE
-          && $this->fields["users_close"] > 0) {
-            echo "<tr class='tab_bg_1'>";
-            echo "<td>";
-            echo __('User close', 'eventsmanager') . "</td>";
-            echo "<td>";
-            $user = $dbu->getUserName($this->fields["users_close"], 2);
-            echo $user["name"];
-            echo "<span style='margin-right:5px'> ";
-            echo Html::showToolTip($user["comment"]);
-            echo "</td>";
-
-            echo "<td>";
-            echo __('Close date') . "</td>";
-            echo "<td>";
-            echo Html::convDateTime($this->fields['date_close'], 1);
-            echo "</td>";
-            echo "</tr>";
-        }
         $this->showFormButtons($options);
 
         return true;
@@ -1030,7 +1003,7 @@ class Event extends CommonDBTM
     /**
      * Get Statut Name
      *
-     * @param $value priority ID
+     * @param $value
      * */
     public static function getEventTypeName($value)
     {
@@ -1090,17 +1063,10 @@ class Event extends CommonDBTM
      * */
     public static function getActionAff($val, $value)
     {
-        global $CFG_GLPI;
-        switch ($value) {
-            default:
-                return
-               "<i onclick=\"addUserEvent($val)\" title=\"" . __('Assign me to this event', 'eventsmanager') . "\"
-               class='ti ti-user-plus' style='float:left; cursor:pointer;'/></i>"
-               . "<i onclick=\"createTicketEvent($val)\" title=\"" . __('Create a ticket from the event', 'eventsmanager') . "\"
-               class='ti ti-bell' style='float:left; cursor:pointer;'/></i>"
-               . "<i onclick=\"closeEvent($val)\" title=\"" . __('Close the event', 'eventsmanager') . "\"
-               class='ti ti-archive' style='float:left; cursor:pointer;'/></i>";
-        }
+        return TemplateRenderer::getInstance()->render('@eventsmanager/event_actions.html.twig', [
+            'event_id' => $val,
+            'large'    => false,
+        ]);
     }
 
     /**

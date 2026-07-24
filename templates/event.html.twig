@@ -1,0 +1,98 @@
+{#
+ -------------------------------------------------------------------------
+ eventsmanager plugin for GLPI
+ Copyright (C) 2017-2026 by the eventsmanager Development Team.
+
+ https://github.com/InfotelGLPI/eventsmanager
+ -------------------------------------------------------------------------
+
+ LICENSE
+
+ This file is part of eventsmanager.
+
+ eventsmanager is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 3 of the License, or
+ (at your option) any later version.
+
+ eventsmanager is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
+ --------------------------------------------------------------------------
+ #}
+
+<tr class="tab_bg_1">
+    <td>{{ __('Name') }}</td>
+    <td>{{ name_field|raw }}</td>
+    <td>{{ __('Associated element', 'eventsmanager') }}</td>
+    <td>{{ item_add_form|raw }}</td>
+</tr>
+
+<tr class="tab_bg_1">
+    <td>{{ __('Impact') }}</td>
+    <td>{{ impact_field|raw }}</td>
+    <td>{{ __('Origin', 'eventsmanager') }}</td>
+    <td>{{ origin_field|raw }}</td>
+</tr>
+
+<tr class="tab_bg_1">
+    <td>{{ __('Priority') }}</td>
+    <td>{{ priority_field|raw }}</td>
+    <td>{{ __('Event type', 'eventsmanager') }}</td>
+    <td>{{ type_field|raw }}</td>
+</tr>
+
+<tr class="tab_bg_1">
+    <td>{{ __('User assigned', 'eventsmanager') }}</td>
+    <td>{{ user_field|raw }}</td>
+    <td>{{ __('Time to resolve') }}</td>
+    <td>{{ time_field|raw }}</td>
+</tr>
+
+<tr class="tab_bg_1">
+    {% if show_status %}
+        <td>{{ __('Status') }}</td>
+        <td>{{ status_field|raw }}</td>
+    {% else %}
+        <td colspan="2"></td>
+    {% endif %}
+
+    {% if show_actions %}
+        <td>{{ __('Actions', 'eventsmanager') }}</td>
+        <td>{{ actions|raw }}</td>
+    {% else %}
+        <td colspan="2"></td>
+    {% endif %}
+</tr>
+
+<tr class="tab_bg_1">
+    <td colspan="4">{{ __('Description') }}</td>
+</tr>
+
+<tr class="tab_bg_1">
+    <td colspan="4" class="middle">{{ comment_editor|raw }}</td>
+</tr>
+
+<tr class="tab_bg_1">
+    {% if show_date_assign %}
+        <td>{{ __('Date Assign', 'eventsmanager') }}</td>
+        <td>{{ date_assign }}</td>
+    {% endif %}
+
+    {% if show_user_close %}
+        <tr class="tab_bg_1">
+            <td>{{ __('User close', 'eventsmanager') }}</td>
+            <td>
+                {{ user_close_name }}
+                <span style="margin-right:5px">&nbsp;</span>
+                {{ user_close_tooltip|raw }}
+            </td>
+            <td>{{ __('Close date') }}</td>
+            <td>{{ date_close }}</td>
+        </tr>
+    {% endif %}
+</tr>

@@ -89,6 +89,8 @@ function plugin_init_eventsmanager()
 
         $PLUGIN_HOOKS[Hooks::ITEM_PURGE]['eventsmanager']['Ticket'] = [Ticket::class, 'cleanForTicket'];
 
+        $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['eventsmanager'][] = 'scripts/itemadd.js.php';
+
         if (isset($_SESSION["glpiactiveprofile"])
              && $_SESSION["glpiactiveprofile"]["interface"] != "helpdesk") {
             $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['eventsmanager'][] = 'scripts/jsForAction.js.php';

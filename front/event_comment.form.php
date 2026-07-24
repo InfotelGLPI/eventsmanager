@@ -92,5 +92,29 @@ if (isset($_POST["edit"])) {
    Html::back();
 }
 
+if (isset($_POST["purge"])) {
+   if (!isset($_POST['id'])) {
+      $message = __('Mandatory fields are not filled!');
+      Session::addMessageAfterRedirect($message, false, ERROR);
+      Html::back();
+   }
+
+   // Prevent IDOR: only the comment's author may delete it, and it must belong
+   // to the event the caller is authorized on.
+   if (!$comment->getFromDB((int) $_POST['id'])
+       || (int) $comment->fields['users_id'] !== Session::getLoginUserID()
+       || (int) $comment->fields['plugin_eventsmanager_events_id'] !== $events_id) {
+       throw new AccessDeniedHttpException();
+   }
+   if ($comment->delete(['id' => (int) $_POST['id']], true)) {
+      Session::addMessageAfterRedirect(
+         __('Your comment has been deleted'),
+         false,
+         INFO
+      );
+   }
+   Html::back();
+}
+
 throw new BadRequestHttpException();
 

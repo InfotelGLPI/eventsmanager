@@ -33,6 +33,7 @@ use Ajax;
 use AllowDynamicProperties;
 use CommonGLPI;
 use CommonITILObject;
+use Glpi\Application\View\TemplateRenderer;
 use GlpiPlugin\Mydashboard\Datatable;
 use GlpiPlugin\Mydashboard\Menu;
 use GlpiPlugin\Mydashboard\Widget;
@@ -133,33 +134,43 @@ class Dashboard extends CommonGLPI
                             }
                             $rand = mt_rand();
                             $url = PLUGIN_EVENTMANAGER_WEBDIR . "/front/event.form.php" . "?id=" . $data['id'];
-                            $events[$data['id']][0] = "<a id='event" . $data["id"] . $rand . "' target='_blank' href='$url'>" . htmlspecialchars($data['name'], ENT_QUOTES) . "</a>";
+                            $renderer = TemplateRenderer::getInstance();
 
-                            $events[$data['id']][0] .= Html::showToolTip($data['comment'], [
-                                'applyto' => 'event' . $data["id"] . $rand,
-                                'display' => false
+                            $events[$data['id']][0] = $renderer->render('@eventsmanager/dashboard_cell.html.twig', [
+                                'kind'      => 'name',
+                                'anchor_id' => 'event' . $data["id"] . $rand,
+                                'url'       => $url,
+                                'name'      => $data['name'],
+                                'tooltip'   => Html::showToolTip($data['comment'], [
+                                    'applyto' => 'event' . $data["id"] . $rand,
+                                    'display' => false,
+                                ]),
                             ]);
 
-                            $bgcolor = $_SESSION["glpipriority_" . $data['priority']];
                             $events[$data['id']][1] = Event::getStatusName($data['status']);
-                            $events[$data['id']][2] = "<div class='center' style='background-color:$bgcolor;'>" . CommonITILObject::getPriorityName(
-                                    $data['priority']
-                                ) . "</div>";
+                            $events[$data['id']][2] = $renderer->render('@eventsmanager/dashboard_cell.html.twig', [
+                                'kind'          => 'priority',
+                                'bgcolor'       => $_SESSION["glpipriority_" . $data['priority']],
+                                'priority_name' => CommonITILObject::getPriorityName($data['priority']),
+                            ]);
+
                             $date_creation = $data['date_creation'];
-                            $display = Html::convDateTime($data['date_creation']);
-                            if ($date_creation <= date('Y-m-d') && !empty($date_creation)) {
-                                $display = "<div class='deleted'>" . Html::convDateTime(
-                                        $data['date_creation']
-                                    ) . "</div>";
-                            }
-                            $events[$data['id']][3] = $display;
-                            $events[$data['id']][4] = "<div class='center' style='" . Event::getTypeColor(
-                                    $data['eventtype']
-                                ) . "'>" . Event::getEventTypeName($data['eventtype']) . "</div>";
-                            $events[$data['id']][5] = '<div style="min-width:100px;">' . Event::getActionAff(
-                                    $data['id'],
-                                    $data['status']
-                                ) . '</div>';
+                            $events[$data['id']][3] = $renderer->render('@eventsmanager/dashboard_cell.html.twig', [
+                                'kind'         => 'date',
+                                'date_display' => Html::convDateTime($data['date_creation']),
+                                'is_deleted'   => ($date_creation <= date('Y-m-d') && !empty($date_creation)),
+                            ]);
+
+                            $events[$data['id']][4] = $renderer->render('@eventsmanager/dashboard_cell.html.twig', [
+                                'kind'       => 'eventtype',
+                                'type_color' => Event::getTypeColor($data['eventtype']),
+                                'type_name'  => Event::getEventTypeName($data['eventtype']),
+                            ]);
+
+                            $events[$data['id']][5] = $renderer->render('@eventsmanager/dashboard_cell.html.twig', [
+                                'kind'    => 'actions',
+                                'actions' => Event::getActionAff($data['id'], $data['status']),
+                            ]);
                         }
                     }
 
@@ -168,14 +179,7 @@ class Dashboard extends CommonGLPI
                     $widget->setOption("bSort", false);
                     $widget->toggleWidgetRefresh();
 
-                    $link = "<div align='right'><a href='#' class='submit btn btn-primary' data-bs-toggle='modal' data-bs-target='#event' title='" . __(
-                            'Add event',
-                            'eventsmanager'
-                        ) . "' >";
-                    $link .= __('Add event', 'eventsmanager');
-                    $link .= "</a></div>";
-
-                    $link .= Ajax::createIframeModalWindow(
+                    $iframe = Ajax::createIframeModalWindow(
                         'event',
                         PLUGIN_EVENTMANAGER_WEBDIR . "/front/event.form.php",
                         [
@@ -186,6 +190,9 @@ class Dashboard extends CommonGLPI
                             'height' => 600,
                         ]
                     );
+                    $link = TemplateRenderer::getInstance()->render('@eventsmanager/dashboard_addbutton.html.twig', [
+                        'iframe' => $iframe,
+                    ]);
                     $widget->appendWidgetHtmlContent($link);
                     $widget->setWidgetTitle(_n('Event manager', 'Events manager', 2, 'eventsmanager'));
 

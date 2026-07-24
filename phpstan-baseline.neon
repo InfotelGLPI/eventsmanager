@@ -1,0 +1,469 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Parameter \#2 \$force of method CommonDBTM\:\:delete\(\) expects bool, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: front/event.form.php
+
+		-
+			message: '#^Call to an undefined method GlpiPlugin\\Eventsmanager\\Event\:\:getCriterias\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Function plugin_eventsmanager_executeActions\(\) has invalid return type the\.$#'
+			identifier: class.notFound
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Function plugin_eventsmanager_executeActions\(\) should return the but returns GlpiPlugin\\Eventsmanager\\the\.$#'
+			identifier: return.type
+			count: 1
+			path: hook.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 3
+			path: hook.php
+
+		-
+			message: '#^Class GlpiPlugin\\Mydashboard\\Alert not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: setup.php
+
+		-
+			message: '#^Default value of the parameter \#2 \$withtemplate \(int\) of method GlpiPlugin\\Eventsmanager\\Config\:\:getTabNameForItem\(\) is incompatible with type bool\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/Config.php
+
+		-
+			message: '#^Parameter \#2 \$withtemplate \(bool\) of method GlpiPlugin\\Eventsmanager\\Config\:\:getTabNameForItem\(\) should be compatible with parameter \$withtemplate \(int\) of method CommonGLPI\:\:getTabNameForItem\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: src/Config.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/Config.php
+
+		-
+			message: '#^Access to an undefined property GlpiPlugin\\Eventsmanager\\Dashboard\:\:\$interfaces\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Access to static property \$TABLE on an unknown class GlpiPlugin\\Mydashboard\\Widget\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Access to static property \$TOOLS on an unknown class GlpiPlugin\\Mydashboard\\Menu\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to method appendWidgetHtmlContent\(\) on an unknown class GlpiPlugin\\Mydashboard\\Datatable\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to method setOption\(\) on an unknown class GlpiPlugin\\Mydashboard\\Datatable\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to method setTabDatas\(\) on an unknown class GlpiPlugin\\Mydashboard\\Datatable\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to method setTabNames\(\) on an unknown class GlpiPlugin\\Mydashboard\\Datatable\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to method setWidgetTitle\(\) on an unknown class GlpiPlugin\\Mydashboard\\Datatable\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to method toggleWidgetRefresh\(\) on an unknown class GlpiPlugin\\Mydashboard\\Datatable\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Instantiated class GlpiPlugin\\Mydashboard\\Datatable not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Dashboard.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Dashboard\:\:getWidgetContentForItem\(\) has invalid return type GlpiPlugin\\Mydashboard\\Datatable\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Dashboard\:\:getWidgetContentForItem\(\) should return GlpiPlugin\\Mydashboard\\Datatable but returns false\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Property GlpiPlugin\\Eventsmanager\\Dashboard\:\:\$form is never written, only read\.$#'
+			identifier: property.onlyRead
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Property GlpiPlugin\\Eventsmanager\\Dashboard\:\:\$options is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Dashboard.php
+
+		-
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: src/Event.php
+
+		-
+			message: '#^Default value of the parameter \#1 \$history \(int\) of method GlpiPlugin\\Eventsmanager\\Event\:\:post_updateItem\(\) is incompatible with type bool\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: src/Event.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Event\:\:executeActions\(\) has invalid return type GlpiPlugin\\Eventsmanager\\the\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Event.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Event\:\:getSpecificMassiveActions\(\) has invalid return type GlpiPlugin\\Eventsmanager\\an\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Event.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Event\:\:getSpecificMassiveActions\(\) should return GlpiPlugin\\Eventsmanager\\an but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Event.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Event\:\:post_getEmpty\(\) has invalid return type GlpiPlugin\\Eventsmanager\\nothing\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Event.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Event\:\:processMassiveActionsForOneItemtype\(\) has invalid return type GlpiPlugin\\Eventsmanager\\nothing\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Event.php
+
+		-
+			message: '#^Offset ''name'' on array\{name\: mixed, comment\?\: string, users_id\?\: mixed, entities_id\?\: mixed, status\: 1, plugin_eventsmanager_origins_id\?\: mixed, impact\: mixed, priority\: mixed, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Event.php
+
+		-
+			message: '#^Parameter \#1 \$checkitem \(null\) of method GlpiPlugin\\Eventsmanager\\Event\:\:getSpecificMassiveActions\(\) should be compatible with parameter \$checkitem \(CommonDBTM\) of method CommonDBTM\:\:getSpecificMassiveActions\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: src/Event.php
+
+		-
+			message: '#^Return type \(GlpiPlugin\\Eventsmanager\\an\) of method GlpiPlugin\\Eventsmanager\\Event\:\:getSpecificMassiveActions\(\) should be compatible with return type \(array\) of method CommonDBTM\:\:getSpecificMassiveActions\(\)$#'
+			identifier: method.childReturnType
+			count: 1
+			path: src/Event.php
+
+		-
+			message: '#^Static method CommonGLPI\:\:getMenuName\(\) invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: src/Event.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 5
+			path: src/Event.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/Event.php
+
+		-
+			message: '#^Call to an undefined method CommonGLPI\:\:getID\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Event_Comment.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$plugin_eventsmanager_events_id$#'
+			identifier: parameter.notFound
+			count: 1
+			path: src/Event_Comment.php
+
+		-
+			message: '#^Parameter \#1 \$item of static method GlpiPlugin\\Eventsmanager\\Event_Comment\:\:showForItem\(\) expects CommonDBTM, CommonGLPI given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Event_Comment.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/Event_Comment.php
+
+		-
+			message: '#^Call to an undefined method CommonGLPI\:\:getID\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Comparison operation "\>" between 0 and 5 is always false\.$#'
+			identifier: greater.alwaysFalse
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:dropdownAllDevices\(\) has invalid return type GlpiPlugin\\Eventsmanager\\nothing\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:getUsedItems\(\) has invalid return type GlpiPlugin\\Eventsmanager\\type\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:getUsedItems\(\) should return GlpiPlugin\\Eventsmanager\\type but returns array\<list\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:itemAddForm\(\) has invalid return type GlpiPlugin\\Eventsmanager\\Nothing\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:itemAddForm\(\) should return GlpiPlugin\\Eventsmanager\\Nothing but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:itemAddForm\(\) should return GlpiPlugin\\Eventsmanager\\Nothing but returns false\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:showForEvent\(\) has invalid return type GlpiPlugin\\Eventsmanager\\Nothing\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:showForEvent\(\) should return GlpiPlugin\\Eventsmanager\\Nothing but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:showForEvent\(\) should return GlpiPlugin\\Eventsmanager\\Nothing but returns false\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Offset ''comment'' does not exist on string\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Offset ''name'' does not exist on string\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Parameter \#1 \$event of static method GlpiPlugin\\Eventsmanager\\Event_Item\:\:showForEvent\(\) expects GlpiPlugin\\Eventsmanager\\Event, CommonGLPI given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Parameter \#3 \$withcomment of static method Dropdown\:\:getDropdownName\(\) expects bool, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Parameter \$events_id of method GlpiPlugin\\Eventsmanager\\Event_Item\:\:getUsedItems\(\) has invalid type GlpiPlugin\\Eventsmanager\\type\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/Event_Item.php
+
+		-
+			message: '#^Call to an undefined method CommonGLPI\:\:getID\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Mailimport.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/Mailimport.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Origin\:\:getItemOrigin\(\) should return string but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/Origin.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$options$#'
+			identifier: parameter.notFound
+			count: 1
+			path: src/Origin.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: src/Origin.php
+
+		-
+			message: '#^Call to an undefined method CommonGLPI\:\:getField\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Profile.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Profile\:\:getTabNameForItem\(\) has invalid return type GlpiPlugin\\Eventsmanager\\translated\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Profile.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/Profile.php
+
+		-
+			message: '#^Call to an undefined method CommonGLPI\:\:getID\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Rssimport.php
+
+		-
+			message: '#^Parameter \#2 \$history of method CommonDBTM\:\:update\(\) expects bool, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Rssimport.php
+
+		-
+			message: '#^Parameter \#2 \$name of static method CommonDBTM\:\:getSpecificValueToSelect\(\) expects string, array\<string, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Rssimport.php
+
+		-
+			message: '#^You should not use the `die` function\. It prevents the execution of post\-request/post\-command routines\.$#'
+			identifier: glpi.forbidExit
+			count: 1
+			path: src/Rssimport.php
+
+		-
+			message: '#^Call to an undefined method CommonGLPI\:\:getField\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Ticket.php
+
+		-
+			message: '#^Call to an undefined method CommonGLPI\:\:getID\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Ticket.php
+
+		-
+			message: '#^Iterating over an object of an unknown class GlpiPlugin\\Eventsmanager\\type\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Ticket.php
+
+		-
+			message: '#^Method GlpiPlugin\\Eventsmanager\\Ticket\:\:displayTabContentForItem\(\) should return bool but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: src/Ticket.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$options$#'
+			identifier: parameter.notFound
+			count: 1
+			path: src/Ticket.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 2
+			path: src/Ticket.php
+
+		-
+			message: '#^Variable \$item_id might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/Ticket.php

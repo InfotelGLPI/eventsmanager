@@ -1,6 +1,4 @@
-<?php
-
-/*
+{#
  -------------------------------------------------------------------------
  eventsmanager plugin for GLPI
  Copyright (C) 2017-2026 by the eventsmanager Development Team.
@@ -25,23 +23,33 @@
  You should have received a copy of the GNU General Public License
  along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
  --------------------------------------------------------------------------
- */
+ #}
 
-use GlpiPlugin\Eventsmanager\Origin;
+<div id="itemAddForm{{ rand }}" data-rand="{{ rand }}" data-params="{{ opt|json_encode }}">
+    {% if canedit %}
+        <div style="float:left">
+            {{ devices_dropdown|raw }}
+            <span id="item_event_selection_information"></span>
+        </div>
+        <a href="#" class="event-item-action vsubmit" data-item-action="add"
+           style="float:left">{{ _x('button', 'Add') }}</a>
+    {% endif %}
 
-if (strpos($_SERVER['PHP_SELF'], "dropdownOriginItem.php")) {
-   header("Content-Type: text/html; charset=UTF-8");
-   Html::header_nocache();
-}
+    <div style="clear:both;">
+        {% for row in item_rows %}
+            {{ row|raw }}
+        {% endfor %}
 
-Session::checkCentralAccess();
-Session::checkRight('plugin_eventsmanager', READ);
+        {% if count == 0 %}
+            {{ empty_hidden|raw }}
+        {% endif %}
 
-$field = new Origin();
-if ($_POST['id'] > 0) {
-   $field->getFromDB($_POST['id']);
-} else {
-   $field->getEmpty();
-   $field->fields['itemtype'] = $_POST['itemtype'];
-}
-Origin::selectItems($field);
+        {% if not_saved_msg is not empty %}
+            <i>{{ not_saved_msg }}</i>
+        {% endif %}
+
+        {% if display_all_link is not empty %}
+            <i>{{ display_all_link|raw }}</i>
+        {% endif %}
+    </div>
+</div>

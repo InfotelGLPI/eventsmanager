@@ -34,6 +34,10 @@ use CommonDBRelation;
 use CommonGLPI;
 use DbUtils;
 use Dropdown;
+use Entity;
+use Glpi\Application\View\TemplateRenderer;
+use Glpi\DBAL\QueryExpression;
+use Glpi\DBAL\QueryUnion;
 use Html;
 use Session;
 use Toolbox;
@@ -161,8 +165,6 @@ class Event_Item extends CommonDBRelation
      **/
     public static function itemAddForm(Event $event, $options = [])
     {
-        global $CFG_GLPI;
-
         $params = ['id'                  => (isset($event->fields['id'])
                                            && $event->fields['id'] != '')
          ? $event->fields['id']
@@ -171,8 +173,6 @@ class Event_Item extends CommonDBRelation
             'items_id'            => [],
             'itemtype'            => '',
             '_canupdate'          => true];
-
-        $opt = [];
 
         foreach ($options as $key => $val) {
             if (!empty($val)) {
@@ -190,42 +190,26 @@ class Event_Item extends CommonDBRelation
         $rand  = mt_rand();
         $count = 0;
 
-        echo "<div id='itemAddForm$rand'>";
-
-        // Show associated item dropdowns
+        // Capture the "all devices" dropdown (echoing GLPI helpers)
+        $devices_dropdown = '';
         if ($canedit) {
-            echo "<div style='float:left'>";
             $p = ['used'                           => $params['items_id'],
                 'rand'                           => $rand,
                 'plugin_eventsmanager_events_id' => $params['id']];
 
-            // Global search
+            ob_start();
             self::dropdownAllDevices("itemtype", $params['itemtype'], 0, 1, $params['_users_id_requester'], $event->fields["entities_id"], $p);
-            echo "<span id='item_event_selection_information'></span>";
-            echo "</div>";
-
-            // Add button
-            echo "<a href='javascript:itemAction$rand(\"add\");' class='vsubmit' style='float:left'>" . _sx('button', 'Add') . "</a>";
+            $devices_dropdown = ob_get_clean();
         }
 
-        // Display list
-        echo "<div style='clear:both;'>";
-
+        // Build the linked-item rows
+        $item_rows = [];
         if (!empty($params['items_id'])) {
-            // No delete if mandatory and only one item
             $delete = $event->canAddItem(__CLASS__);
-            $cpt    = 0;
-            foreach ($params['items_id'] as $itemtype => $items) {
-                $cpt += count($items);
-            }
-
-            if ($cpt == 1 && isset($tt->mandatory['items_id'])) {
-                $delete = false;
-            }
             foreach ($params['items_id'] as $itemtype => $items) {
                 foreach ($items as $items_id) {
                     $count++;
-                    echo self::showItemToAdd(
+                    $item_rows[] = self::showItemToAdd(
                         $params['id'],
                         $itemtype,
                         $items_id,
@@ -239,48 +223,44 @@ class Event_Item extends CommonDBRelation
             }
         }
 
+        $empty_hidden = '';
         if ($count == 0) {
-            echo Html::hidden('items_id', ['value' => 0]);
+            $empty_hidden = Html::hidden('items_id', ['value' => 0]);
         }
-        $usedcount = 0;
+
+        $usedcount     = 0;
+        $not_saved_msg = '';
         if ($params['id'] > 0 && $usedcount != $count) {
             $count_notsaved = $count - $usedcount;
-            echo "<i>" . sprintf(_n('%1$s item not saved', '%1$s items not saved', $count_notsaved), $count_notsaved) . "</i>";
+            $not_saved_msg  = sprintf(_n('%1$s item not saved', '%1$s items not saved', $count_notsaved), $count_notsaved);
         }
+        $display_all_link = '';
         if ($params['id'] > 0 && $usedcount > 5) {
-            echo "<i><a href='" . $event->getFormURL() . "?id=" . $params['id'] . "&amp;forcetab=GlpiPlugin\Eventsmanager\Event_Item$1'>"
-              . __('Display all items') . " (" . $usedcount . ")</a></i>";
+            $display_all_link = "<a href='" . $event->getFormURL() . "?id=" . $params['id'] . "&amp;forcetab=GlpiPlugin\Eventsmanager\Event_Item$1'>"
+              . __('Display all items') . " (" . $usedcount . ")</a>";
         }
-        echo "</div>";
 
+        $opt = [];
         foreach (['id', '_users_id_requester', 'items_id', 'itemtype', '_canupdate'] as $key) {
             $opt[$key] = $params[$key];
         }
 
-        $js = " function itemAction$rand(action, itemtype, items_id) {";
-        $js .= "    $.ajax({
-                     url: '" . PLUGIN_EVENTMANAGER_WEBDIR . "/ajax/itemevent.php',
-                     dataType: 'html',
-                     data: {'action'     : action,
-                            'rand'       : $rand,
-                            'params'     : " . json_encode($opt) . ",
-                            'my_items'   : $('#dropdown_my_items$rand').val(),
-                            'itemtype'   : (itemtype === undefined) ? $('#dropdown_itemtype$rand').val() : itemtype,
-                            'items_id'   : (items_id === undefined) ? $('#dropdown_add_items_id$rand').val() : items_id},
-                     success: function(response) {";
-        $js .= "          $(\"#itemAddForm$rand\").html(response);";
-        $js .= "       }";
-        $js .= "    });";
-        $js .= " }";
-        echo Html::scriptBlock($js);
-        echo "</div>";
+        TemplateRenderer::getInstance()->display('@eventsmanager/item_add_form.html.twig', [
+            'rand'             => $rand,
+            'opt'              => $opt,
+            'canedit'          => $canedit,
+            'devices_dropdown' => $devices_dropdown,
+            'item_rows'        => $item_rows,
+            'count'            => $count,
+            'empty_hidden'     => $empty_hidden,
+            'not_saved_msg'    => $not_saved_msg,
+            'display_all_link' => $display_all_link,
+        ]);
     }
 
 
     public static function showItemToAdd($plugin_eventsmanager_events_id, $itemtype, $items_id, $options)
     {
-        global $CFG_GLPI;
-
         $dbu = new DbUtils();
         $params = [
             'rand'    => mt_rand(),
@@ -292,24 +272,25 @@ class Event_Item extends CommonDBRelation
             $params[$key] = $val;
         }
 
-        $result = "";
-
-        if ($item = $dbu->getItemForItemtype($itemtype)) {
-            if ($params['visible']) {
-                $item->getFromDB($items_id);
-                $result = "<div id='{$itemtype}_$items_id'>";
-                $result .= $item->getTypeName(1) . " : " . $item->getLink(['comments' => true]);
-                $result .= Html::hidden("items_id[$itemtype][$items_id]", ['value' => $items_id]);
-                if ($params['delete']) {
-                    $result .= " <span class='ti ti-circle-x pointer' onclick=\"itemAction" . $params['rand'] . "('delete', '$itemtype', '$items_id');\"></span>";
-                }
-                $result .= "</div>";
-            } else {
-                $result .= Html::hidden("items_id[$itemtype][$items_id]", ['value' => $items_id]);
-            }
+        if (!($item = $dbu->getItemForItemtype($itemtype))) {
+            return '';
         }
 
-        return $result;
+        $data = [
+            'itemtype'     => $itemtype,
+            'items_id'     => $items_id,
+            'visible'      => $params['visible'],
+            'delete'       => $params['delete'],
+            'hidden_field' => Html::hidden("items_id[$itemtype][$items_id]", ['value' => $items_id]),
+        ];
+
+        if ($params['visible']) {
+            $item->getFromDB($items_id);
+            $data['typename'] = $item->getTypeName(1);
+            $data['link']     = $item->getLink(['comments' => true]);
+        }
+
+        return TemplateRenderer::getInstance()->render('@eventsmanager/item_row.html.twig', $data);
     }
 
     /**
@@ -340,60 +321,22 @@ class Event_Item extends CommonDBRelation
             'WHERE'    => ['plugin_eventsmanager_events_id' => $instID],
             'ORDER'    => 'itemtype',
         ]);
-        $number = count($itemtype_iterator);
 
+        // "Add an item" block (captured GLPI helpers)
         if ($canedit) {
-            echo "<div class='firstbloc'>";
-            echo "<form name='eventitem_form$rand' id='eventitem_form$rand' method='post'
-                action='" . Toolbox::getItemTypeFormURL(__CLASS__) . "'>";
-
-            echo "<table class='tab_cadre_fixe'>";
-            echo "<tr class='tab_bg_2'><th colspan='2'>" . __('Add an item') . "</th></tr>";
-
-            echo "<tr class='tab_bg_1'><td>";
-
-            $data = array_keys($dbu->getAllDataFromTable('glpi_plugin_eventsmanager_events_items'));
-
+            ob_start();
             self::dropdownAllDevices("itemtype", null, 0, 1, 0, $event->fields["entities_id"], ['plugin_eventsmanager_events_id' => $instID]);
-            echo "<span id='item_event_selection_information'></span>";
-            echo "</td><td class='center' width='30%'>";
-            echo Html::hidden('plugin_eventsmanager_events_id', ['value' => $instID]);
-            echo Html::submit(_sx('button', 'Add'), ['name' => 'add', 'class' => 'btn btn-primary']);
-            echo "</td></tr>";
-            echo "</table>";
-            Html::closeForm();
-            echo "</div>";
+            $devices_dropdown = ob_get_clean();
+
+            TemplateRenderer::getInstance()->display('@eventsmanager/item_add_block.html.twig', [
+                'add_form_action'  => Toolbox::getItemTypeFormURL(__CLASS__),
+                'instID'           => $instID,
+                'devices_dropdown' => $devices_dropdown,
+            ]);
         }
 
-        echo "<div class='spaced'>";
-        if ($canedit && $number) {
-            Html::openMassiveActionsForm('mass' . __CLASS__ . $rand);
-            $massiveactionparams = ['container' => 'mass' . __CLASS__ . $rand];
-            Html::showMassiveActions($massiveactionparams);
-        }
-        echo "<table class='tab_cadre_fixehov'>";
-        $header_begin  = "<tr>";
-        $header_top    = '';
-        $header_bottom = '';
-        $header_end    = '';
-        if ($canedit && $number) {
-            $header_top    .= "<th width='10'>" . Html::getCheckAllAsCheckbox('mass' . __CLASS__ . $rand);
-            $header_top    .= "</th>";
-            $header_bottom .= "<th width='10'>" . Html::getCheckAllAsCheckbox('mass' . __CLASS__ . $rand);
-            $header_bottom .= "</th>";
-        }
-        $header_end .= "<th>" . __('Type') . "</th>";
-        $header_end .= "<th>" . __('Entity') . "</th>";
-        $header_end .= "<th>" . __('Name') . "</th>";
-        $header_end .= "<th>" . __('Serial number') . "</th>";
-        $header_end .= "<th>" . __('Inventory number') . "</th>";
-        if ($canedit && $number) {
-            $header_end .= "<th width='10'>" . __('Update the item') . "</th>";
-        }
-        echo "<tr>";
-        echo $header_begin . $header_top . $header_end;
-
-        $totalnb = 0;
+        // Build datatable entries
+        $entries = [];
         foreach ($itemtype_iterator as $itemtype_row) {
             $itemtype = $itemtype_row['itemtype'];
             if (!($item = $dbu->getItemForItemtype($itemtype))) {
@@ -443,8 +386,6 @@ class Event_Item extends CommonDBRelation
                 $criteria['WHERE'] += $dbu->getEntitiesRestrictCriteria($itemtable, '', '', $item->maybeRecursive());
 
                 $result_linked = $DB->request($criteria);
-                $nb            = count($result_linked);
-                $prem          = true;
                 foreach ($result_linked as $data) {
                     $name = $data["name"];
                     if ($_SESSION["glpiis_ids_visible"]
@@ -453,55 +394,48 @@ class Event_Item extends CommonDBRelation
                     }
                     if (Session::getCurrentInterface() != 'helpdesk') {
                         $link     = $itemtype::getFormURLWithID($data['id']);
-                        $namelink = "<a href=\"" . $link . "\">" . $name . "</a>";
+                        $namelink = "<a href=\"" . htmlspecialchars($link) . "\">" . htmlspecialchars($name) . "</a>";
                     } else {
-                        $namelink = $name;
+                        $namelink = htmlspecialchars($name);
                     }
 
-                    echo "<tr class='tab_bg_1'>";
-                    if ($canedit) {
-                        echo "<td width='10'>";
-                        Html::showMassiveActionCheckBox(__CLASS__, $data["IDD"]);
-                        echo "</td>";
-                    }
-                    if ($prem) {
-                        $typename = $item->getTypeName($nb);
-                        echo "<td class='center top' rowspan='$nb'>"
-                          . (($nb > 1) ? sprintf(__('%1$s: %2$s'), $typename, $nb) : $typename) . "</td>";
-                    }
-                    echo "<td class='center'>";
-                    echo Dropdown::getDropdownName("glpi_entities", $data['entity']) . "</td>";
-                    echo "<td class='center"
-                    . (isset($data['is_deleted']) && $data['is_deleted'] ? " tab_bg_2_2'" : "'");
-                    echo ">" . $namelink . "</td>";
-                    echo "<td class='center'>" . (isset($data["serial"]) ? "" . $data["serial"] . "" : "-")
-                    . "</td>";
-                    echo "<td class='center'>"
-                    . (isset($data["otherserial"]) ? "" . $data["otherserial"] . "" : "-") . "</td>";
-                    if ($canedit) {
-                        echo "<td width='10'>";
-                        Html::showMassiveActionCheckBox($itemtype, $data["id"]);
-                        echo "</td>";
-                    }
-
-                    echo "</tr>";
-                    $prem = false;
+                    $entries[] = [
+                        'itemtype'    => self::class,
+                        'id'          => $data['IDD'],
+                        'row_class'   => (isset($data['is_deleted']) && $data['is_deleted']) ? 'table-danger' : '',
+                        'type'        => $item->getTypeName(1),
+                        'entity'      => Dropdown::getDropdownName("glpi_entities", $data['entity']),
+                        'name'        => $namelink,
+                        'serial'      => $data["serial"] ?? '-',
+                        'otherserial' => $data["otherserial"] ?? '-',
+                    ];
                 }
-                $totalnb += $nb;
             }
         }
 
-        if ($number) {
-            echo $header_begin . $header_bottom . $header_end;
-        }
-
-        echo "</table>";
-        if ($canedit && $number) {
-            $massiveactionparams['ontop'] = false;
-            Html::showMassiveActions($massiveactionparams);
-            Html::closeForm();
-        }
-        echo "</div>";
+        TemplateRenderer::getInstance()->display('components/datatable.html.twig', [
+            'is_tab'             => true,
+            'nofilter'           => true,
+            'nosort'             => true,
+            'columns'            => [
+                'type'        => __('Type'),
+                'entity'      => Entity::getTypeName(1),
+                'name'        => __('Name'),
+                'serial'      => __('Serial number'),
+                'otherserial' => __('Inventory number'),
+            ],
+            'formatters'         => [
+                'name' => 'raw_html',
+            ],
+            'entries'            => $entries,
+            'total_number'       => count($entries),
+            'filtered_number'    => count($entries),
+            'showmassiveactions' => $canedit,
+            'massiveactionparams' => [
+                'num_displayed' => count($entries),
+                'container'     => 'mass' . str_replace('\\', '', self::class) . $rand,
+            ],
+        ]);
     }
 
 
@@ -581,85 +515,88 @@ class Event_Item extends CommonDBRelation
 
         $rand = $params['rand'];
 
+        $data = [
+            'rand'             => $rand,
+            'myname'           => $myname,
+            'hardware_enabled' => ($_SESSION["glpiactiveprofile"]["helpdesk_hardware"] != 0),
+            'show_all'         => false,
+        ];
+
         if ($_SESSION["glpiactiveprofile"]["helpdesk_hardware"] == 0) {
-            echo Html::hidden($myname, ['value' => '']);
-            echo Html::hidden('items_id', ['value' => 0]);
-        } else {
-            echo "<div id='tracking_all_devices$rand'>";
-            if ($_SESSION["glpiactiveprofile"]["helpdesk_hardware"] & pow(
-                2,
-                \Ticket::HELPDESK_ALL_HARDWARE
-            )) {
-                // Display a message if view my hardware
-                if ($users_id
-                && ($_SESSION["glpiactiveprofile"]["helpdesk_hardware"] & pow(
-                    2,
-                    \Ticket::HELPDESK_MY_HARDWARE
-                ))) {
-                    echo __('Or complete search') . "&nbsp;";
-                }
+            $data['myname_hidden']   = Html::hidden($myname, ['value' => '']);
+            $data['items_id_hidden'] = Html::hidden('items_id', ['value' => 0]);
+        } elseif ($_SESSION["glpiactiveprofile"]["helpdesk_hardware"] & pow(2, \Ticket::HELPDESK_ALL_HARDWARE)) {
+            $data['show_all'] = true;
 
-                $types      = \Ticket::getAllTypesForHelpdesk();
-                $emptylabel = __('General');
-                if ($params['plugin_eventsmanager_events_id'] > 0) {
-                    $emptylabel = Dropdown::EMPTY_VALUE;
-                }
-                Dropdown::showItemTypes(
-                    $myname,
-                    array_keys($types),
-                    ['emptylabel' => $emptylabel,
-                        'value'      => $itemtype,
-                        'rand'       => $rand,
-                        'display_emptychoice' => true]
-                );
-                $found_type = isset($types[$itemtype]);
+            // Display a message if view my hardware
+            $data['show_complete_search'] = ($users_id
+                && ($_SESSION["glpiactiveprofile"]["helpdesk_hardware"] & pow(2, \Ticket::HELPDESK_MY_HARDWARE)));
 
-                $p = ['itemtype'        => '__VALUE__',
-                    'entity_restrict' => $entity_restrict,
-                    'admin'           => $admin,
-                    'used'            => $params['used'],
-                    'multiple'        => $params['multiple'],
-                    'rand'            => $rand,
-                    'myname'          => "add_items_id"];
-
-                Ajax::updateItemOnSelectEvent(
-                    "dropdown_$myname$rand",
-                    "results_$myname$rand",
-                    $CFG_GLPI["root_doc"]
-                                          . "/ajax/dropdownTrackingDeviceType.php",
-                    $p
-                );
-                echo "<span id='results_$myname$rand'>\n";
-
-                // Display default value if itemtype is displayed
-                if ($found_type
-                 && $itemtype) {
-                    if (($item = $dbu->getItemForItemtype($itemtype))
-                     && $items_id) {
-                        if ($item->getFromDB($items_id)) {
-                            Dropdown::showFromArray(
-                                'items_id',
-                                [$items_id => $item->getName()],
-                                ['value' => $items_id]
-                            );
-                        }
-                    } else {
-                        $p['itemtype'] = $itemtype;
-                        echo "<script type='text/javascript' >\n";
-                        echo "$(function() {";
-                        Ajax::updateItemJsCode(
-                            "results_$myname$rand",
-                            $CFG_GLPI["root_doc"]
-                                 . "/ajax/dropdownTrackingDeviceType.php",
-                            $p
-                        );
-                        echo '});</script>';
-                    }
-                }
-                echo "</span>\n";
+            $types      = \Ticket::getAllTypesForHelpdesk();
+            $emptylabel = __('General');
+            if ($params['plugin_eventsmanager_events_id'] > 0) {
+                $emptylabel = Dropdown::EMPTY_VALUE;
             }
-            echo "</div>";
+
+            ob_start();
+            Dropdown::showItemTypes(
+                $myname,
+                array_keys($types),
+                ['emptylabel' => $emptylabel,
+                    'value'      => $itemtype,
+                    'rand'       => $rand,
+                    'display_emptychoice' => true]
+            );
+            $data['itemtypes_dropdown'] = ob_get_clean();
+
+            $found_type = isset($types[$itemtype]);
+
+            $p = ['itemtype'        => '__VALUE__',
+                'entity_restrict' => $entity_restrict,
+                'admin'           => $admin,
+                'used'            => $params['used'],
+                'multiple'        => $params['multiple'],
+                'rand'            => $rand,
+                'myname'          => "add_items_id"];
+
+            ob_start();
+            Ajax::updateItemOnSelectEvent(
+                "dropdown_$myname$rand",
+                "results_$myname$rand",
+                $CFG_GLPI["root_doc"] . "/ajax/dropdownTrackingDeviceType.php",
+                $p
+            );
+            $data['on_select_js'] = ob_get_clean();
+
+            // Display default value if itemtype is displayed
+            $results = '';
+            if ($found_type && $itemtype) {
+                if (($item = $dbu->getItemForItemtype($itemtype)) && $items_id) {
+                    if ($item->getFromDB($items_id)) {
+                        ob_start();
+                        Dropdown::showFromArray(
+                            'items_id',
+                            [$items_id => $item->getName()],
+                            ['value' => $items_id]
+                        );
+                        $results = ob_get_clean();
+                    }
+                } else {
+                    $p['itemtype'] = $itemtype;
+                    ob_start();
+                    Ajax::updateItemJsCode(
+                        "results_$myname$rand",
+                        $CFG_GLPI["root_doc"] . "/ajax/dropdownTrackingDeviceType.php",
+                        $p
+                    );
+                    $results = Html::scriptBlock('$(function() {' . ob_get_clean() . '});');
+                }
+            }
+            $data['results'] = $results;
         }
+
+        TemplateRenderer::getInstance()->display('@eventsmanager/dropdown_all_devices.html.twig', $data);
+
         return $rand;
     }
 
@@ -713,24 +650,28 @@ class Event_Item extends CommonDBRelation
 
         $itemtypes = ['Computer', 'Monitor', 'NetworkEquipment', 'Peripheral', 'Phone', 'Printer'];
 
-        $query = "";
+        $union = new QueryUnion();
         foreach ($itemtypes as $type) {
             $table = $dbu->getTableForItemType($type);
-            if (!empty($query)) {
-                $query .= " UNION ";
-            }
-            $query .= " SELECT `$table`.`id` AS id , '$type' AS itemtype , `$table`.`name` AS name
-                     FROM `$table`
-                     WHERE `$table`.`id` IS NOT NULL AND `$table`.`is_deleted` = '0' AND `$table`.`is_template` = '0' ";
+            $union->addQuery([
+                'SELECT' => [
+                    'id',
+                    new QueryExpression($DB::quoteValue($type), 'itemtype'),
+                    'name',
+                ],
+                'FROM'   => $table,
+                'WHERE'  => [
+                    'NOT'         => ['id' => null],
+                    'is_deleted'  => 0,
+                    'is_template' => 0,
+                ],
+            ]);
         }
 
-        $result = $DB->doQuery($query);
         $output = [];
-        if ($DB->numrows($result) > 0) {
-            while ($data = $DB->fetchAssoc($result)) {
-                $item                                          = $dbu->getItemForItemtype($data['itemtype']);
-                $output[$data['itemtype'] . "_" . $data['id']] = $item->getTypeName() . " - " . $data['name'];
-            }
+        foreach ($DB->request(['FROM' => $union]) as $data) {
+            $item                                          = $dbu->getItemForItemtype($data['itemtype']);
+            $output[$data['itemtype'] . "_" . $data['id']] = $item->getTypeName() . " - " . $data['name'];
         }
 
         return Dropdown::showFromArray($p['name'], $output, $p);

@@ -33,7 +33,7 @@ use Ajax;
 use CommonDBTM;
 use CommonDropdown;
 use Dropdown;
-use Html;
+use Glpi\Application\View\TemplateRenderer;
 use MailCollector;
 use RSSFeed;
 
@@ -119,10 +119,10 @@ class Origin extends CommonDropdown
    /**
     * Display specific fields
     *
-    * @global type $CFG_GLPI
+    * @global  $CFG_GLPI
     *
-    * @param type  $ID
-    * @param type  $field
+    * @param   $ID
+    * @param   $field
     */
     function displaySpecificTypeField($ID, $field = [], array $options = [])
     {
@@ -159,10 +159,8 @@ class Origin extends CommonDropdown
                 break;
             case 'itemtype':
                 return self::getItemtypeOrigin($values[$field]);
-            break;
-
-            return parent::getSpecificValueToDisplay($field, $values, $options);
         }
+        return parent::getSpecificValueToDisplay($field, $values, $options);
     }
 
    /**
@@ -197,15 +195,16 @@ class Origin extends CommonDropdown
     *
     * @param array $options
     *
-    * @return type
     */
     function dropdownItemOrigin($ID, $value = 0)
     {
         global $CFG_GLPI;
 
         if ($ID > 0) {
-            echo self::getItemtypeOrigin($this->fields['itemtype']);
-            echo Html::hidden('itemtype', ['value' => $this->fields['itemtype']]);
+            TemplateRenderer::getInstance()->display('@eventsmanager/origin_itemtype_readonly.html.twig', [
+                'itemtype_label' => self::getItemtypeOrigin($this->fields['itemtype']),
+                'itemtype'       => $this->fields['itemtype'],
+            ]);
         } else {
             $rand = Dropdown::showFromArray('itemtype', self::getAllItemOriginArray(), ['display_emptychoice' => true]);
 
@@ -224,13 +223,16 @@ class Origin extends CommonDropdown
     static function selectItems(CommonDBTM $origin)
     {
 
-        echo "<span id='span_itemtype'>";
-
+        ob_start();
         self::dropdownItems(
             $origin->fields['itemtype'],
             ['value' => $origin->fields['items_id']]
         );
-        echo "</span>";
+        $dropdown = ob_get_clean();
+
+        TemplateRenderer::getInstance()->display('@eventsmanager/origin_item_span.html.twig', [
+            'dropdown' => $dropdown,
+        ]);
     }
 
 
@@ -268,18 +270,18 @@ class Origin extends CommonDropdown
    /**
     * Function get the Item type Origin
     *
-    * @return an array
+    * @return  string
     */
     static function getItemtypeOrigin($value)
     {
         $data = self::getAllItemOriginArray();
-        return $data[$value];
+        return $data[$value] ?? '';
     }
 
    /**
     * Function get the Item Origin
     *
-    * @return an array
+    * @return  string
     */
     static function getItemOrigin($field, $values)
     {
@@ -303,7 +305,7 @@ class Origin extends CommonDropdown
    /**
     * Get the ItemOrigin list
     *
-    * @return an array
+    * @return  array
     */
     static function getAllItemOriginArray()
     {

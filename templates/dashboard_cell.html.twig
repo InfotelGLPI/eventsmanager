@@ -1,6 +1,4 @@
-<?php
-
-/*
+{#
  -------------------------------------------------------------------------
  eventsmanager plugin for GLPI
  Copyright (C) 2017-2026 by the eventsmanager Development Team.
@@ -25,23 +23,20 @@
  You should have received a copy of the GNU General Public License
  along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
  --------------------------------------------------------------------------
- */
+ #}
 
-use GlpiPlugin\Eventsmanager\Origin;
-
-if (strpos($_SERVER['PHP_SELF'], "dropdownOriginItem.php")) {
-   header("Content-Type: text/html; charset=UTF-8");
-   Html::header_nocache();
-}
-
-Session::checkCentralAccess();
-Session::checkRight('plugin_eventsmanager', READ);
-
-$field = new Origin();
-if ($_POST['id'] > 0) {
-   $field->getFromDB($_POST['id']);
-} else {
-   $field->getEmpty();
-   $field->fields['itemtype'] = $_POST['itemtype'];
-}
-Origin::selectItems($field);
+{%- if kind == 'name' -%}
+    <a id="{{ anchor_id }}" target="_blank" href="{{ url }}">{{ name }}</a>{{ tooltip|raw }}
+{%- elseif kind == 'priority' -%}
+    <div class="center" style="background-color:{{ bgcolor }};">{{ priority_name }}</div>
+{%- elseif kind == 'date' -%}
+    {%- if is_deleted -%}
+        <div class="deleted">{{ date_display }}</div>
+    {%- else -%}
+        {{ date_display }}
+    {%- endif -%}
+{%- elseif kind == 'eventtype' -%}
+    <div class="center" style="{{ type_color|raw }}">{{ type_name }}</div>
+{%- elseif kind == 'actions' -%}
+    <div style="min-width:100px;">{{ actions|raw }}</div>
+{%- endif -%}

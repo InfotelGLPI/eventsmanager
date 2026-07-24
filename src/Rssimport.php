@@ -33,9 +33,7 @@ use CommonDBTM;
 use CommonGLPI;
 use CommonITILObject;
 use DbUtils;
-use Dropdown;
-use Entity;
-use Html;
+use Glpi\Application\View\TemplateRenderer;
 use RSSFeed;
 
 if (!defined('GLPI_ROOT')) {
@@ -67,7 +65,7 @@ class Rssimport extends CommonDBTM
     * @param CommonGLPI $item
     * @param int        $withtemplate
     *
-    * @return string|translated
+    * @return string
     */
     function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
@@ -113,55 +111,11 @@ class Rssimport extends CommonDBTM
     function showConfig($idr)
     {
 
-        echo "<form action='" . $this->getFormURL() . "' method='post' >";
-        echo "<table class='tab_cadre_fixe'>";
-        echo "<tr><th colspan='2'>" . _n('Event manager', 'Events manager', 2, 'eventsmanager') . "</th></tr>";
-
-        echo "<tr class='tab_bg_2'><td>" . __("Do you want to use this RSS feed to create event", 'eventsmanager') . " ?</td><td>";
-        Dropdown::showYesNo(
-            'use_with_plugin',
-            $this->fields['use_with_plugin']
-        );
-        echo "</td></tr>";
-
-        echo "<tr class='tab_bg_2'>";
-        echo "<td>" . __('Entity') . "</td><td>";
-        Entity::dropdown(['name'  => 'entities_id_import',
-                        'value' => $this->fields['entities_id_import']]);
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr class='tab_bg_2'>";
-        echo "<td>" . __('Default impact', 'eventsmanager') . "</td><td>";
-        \Ticket::dropdownImpact(['name'      => 'default_impact',
-                              'value'     => $this->fields['default_impact'],
-                              'withmajor' => 1]);
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr class='tab_bg_2'>";
-        echo "<td>" . __('Default priority', 'eventsmanager') . "</td><td>";
-        CommonITILObject::dropdownPriority(['name'      => 'default_priority',
-                                          'value'     => $this->fields['default_priority'],
-                                          'withmajor' => 1]);
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr class='tab_bg_2'>";
-        echo "<td>" . __('Default event type', 'eventsmanager') . "</td><td>";
-        Event::dropdownType(['name'  => 'default_eventtype',
-                                              'value' => $this->fields['default_eventtype']]);
-        echo "</td>";
-        echo "</tr>";
-
-        echo "<tr class='tab_bg_1 center'><td colspan='2'>";
-        echo Html::hidden('id', ['value' => $this->getID()]);
-        echo Html::hidden('rssfeeds_id', ['value' => $idr]);
-        echo Html::submit(_sx('button', 'Save'), ['name' => 'update', 'class' => 'btn btn-primary']);
-        echo "</td></tr>";
-        echo "</table>";
-
-        Html::closeForm();
+        TemplateRenderer::getInstance()->display('@eventsmanager/rssimport.html.twig', [
+            'item'        => $this,
+            'form_action' => $this->getFormURL(),
+            'rssfeeds_id' => $idr,
+        ]);
     }
 
    /**

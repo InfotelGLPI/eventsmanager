@@ -1,6 +1,4 @@
-<?php
-
-/*
+{#
  -------------------------------------------------------------------------
  eventsmanager plugin for GLPI
  Copyright (C) 2017-2026 by the eventsmanager Development Team.
@@ -25,23 +23,20 @@
  You should have received a copy of the GNU General Public License
  along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
  --------------------------------------------------------------------------
- */
+ #}
 
-use GlpiPlugin\Eventsmanager\Origin;
-
-if (strpos($_SERVER['PHP_SELF'], "dropdownOriginItem.php")) {
-   header("Content-Type: text/html; charset=UTF-8");
-   Html::header_nocache();
-}
-
-Session::checkCentralAccess();
-Session::checkRight('plugin_eventsmanager', READ);
-
-$field = new Origin();
-if ($_POST['id'] > 0) {
-   $field->getFromDB($_POST['id']);
-} else {
-   $field->getEmpty();
-   $field->fields['itemtype'] = $_POST['itemtype'];
-}
-Origin::selectItems($field);
+{% if not hardware_enabled %}
+    {{ myname_hidden|raw }}
+    {{ items_id_hidden|raw }}
+{% else %}
+    <div id="tracking_all_devices{{ rand }}">
+        {% if show_all %}
+            {% if show_complete_search %}{{ __('Or complete search') }}&nbsp;{% endif %}
+            {{ itemtypes_dropdown|raw }}
+            {{ on_select_js|raw }}
+            <span id="results_{{ myname }}{{ rand }}">
+                {{ results|raw }}
+            </span>
+        {% endif %}
+    </div>
+{% endif %}

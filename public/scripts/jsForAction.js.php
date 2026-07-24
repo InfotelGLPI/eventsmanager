@@ -82,5 +82,21 @@ function closeEvent(event) {
         });
     }
 }
+
+// Delegated handler for the event action icons (assign / create ticket / close).
+$(document).on('click', '.event-action', function() {
+    var _id = $(this).data('event-id');
+    switch ($(this).data('action')) {
+        case 'assign':
+            addUserEvent(_id);
+            break;
+        case 'ticket':
+            createTicketEvent(_id);
+            break;
+        case 'close':
+            closeEvent(_id);
+            break;
+    }
+});
 JAVASCRIPT;
 echo $JS;

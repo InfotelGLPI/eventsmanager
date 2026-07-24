@@ -35,6 +35,7 @@ use CommonITILObject;
 use DbUtils;
 use Document_Item;
 use Dropdown;
+use Glpi\Application\View\TemplateRenderer;
 use Glpi\RichText\RichText;
 use Html;
 use Item_Ticket;
@@ -262,144 +263,116 @@ class Ticket extends CommonDBTM
             $used[$data['id']]    = $data['id'];
         }
         $number  = count($tickets);
-        $numrows = $number;
-        if ($canedit) {
-            echo "<div class='firstbloc'>";
-            echo "<form name='eventticket_form$rand' id='eventticket_form$rand' method='post'
-               action='" . Toolbox::getItemTypeFormURL(__CLASS__) . "'>";
 
-            echo "<table class='tab_cadre_fixe'>";
-            echo "<tr class='tab_bg_2'><th colspan='3'>" . __('Add a event', 'eventsmanager') . "</th></tr>";
-            echo "<tr class='tab_bg_2'><td>";
-            echo Html::hidden('tickets_id', ['value' => $ID]);
+        // "Add an event" block (captured Event::dropdown)
+        if ($canedit) {
+            ob_start();
             Event::dropdown(['used'   => $used,
                 'entity' => $ticket->getEntityID()]);
-            echo "</td><td class='center'>";
-            echo Html::submit(_sx('button', 'Add'), ['name' => 'add', 'class' => 'btn btn-primary']);
-            echo "</td>";
-            echo "</tr></table>";
-            Html::closeForm();
-            echo "</div>";
+            $event_dropdown = ob_get_clean();
+
+            TemplateRenderer::getInstance()->display('@eventsmanager/ticket_add_block.html.twig', [
+                'add_form_action' => Toolbox::getItemTypeFormURL(__CLASS__),
+                'ticket_id'       => $ID,
+                'event_dropdown'  => $event_dropdown,
+            ]);
         }
 
-        echo "<div class='spaced'>";
-        if ($canedit && $numrows) {
-            Html::openMassiveActionsForm('mass' . __CLASS__ . $rand);
-            $massiveactionparams
-               = ['num_displayed'    => min($_SESSION['glpilist_limit'], $numrows),
-                   'specific_actions' => ['purge' => _x('button', 'Delete permanently')],
-                   'container'        => 'mass' . __CLASS__ . $rand,
-                   'extraparams'      => ['tickets_id' => $ticket->getID()]];
-            Html::showMassiveActions($massiveactionparams);
-        }
+        // Build datatable entries
+        $entries = [];
+        foreach ($tickets as $data) {
+            $event_url = Toolbox::getItemTypeFormURL(Event::class) . "?id=" . (int) $data['id'];
+            $entry = [
+                'itemtype' => self::class,
+                'id'       => $data['LinkID'],
+                'name'     => "<a href=\"" . htmlspecialchars($event_url) . "\">" . htmlspecialchars($data['name']) . "</a>",
+                'date'     => Html::convDateTime($data['date_creation'], 1),
+                'status'   => Event::getStatusName($data['status']),
+                'priority' => "<div class='center' style='background-color:" . htmlspecialchars($_SESSION["glpipriority_" . $data['priority']]) . ";'>"
+                    . CommonITILObject::getPriorityName($data['priority']) . "</div>",
+                'eventtype' => ($data['eventtype'] > 0)
+                    ? "<div class='center' style='" . Event::getTypeColor($data['eventtype']) . "'>" . Event::getEventTypeName($data['eventtype']) . "</div>"
+                    : '',
+            ];
 
-        echo "<table class='tab_cadre_fixehov'>";
-
-        echo "<tr class='noHover'><th colspan='9'>" . _n('Linked event', 'Linked events', $number, 'eventsmanager') . "</th>";
-        echo "</tr>";
-
-        if ($number > 0) {
-            echo "<tr>";
-            echo "<th width='10'>" . Html::getCheckAllAsCheckbox('mass' . __CLASS__ . $rand) . "</th>";
-            echo "<th>" . __('Name') . "</th>";
-            echo "<th>" . __('Date') . "</th>";
-            echo "<th>" . __('Origin', 'eventsmanager') . "</th>";
-            echo "<th>" . __('Status') . "</th>";
-            echo "<th>" . __('Priority') . "</th>";
-            echo "<th>" . __('Event type', 'eventsmanager') . "</th>";
-            echo "<th>" . __('Associated element', 'eventsmanager') . "</th>";
-            echo "<th>" . __('Description') . "</th>";
-            echo "</tr>";
-
-            foreach ($tickets as $data) {
-
-                echo "<tr class='tab_bg_1'>";
-                echo "<td>";
-                echo Html::getMassiveActionCheckBox(__CLASS__, $data['LinkID']);
-                echo "</td>";
-
-                echo "<td>";
-                $url = Toolbox::getItemTypeFormURL(Event::class) . "?id=" . $data['id'];
-                echo "<a id='event" . $data['id'] . "' href='$url'>" . htmlspecialchars($data['name'], ENT_QUOTES) . "</a>";
-                echo "</td>";
-
-                echo "<td>";
-                echo Html::convDateTime($data['date_creation'], 1);
-                echo "</td>";
-
-                echo "<td>";
-                echo Dropdown::getDropdownName('glpi_plugin_eventsmanager_origins', $data['plugin_eventsmanager_origins_id']);
-                $origin = new Origin();
-                if ($origin->getFromDB($data["plugin_eventsmanager_origins_id"])) {
-                    echo "<br>";
-                    echo Origin::getItemtypeOrigin($origin->fields['itemtype']);
-                    echo " - ";
-                    echo Origin::getItemOrigin('items_id', ["itemtype" => $origin->fields['itemtype'],
-                        "items_id" => $origin->fields['items_id']]);
-
-                }
-                echo "</td>";
-
-                echo "<td>";
-                echo Event::getStatusName($data['status']);
-                echo "</td>";
-
-                $style = "style=\"background-color:" . $_SESSION["glpipriority_" . $data['priority']] . ";\" ";
-                echo "<td $style>";
-                echo CommonITILObject::getPriorityName($data['priority']);
-                echo "</td>";
-
-                $style = "";
-                if ($data['eventtype'] > 0) {
-                    $style = "style='" . Event::getTypeColor($data['eventtype']) . "'";
-                }
-                echo "<td $style>";
-                if ($data['eventtype'] > 0) {
-                    echo Event::getEventTypeName($data['eventtype']);
-                }
-                echo "</td>";
-
-                echo "<td>";
-                $event_item = new Event_Item();
-                $items      = $event_item->getUsedItems($data['id']);
-                $dbu_inner  = new DbUtils();
-
-                foreach ($items as $itemtype => $items_id) {
-                    if (!($item = $dbu_inner->getItemForItemtype($itemtype))) {
-                        continue;
-                    }
-                    foreach ($items_id as $item_id) {
-                        echo $item::getTypeName();
-                    }
-                    $item->getFromDB($item_id);
-                    echo "<br>";
-                    echo $item->getLink();
-                    echo "<br>";
-                }
-                echo "</td>";
-
-                echo "<td>";
-                echo RichText::getTextFromHtml(Html::resume_text($data['comment'], 255));
-                echo "</td>";
-
-                echo "</tr>";
+            // Origin
+            $origin_name    = Dropdown::getDropdownName('glpi_plugin_eventsmanager_origins', $data['plugin_eventsmanager_origins_id']);
+            $itemtype_label = '';
+            $item_name      = '';
+            $origin         = new Origin();
+            if ($origin->getFromDB($data["plugin_eventsmanager_origins_id"])) {
+                $itemtype_label = Origin::getItemtypeOrigin($origin->fields['itemtype']);
+                $item_name      = Origin::getItemOrigin('items_id', ["itemtype" => $origin->fields['itemtype'],
+                    "items_id" => $origin->fields['items_id']]);
             }
-        } else {
-            echo "<tr class='tab_bg_1'>";
-            echo "<td>";
-            echo __('No event linked to this ticket yet', 'eventsmanager');
-            echo "</td>";
-            echo "</tr>";
+            $entry['origin'] = TemplateRenderer::getInstance()->render('@eventsmanager/ticket_origin_cell.html.twig', [
+                'origin_name'    => $origin_name,
+                'itemtype_label' => $itemtype_label,
+                'item_name'      => $item_name,
+            ]);
+
+            // Associated items (preserve legacy output)
+            $event_item = new Event_Item();
+            $items      = $event_item->getUsedItems($data['id']);
+            $dbu_inner  = new DbUtils();
+            $item_rows  = [];
+            foreach ($items as $itemtype => $items_id) {
+                if (!($item = $dbu_inner->getItemForItemtype($itemtype))) {
+                    continue;
+                }
+                $typenames = '';
+                foreach ($items_id as $item_id) {
+                    $typenames .= $item::getTypeName();
+                }
+                $item->getFromDB($item_id);
+                $item_rows[] = [
+                    'typenames' => $typenames,
+                    'link'      => $item->getLink(),
+                ];
+            }
+            $entry['items'] = TemplateRenderer::getInstance()->render('@eventsmanager/associated_items_cell.html.twig', [
+                'items' => $item_rows,
+            ]);
+
+            $entry['description'] = Html::resume_text(RichText::getTextFromHtml($data['comment'], false), 255);
+
+            $entries[] = $entry;
         }
 
-        echo "</table>";
-        if ($canedit && $numrows) {
-            $massiveactionparams['ontop'] = false;
-            Html::showMassiveActions($massiveactionparams);
-            Html::closeForm();
-        }
-        echo "</div>";
-        Html::closeForm();
+        TemplateRenderer::getInstance()->display('components/datatable.html.twig', [
+            'is_tab'             => true,
+            'nofilter'           => true,
+            'nosort'             => true,
+            'super_header'       => _n('Linked event', 'Linked events', $number, 'eventsmanager'),
+            'columns'            => [
+                'name'        => __('Name'),
+                'date'        => __('Creation date'),
+                'origin'      => Origin::getTypeName(1),
+                'status'      => __('Status'),
+                'priority'    => __('Priority'),
+                'eventtype'   => __('Type'),
+                'items'       => _n('Associated element', 'Associated elements', Session::getPluralNumber()),
+                'description' => __('Description'),
+            ],
+            'formatters'         => [
+                'name'        => 'raw_html',
+                'origin'      => 'raw_html',
+                'priority'    => 'raw_html',
+                'eventtype'   => 'raw_html',
+                'items'       => 'raw_html',
+                'description' => 'raw_html',
+            ],
+            'entries'            => $entries,
+            'total_number'       => $number,
+            'filtered_number'    => $number,
+            'showmassiveactions' => $canedit,
+            'massiveactionparams' => [
+                'num_displayed'    => $number,
+                'specific_actions' => ['purge' => _x('button', 'Delete permanently')],
+                'container'        => 'mass' . str_replace('\\', '', self::class) . $rand,
+                'extraparams'      => ['tickets_id' => $ticket->getID()],
+            ],
+        ]);
     }
 
     /**
@@ -408,112 +381,98 @@ class Ticket extends CommonDBTM
      */
     public function showForEvent($ID, $options = [])
     {
-        global $CFG_GLPI;
-
         $event  = new Event();
         $ticket = new \Ticket();
 
         $event->getFromDB($ID);
 
-        if ($event->fields['status'] < Event::CLOSED_STATE
-            && $event->fields['status'] > 0) {
+        $show_link_form = ($event->fields['status'] < Event::CLOSED_STATE
+            && $event->fields['status'] > 0);
 
-            echo "<div class='center'>";
-            echo "<form method='post' name='event_form'
-         id='event_form'  action='" . Toolbox::getItemTypeFormURL(Event::class) . "'>";
-
-            echo "<table class='tab_cadre_fixe'>";
-            echo "<tr class='tab_bg_1'>";
-            echo "<th colspan='4'>" . __('Link to tickets', 'eventsmanager') . "</th>";
-            echo "</tr>";
-
-            echo "<tr class='tab_bg_1'>";
-
-            echo "<td colspan='2'>" . __('Create a new ticket', 'eventsmanager') . "</td>";
-            echo "<td colspan='2'>";
-            $id_user = $_GET['id'];
-            $msg5    = __('Create a ticket from the event', 'eventsmanager');
-            echo "<i onclick=\"createTicketEvent($id_user)\" title=\"" . $msg5 . "\"
-               class='ti ti-bell fa-2x' style='float:left; cursor:pointer;'/></i>";
-
-            echo "</td>";
-            echo "</tr>";
-
-            echo "<tr class='tab_bg_1'>";
-            echo "<td colspan='2'>" . __('Link a existant ticket', 'eventsmanager') . "</td>";
-            echo "<td colspan='2'>";
+        $ticket_dropdown = '';
+        if ($show_link_form) {
+            ob_start();
             \Ticket::dropdown(['name'        => "tickets_id",
                 'entity'      => $event->getEntityID(),
                 'entity_sons' => $event->isRecursive(),
                 'displaywith' => ['id']]);
-
-            echo "</td></tr>";
-
-            echo "<tr class='tab_bg_1 center'><td colspan='4'>";
-            echo Html::hidden('plugin_eventsmanager_events_id', ['value' => $ID]);
-            echo Html::submit(_sx('button', 'Save'), ['name' => 'ticket_link', 'class' => 'btn btn-primary']);
-            echo "</td></tr>";
-
-            echo "</table>";
-            Html::closeForm();
-            echo "</div>";
+            $ticket_dropdown = ob_get_clean();
         }
+
+        // "Link to tickets" form block
+        if ($show_link_form) {
+            TemplateRenderer::getInstance()->display('@eventsmanager/ticket_link_form.html.twig', [
+                'create_form_action' => Toolbox::getItemTypeFormURL(Event::class),
+                'event_id'           => (int) $ID,
+                'ticket_dropdown'    => $ticket_dropdown,
+                'link_event_id'      => $ID,
+            ]);
+        }
+
         $eventsmanager_ticket = new Ticket();
         $tickets              = $eventsmanager_ticket->find(['plugin_eventsmanager_events_id' => $event->fields['id']]);
 
-        if (count($tickets) > 0) {
-
-            echo "<table class='tab_cadre_fixe'>";
-            echo "<tr>";
-            echo "<th colspan='5'>" . __('Linked tickets', 'eventsmanager') . "</th>";
-            echo "</tr>";
-
-            echo "<tr>";
-            echo "<th>" . __('Name') . "</th>";
-            echo "<th>" . __('Date') . "</th>";
-            echo "<th>" . __('Status') . "</th>";
-            echo "<th>" . __('Priority') . "</th>";
-            echo "<th>" . __('Associated element', 'eventsmanager') . "</th>";
-            echo "</tr>";
-
-            foreach ($tickets as $data) {
-
-                if ($ticket->getFromDB($data['tickets_id'])) {
-                    echo "<tr class='tab_bg_1'>";
-                    echo "<td class='center'>";
-                    echo $ticket->getLink();
-                    echo "</td>";
-                    echo "<td class='center'>";
-                    echo Html::convDateTime($ticket->fields["date"]);
-                    echo "</td>";
-                    echo "<td class='center'>";
-                    echo \Ticket::getStatus($ticket->fields["status"]);
-                    echo "</td>";
-                    $style = "style=\"background-color:" . $_SESSION["glpipriority_" . $ticket->fields['priority']] . ";\" ";
-                    echo "<td class='center' $style>";
-                    echo CommonITILObject::getPriorityName($ticket->fields["priority"]);
-                    echo "</td>";
-                    echo "<td class='center'>";
-                    $item_ticket = new Item_Ticket();
-                    $items       = $item_ticket->getUsedItems($ticket->fields["id"]);
-                    $dbu_inner   = new DbUtils();
-                    foreach ($items as $itemtype => $items_id) {
-                        if (!($item = $dbu_inner->getItemForItemtype($itemtype))) {
-                            continue;
-                        }
-                        foreach ($items_id as $item_id) {
-                            echo $item::getTypeName();
-                        }
-                        $item->getFromDB($item_id);
-                        echo "<br>";
-                        echo $item->getLink();
-                        echo "<br>";
-                    }
-                    echo "</td>";
-                    echo "</tr>";
-                }
+        // Build datatable entries for linked tickets
+        $entries = [];
+        foreach ($tickets as $data) {
+            if (!$ticket->getFromDB($data['tickets_id'])) {
+                continue;
             }
-            echo "</table>";
+
+            // Associated items (preserve legacy output)
+            $item_ticket = new Item_Ticket();
+            $items       = $item_ticket->getUsedItems($ticket->fields["id"]);
+            $dbu_inner   = new DbUtils();
+            $item_rows   = [];
+            foreach ($items as $itemtype => $items_id) {
+                if (!($item = $dbu_inner->getItemForItemtype($itemtype))) {
+                    continue;
+                }
+                $typenames = '';
+                foreach ($items_id as $item_id) {
+                    $typenames .= $item::getTypeName();
+                }
+                $item->getFromDB($item_id);
+                $item_rows[] = [
+                    'typenames' => $typenames,
+                    'link'      => $item->getLink(),
+                ];
+            }
+            $items_html = TemplateRenderer::getInstance()->render('@eventsmanager/associated_items_cell.html.twig', [
+                'items' => $item_rows,
+            ]);
+
+            $entries[] = [
+                'name'     => $ticket->getLink(),
+                'date'     => Html::convDateTime($ticket->fields["date"]),
+                'status'   => \Ticket::getStatus($ticket->fields["status"]),
+                'priority' => "<div class='center' style='background-color:" . htmlspecialchars($_SESSION["glpipriority_" . $ticket->fields['priority']]) . ";'>"
+                    . CommonITILObject::getPriorityName($ticket->fields["priority"]) . "</div>",
+                'items'    => $items_html,
+            ];
         }
+
+        TemplateRenderer::getInstance()->display('components/datatable.html.twig', [
+            'is_tab'          => true,
+            'nofilter'        => true,
+            'nosort'          => true,
+            'super_header'    => __('Linked tickets', 'eventsmanager'),
+            'columns'         => [
+                'name'     => __('Name'),
+                'date'     => __('Date'),
+                'status'   => __('Status'),
+                'priority' => __('Priority'),
+                'items'    => _n('Associated element', 'Associated elements', Session::getPluralNumber()),
+            ],
+            'formatters'      => [
+                'name'     => 'raw_html',
+                'status'   => 'raw_html',
+                'priority' => 'raw_html',
+                'items'    => 'raw_html',
+            ],
+            'entries'         => $entries,
+            'total_number'    => count($entries),
+            'filtered_number' => count($entries),
+        ]);
     }
 }

@@ -1,11 +1,9 @@
-<?php
-
-/*
+{#
  -------------------------------------------------------------------------
  eventsmanager plugin for GLPI
  Copyright (C) 2017-2026 by the eventsmanager Development Team.
 
- https://github.com/InfotelGLPI/eventsmanager
+ https://github.com/pluginsGLPI/eventsmanager
  -------------------------------------------------------------------------
 
  LICENSE
@@ -25,23 +23,17 @@
  You should have received a copy of the GNU General Public License
  along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
  --------------------------------------------------------------------------
- */
+ #}
 
-use GlpiPlugin\Eventsmanager\Origin;
+<div class="spaced">
+    <form method="post" action="{{ 'Profile'|itemtype_form_path }}">
+        {% do profile.displayRightsChoiceMatrix(rights, {'title': title}) %}
 
-if (strpos($_SERVER['PHP_SELF'], "dropdownOriginItem.php")) {
-   header("Content-Type: text/html; charset=UTF-8");
-   Html::header_nocache();
-}
+        <div class="center">
+            <input type="hidden" name="id" value="{{ id }}">
+            {{ call('Html::submit', [_x('button', 'Save'), {'name': 'update'}])|raw }}
+        </div>
 
-Session::checkCentralAccess();
-Session::checkRight('plugin_eventsmanager', READ);
-
-$field = new Origin();
-if ($_POST['id'] > 0) {
-   $field->getFromDB($_POST['id']);
-} else {
-   $field->getEmpty();
-   $field->fields['itemtype'] = $_POST['itemtype'];
-}
-Origin::selectItems($field);
+        <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
+    </form>
+</div>

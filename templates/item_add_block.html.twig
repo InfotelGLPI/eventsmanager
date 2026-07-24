@@ -1,6 +1,4 @@
-<?php
-
-/*
+{#
  -------------------------------------------------------------------------
  eventsmanager plugin for GLPI
  Copyright (C) 2017-2026 by the eventsmanager Development Team.
@@ -25,23 +23,23 @@
  You should have received a copy of the GNU General Public License
  along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
  --------------------------------------------------------------------------
- */
+ #}
 
-use GlpiPlugin\Eventsmanager\Origin;
-
-if (strpos($_SERVER['PHP_SELF'], "dropdownOriginItem.php")) {
-   header("Content-Type: text/html; charset=UTF-8");
-   Html::header_nocache();
-}
-
-Session::checkCentralAccess();
-Session::checkRight('plugin_eventsmanager', READ);
-
-$field = new Origin();
-if ($_POST['id'] > 0) {
-   $field->getFromDB($_POST['id']);
-} else {
-   $field->getEmpty();
-   $field->fields['itemtype'] = $_POST['itemtype'];
-}
-Origin::selectItems($field);
+<div class="firstbloc">
+    <form name="eventitem_form" method="post" action="{{ add_form_action }}">
+        <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
+        <table class="tab_cadre_fixe">
+            <tr class="tab_bg_2"><th colspan="2">{{ __('Add an item') }}</th></tr>
+            <tr class="tab_bg_1">
+                <td>
+                    {{ devices_dropdown|raw }}
+                    <span id="item_event_selection_information"></span>
+                </td>
+                <td class="center" width="30%">
+                    <input type="hidden" name="plugin_eventsmanager_events_id" value="{{ instID }}">
+                    <button type="submit" name="add" class="btn btn-primary">{{ _x('button', 'Add') }}</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>

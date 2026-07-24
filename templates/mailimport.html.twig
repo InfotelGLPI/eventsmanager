@@ -1,0 +1,72 @@
+{#
+ -------------------------------------------------------------------------
+ eventsmanager plugin for GLPI
+ Copyright (C) 2017-2026 by the eventsmanager Development Team.
+
+ https://github.com/InfotelGLPI/eventsmanager
+ -------------------------------------------------------------------------
+
+ LICENSE
+
+ This file is part of eventsmanager.
+
+ eventsmanager is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 3 of the License, or
+ (at your option) any later version.
+
+ eventsmanager is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
+ --------------------------------------------------------------------------
+ #}
+
+{% import 'components/form/fields_macros.html.twig' as fields %}
+
+<form action="{{ form_action }}" method="post">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">{{ _n('Event manager', 'Events manager', 2, 'eventsmanager') }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% set impact_field %}
+                    {% do call('Ticket::dropdownImpact', [{
+                        'name': 'default_impact',
+                        'value': item.fields['default_impact'],
+                        'withmajor': 1
+                    }]) %}
+                {% endset %}
+                {{ fields.field('default_impact', impact_field, __('Default impact', 'eventsmanager')) }}
+
+                {% set priority_field %}
+                    {% do call('CommonITILObject::dropdownPriority', [{
+                        'name': 'default_priority',
+                        'value': item.fields['default_priority'],
+                        'withmajor': 1
+                    }]) %}
+                {% endset %}
+                {{ fields.field('default_priority', priority_field, __('Default priority', 'eventsmanager')) }}
+
+                {% set type_field %}
+                    {% do call('GlpiPlugin\\Eventsmanager\\Event::dropdownType', [{
+                        'name': 'default_eventtype',
+                        'value': item.fields['default_eventtype']
+                    }]) %}
+                {% endset %}
+                {{ fields.field('default_eventtype', type_field, __('Default event type', 'eventsmanager')) }}
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-center">
+            <input type="hidden" name="id" value="{{ item.getID() }}">
+            <input type="hidden" name="mailcollectors_id" value="{{ mailcollectors_id }}">
+            {{ call('Html::submit', [_x('button', 'Save'), {'name': 'update', 'class': 'btn btn-primary'}])|raw }}
+        </div>
+    </div>
+
+    <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}">
+</form>

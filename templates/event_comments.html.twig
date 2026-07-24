@@ -1,0 +1,173 @@
+{#
+ -------------------------------------------------------------------------
+ eventsmanager plugin for GLPI
+ Copyright (C) 2017-2026 by the eventsmanager Development Team.
+
+ https://github.com/InfotelGLPI/eventsmanager
+ -------------------------------------------------------------------------
+
+ LICENSE
+
+ This file is part of eventsmanager.
+
+ eventsmanager is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 3 of the License, or
+ (at your option) any later version.
+
+ eventsmanager is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
+ --------------------------------------------------------------------------
+ #}
+
+{% import 'components/form/fields_macros.html.twig' as fields %}
+
+{% set fields_options = {
+    full_width: true,
+    is_horizontal: false,
+} %}
+
+{% macro comment_editor_modal(modal_id, title, url, event_id, comment_id, parent_id, submit_name, content, fields, fields_options) %}
+    <div id="{{ modal_id }}" class="modal fade">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <form action="{{ url }}" method="post" autocomplete="off" data-submit-once>
+                    <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}" />
+                    <input type="hidden" name="plugin_eventsmanager_events_id" value="{{ event_id }}" />
+                    {% if comment_id is not null %}
+                        <input type="hidden" name="id" value="{{ comment_id }}" />
+                    {% endif %}
+                    {% if parent_id is not null %}
+                        <input type="hidden" name="parent_comment_id" value="{{ parent_id }}" />
+                    {% endif %}
+
+                    <div class="modal-header">
+                        <h3 class="modal-title">
+                            <i class="ti ti-message-2"></i>
+                            {{ title }}
+                        </h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        {{ fields.textareaField(
+                            'comment',
+                            content,
+                            __('Comment'),
+                            fields_options|merge({
+                                enable_richtext: true,
+                                enable_fileupload: false,
+                                required: true,
+                            })
+                        ) }}
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" value="1" name="{{ submit_name }}" class="btn btn-primary">
+                            <i class="ti ti-device-floppy"></i>
+                            <span>{{ submit_name == 'edit' ? _x('button', 'Save') : _x('button', 'Add') }}</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro show_comments(comments, url, event_id, canedit, level, fields, fields_options) %}
+    {% import _self as self %}
+    {% for comment in comments %}
+        {% set edit_modal_id  = 'edit-eventcomment' ~ comment.id %}
+        {% set reply_modal_id = 'reply-eventcomment' ~ comment.id %}
+        <li class="comment{{ level > 0 ? ' subcomment' : '' }}" id="eventcomment{{ comment.id }}">
+            <div class="h_item card mb-2 {{ level > 0 ? 'ms-4' : '' }}">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="d-inline-flex creator flex-wrap">
+                            {{ include('components/itilobject/timeline/timeline_item_header_badges.html.twig', {
+                                'users_id': comment.users_id,
+                                'date_creation': comment.date_creation,
+                                'date_mod': comment.date_mod ?? comment.date_creation,
+                                'users_id_editor': comment.users_id_lastupdater ?? 0,
+                                'anchor': 'eventcomment' ~ comment.id,
+                                'user_object': null,
+                            }, with_context = false) }}
+                        </span>
+                        <span class="d-inline-flex gap-1">
+                            {% if canedit %}
+                                <button type="button" class="btn btn-sm btn-ghost-secondary"
+                                        title="{{ __('Add an answer') }}" aria-label="{{ __('Add an answer') }}"
+                                        data-bs-toggle="modal" data-bs-target="#{{ reply_modal_id }}">
+                                    <i class="ti ti-corner-down-right"></i>
+                                </button>
+                            {% endif %}
+                            {% if comment._can_edit %}
+                                <button type="button" class="btn btn-sm btn-ghost-secondary"
+                                        title="{{ _x('button', 'Edit') }}" aria-label="{{ _x('button', 'Edit') }}"
+                                        data-bs-toggle="modal" data-bs-target="#{{ edit_modal_id }}">
+                                    <i class="ti ti-edit"></i>
+                                </button>
+                                <form action="{{ url }}" method="post" class="d-inline"
+                                      onsubmit="return confirm('{{ __('Confirm the final deletion?')|e('js') }}');">
+                                    <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}" />
+                                    <input type="hidden" name="plugin_eventsmanager_events_id" value="{{ event_id }}" />
+                                    <input type="hidden" name="id" value="{{ comment.id }}" />
+                                    <button type="submit" name="purge" value="1"
+                                            class="btn btn-sm btn-ghost-danger"
+                                            title="{{ _x('button', 'Delete permanently') }}"
+                                            aria-label="{{ _x('button', 'Delete permanently') }}">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="rich_text_container">{{ comment.comment|safe_html }}</div>
+                </div>
+            </div>
+
+            {% if canedit %}
+                {{ self.comment_editor_modal(reply_modal_id, __('Add an answer'), url, event_id, null, comment.id, 'add', '', fields, fields_options) }}
+            {% endif %}
+            {% if comment._can_edit %}
+                {{ self.comment_editor_modal(edit_modal_id, __('Edit comment'), url, event_id, comment.id, null, 'edit', comment.comment, fields, fields_options) }}
+            {% endif %}
+
+            {% if comment.answers is not empty %}
+                <ul class="comments ps-3">
+                    {{ self.show_comments(comment.answers, url, event_id, canedit, level + 1, fields, fields_options) }}
+                </ul>
+            {% endif %}
+        </li>
+    {% endfor %}
+{% endmacro %}
+
+{% import _self as self %}
+
+{% if canedit %}
+    <div class="d-flex mb-3">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#new-eventcomment-form"
+                aria-label="{{ _x('button', 'Add a comment') }}">
+            <i class="ti ti-message-2"></i>
+            <span>{{ _x('button', 'Add a comment') }}</span>
+        </button>
+    </div>
+
+    {{ self.comment_editor_modal('new-eventcomment-form', __('New comment'), url, event_id, null, null, 'add', '', fields, fields_options) }}
+{% endif %}
+
+{% if comments is empty %}
+    <div class="alert alert-info">{{ __('No comments') }}</div>
+{% else %}
+    <div class="forcomments">
+        <ul class="comments left list-unstyled">
+            {{ self.show_comments(comments, url, event_id, canedit, 0, fields, fields_options) }}
+        </ul>
+    </div>
+{% endif %}
