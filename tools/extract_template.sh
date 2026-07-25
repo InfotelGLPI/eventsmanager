@@ -6,7 +6,7 @@ find . -name '*.php' > php_files.list
 # Extraction avec xgettext
 xgettext --files-from=php_files.list \
   --copyright-holder='Eventsmanager Development Team' \
-  --package-name='Eventsmanager - Accounts plugin' \
+  --package-name='Eventsmanager plugin' \
   -o locales/glpi.pot \
   -L PHP \
   --add-comments=TRANS \
