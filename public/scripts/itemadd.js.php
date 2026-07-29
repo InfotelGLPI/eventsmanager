@@ -43,6 +43,10 @@ $JS = <<<JAVASCRIPT
 function pluginEventsmanagerItemAction(container, rand, action, itemtype, items_id) {
     $.ajax({
         url: '$root_eventsmanager_doc/ajax/itemevent.php',
+        // POST so the mutating 'delete' action is covered by GLPI's CSRF protection
+        // (the CheckCsrfListener only validates non-GET requests; the X-Glpi-Csrf-Token
+        // header is added automatically to AJAX POST by core common.js).
+        type: 'POST',
         dataType: 'html',
         data: {
             'action'  : action,

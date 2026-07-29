@@ -27,6 +27,7 @@
  --------------------------------------------------------------------------
  */
 
+use Glpi\Exception\Http\AccessDeniedHttpException;
 use Glpi\Exception\Http\BadRequestHttpException;
 use GlpiPlugin\Eventsmanager\Ticket;
 
@@ -35,6 +36,14 @@ Session::checkLoginUser();
 $ticket = new Ticket();
 if (isset($_POST["add"])) {
    $ticket->check(-1, CREATE, $_POST);
+
+   // check(-1, CREATE) only validates the plugin link-creation right, not visibility of the
+   // attacker-supplied target ticket; require READ on the core ticket before linking it so a
+   // ticket from an unreachable entity cannot be linked (and later disclosed via the event).
+   $core_ticket = new \Ticket();
+   if (!$core_ticket->can((int) ($_POST['tickets_id'] ?? 0), READ)) {
+       throw new AccessDeniedHttpException();
+   }
 
    $ticket->add($_POST);
    Html::back();

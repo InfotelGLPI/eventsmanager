@@ -36,6 +36,7 @@ Session::checkRight('plugin_eventsmanager', UPDATE);
 if (isset($_POST['update'])) {
    if (isset($_POST['id'])) {
       $rss = new Rssimport();
+       $rss->check((int) $_POST['id'], UPDATE);
       $rss->update($_POST);
       Html::back();
    }

@@ -415,7 +415,10 @@ class Ticket extends CommonDBTM
         // Build datatable entries for linked tickets
         $entries = [];
         foreach ($tickets as $data) {
-            if (!$ticket->getFromDB($data['tickets_id'])) {
+            // A ticket can be linked (via ticket.form.php / event.form.php) regardless of
+            // the linker's read rights, so skip any linked ticket the current user cannot
+            // read to avoid leaking cross-entity ticket metadata (mirror of showForTicket()).
+            if (!$ticket->can($data['tickets_id'], READ)) {
                 continue;
             }
 

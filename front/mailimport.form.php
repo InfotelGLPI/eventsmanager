@@ -36,6 +36,7 @@ Session::checkRight('plugin_eventsmanager', UPDATE);
 if (isset($_POST['update'])) {
     if (isset($_POST['id'])) {
         $mail = new Mailimport();
+        $mail->check((int) $_POST['id'], UPDATE);
         $mail->update($_POST);
         Html::back();
     }

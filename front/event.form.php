@@ -27,6 +27,7 @@
  --------------------------------------------------------------------------
  */
 
+use Glpi\Exception\Http\AccessDeniedHttpException;
 use GlpiPlugin\Eventsmanager\Event;
 use GlpiPlugin\Eventsmanager\Ticket;
 
@@ -63,6 +64,13 @@ if (isset($_POST["add"])) {
     $ticket = new Ticket();
     $event  = new Event();
     $event->check($_POST['plugin_eventsmanager_events_id'], UPDATE);
+    // check() only validates the event UPDATE right; the linked ticket is attacker-supplied,
+    // so require READ on the target core ticket before creating the link to prevent linking
+    // (and later disclosing) a ticket from an entity the user cannot access.
+    $core_ticket = new \Ticket();
+    if (!$core_ticket->can((int) $_POST['tickets_id'], READ)) {
+        throw new AccessDeniedHttpException();
+    }
    //   $_POST['id'] = Event::CLOSED_STATE;
    //      $_POST['status'] = $_POST['plugin_eventsmanager_events_id'];
    //      $event->update($_POST);

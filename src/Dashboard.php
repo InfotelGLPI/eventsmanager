@@ -40,6 +40,7 @@ use GlpiPlugin\Mydashboard\Widget;
 use Group_User;
 use Html;
 use Plugin;
+use Session;
 
 #[AllowDynamicProperties]
 class Dashboard extends CommonGLPI
@@ -93,6 +94,12 @@ class Dashboard extends CommonGLPI
 
         if (empty($this->form)) {
             $this->init();
+        }
+        // Defense in depth: do not disclose event data to a central-interface user who
+        // lacks the plugin READ right, rather than relying on the host dashboard plugin's
+        // own access control.
+        if (!Session::haveRight('plugin_eventsmanager', READ)) {
+            return new Datatable();
         }
         switch ($widgetId) {
             case $this->getType() . "1":

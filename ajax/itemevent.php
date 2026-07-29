@@ -28,6 +28,7 @@
  */
 
 use Glpi\Exception\Http\AccessDeniedHttpException;
+use Glpi\Exception\Http\BadRequestHttpException;
 use GlpiPlugin\Eventsmanager\Event;
 use GlpiPlugin\Eventsmanager\Event_Item;
 
@@ -35,22 +36,34 @@ header("Content-Type: text/html; charset=UTF-8");
 Html::header_nocache();
 
 Session::checkLoginUser();
+// The 'delete' branch below mutates state (deleteByCriteria). GLPI 11's CheckCsrfListener
+// only validates non-GET requests, so require POST for the whole endpoint to keep the
+// mutating action behind CSRF protection (the caller sends POST; core adds the token
+// header automatically). Reading from $_POST also prevents GET-based CSRF via <img>.
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    throw new BadRequestHttpException();
+}
+// checkLoginUser() performs no authorization on GLPI 11. Both branches below are part
+// of the event's item-association edit workflow, so require the plugin UPDATE right —
+// consistent with the sibling endpoints (adduser/closeevent) and with the 'delete'
+// branch, which additionally enforces can(UPDATE) on the parent event.
+Session::checkRight('plugin_eventsmanager', UPDATE);
 $item_ticket = new Event_Item();
-switch ($_GET['action']) {
+switch ($_POST['action'] ?? '') {
    case 'add':
-      //      if (isset($_GET['my_items']) && !empty($_GET['my_items'])) {
-      //         list($_GET['itemtype'], $_GET['items_id']) = explode('_', $_GET['my_items']);
+      //      if (isset($_POST['my_items']) && !empty($_POST['my_items'])) {
+      //         list($_POST['itemtype'], $_POST['items_id']) = explode('_', $_POST['my_items']);
       //      }
-      if (isset($_GET['items_id']) && isset($_GET['itemtype']) && !empty($_GET['items_id'])) {
-         $_GET['params']['items_id'][$_GET['itemtype']][$_GET['items_id']] = $_GET['items_id'];
+      if (isset($_POST['items_id']) && isset($_POST['itemtype']) && !empty($_POST['items_id'])) {
+         $_POST['params']['items_id'][$_POST['itemtype']][$_POST['items_id']] = $_POST['items_id'];
       }
-      Event_Item::itemAddForm(new Event(), $_GET['params']);
+      Event_Item::itemAddForm(new Event(), $_POST['params']);
       break;
 
    case 'delete':
-      if (isset($_GET['items_id']) && isset($_GET['itemtype']) && !empty($_GET['items_id'])) {
+      if (isset($_POST['items_id']) && isset($_POST['itemtype']) && !empty($_POST['items_id'])) {
          $deleted   = true;
-         $events_id = (int) ($_GET['params']['id'] ?? 0);
+         $events_id = (int) ($_POST['params']['id'] ?? 0);
          if ($events_id > 0) {
             // Enforce right + entity access on the parent event before deleting any
             // association (defends against IDOR / broken access control).
@@ -59,13 +72,13 @@ switch ($_GET['action']) {
                 throw new AccessDeniedHttpException();
             }
             $deleted = $item_ticket->deleteByCriteria(['plugin_eventsmanager_events_id' => $events_id,
-                                                            'items_id'   => (int) $_GET['items_id'],
-                                                            'itemtype'   => $_GET['itemtype']]);
+                                                            'items_id'   => (int) $_POST['items_id'],
+                                                            'itemtype'   => $_POST['itemtype']]);
          }
          if ($deleted) {
-            unset($_GET['params']['items_id'][$_GET['itemtype']][array_search($_GET['items_id'], $_GET['params']['items_id'][$_GET['itemtype']])]);
+            unset($_POST['params']['items_id'][$_POST['itemtype']][array_search($_POST['items_id'], $_POST['params']['items_id'][$_POST['itemtype']])]);
          }
-         Event_Item::itemAddForm(new Event(), $_GET['params']);
+         Event_Item::itemAddForm(new Event(), $_POST['params']);
       }
 
       break;

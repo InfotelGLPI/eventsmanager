@@ -662,7 +662,15 @@ class Event extends CommonDBTM
                 $input = $ma->getInput();
                 if ($item->getType() == Event::class) {
                     foreach ($ids as $key) {
-                        $item->getFromDB($key);
+                        // The list of ids comes from the POST and is forgeable, so re-check the
+                        // UPDATE right on each source event (plugin right + entity access) and
+                        // that the current user may reach the target entity before moving it.
+                        if (!$item->can($key, UPDATE)
+                            || !Session::haveAccessToEntity($input['entities_id'])) {
+                            $ma->itemDone($item->getType(), $key, MassiveAction::ACTION_NORIGHT);
+                            $ma->addMessage($item->getErrorMessage(ERROR_RIGHT));
+                            continue;
+                        }
                         $values["id"]          = $key;
                         $values["entities_id"] = $input['entities_id'];
 
