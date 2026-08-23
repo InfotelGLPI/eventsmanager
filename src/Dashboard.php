@@ -1,30 +1,30 @@
 <?php
 
-/*
- -------------------------------------------------------------------------
- eventsmanager plugin for GLPI
- Copyright (C) 2017-2026 by the eventsmanager Development Team.
-
- https://github.com/InfotelGLPI/eventsmanager
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of eventsmanager.
-
- eventsmanager is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 3 of the License, or
- (at your option) any later version.
-
- eventsmanager is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * -------------------------------------------------------------------------
+ * eventsmanager plugin for GLPI
+ * Copyright (C) 2017-2026 by the eventsmanager Development Team.
+ *
+ * https://github.com/InfotelGLPI/eventsmanager
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of eventsmanager.
+ *
+ * eventsmanager is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * eventsmanager is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
+ * --------------------------------------------------------------------------
  */
 
 namespace GlpiPlugin\Eventsmanager;
@@ -60,9 +60,7 @@ class Dashboard extends CommonGLPI
         $this->interfaces = ["central"];
     }
 
-    public function init()
-    {
-    }
+    public function init() {}
 
 
     /**
@@ -75,7 +73,7 @@ class Dashboard extends CommonGLPI
                 $this->getType() . "1" => [
                     "title" => _n('Event manager', 'Events manager', 2, 'eventsmanager'),
                     "type" => Widget::$TABLE,
-                    "comment" => ""
+                    "comment" => "",
                 ],
             ],
         ];
@@ -111,7 +109,7 @@ class Dashboard extends CommonGLPI
                         __('Priority'),
                         __('Creation date'),
                         __('Event type', 'eventsmanager'),
-                        __('Actions', 'eventsmanager')
+                        __('Actions', 'eventsmanager'),
                     ];
 
                     $criteria = [
@@ -119,14 +117,14 @@ class Dashboard extends CommonGLPI
                         'FROM' => 'glpi_plugin_eventsmanager_events',
                         'WHERE' => [
                             'glpi_plugin_eventsmanager_events.is_deleted' => 0,
-                            'NOT'       => ['status' => Event::CLOSED_STATE]
+                            'NOT'       => ['status' => Event::CLOSED_STATE],
                         ],
                         'ORDERBY' => 'date_creation DESC',
-                        'LIMIT' => 50
+                        'LIMIT' => 50,
                     ];
                     $criteria['WHERE'] = $criteria['WHERE'] + getEntitiesRestrictCriteria(
-                            'glpi_plugin_eventsmanager_events'
-                        );
+                        'glpi_plugin_eventsmanager_events',
+                    );
 
                     $iterator = $DB->request($criteria);
 
@@ -195,7 +193,7 @@ class Dashboard extends CommonGLPI
                             'width' => 1180,
                             'display' => false,
                             'height' => 600,
-                        ]
+                        ],
                     );
                     $link = TemplateRenderer::getInstance()->render('@eventsmanager/dashboard_addbutton.html.twig', [
                         'iframe' => $iframe,

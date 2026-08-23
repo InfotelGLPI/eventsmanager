@@ -1,30 +1,30 @@
 <?php
 
-/*
- -------------------------------------------------------------------------
- eventsmanager plugin for GLPI
- Copyright (C) 2017-2026 by the eventsmanager Development Team.
-
- https://github.com/InfotelGLPI/eventsmanager
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of eventsmanager.
-
- eventsmanager is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 3 of the License, or
- (at your option) any later version.
-
- eventsmanager is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * -------------------------------------------------------------------------
+ * eventsmanager plugin for GLPI
+ * Copyright (C) 2017-2026 by the eventsmanager Development Team.
+ *
+ * https://github.com/InfotelGLPI/eventsmanager
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of eventsmanager.
+ *
+ * eventsmanager is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * eventsmanager is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
+ * --------------------------------------------------------------------------
  */
 
 namespace GlpiPlugin\Eventsmanager;
@@ -148,7 +148,6 @@ class Event extends CommonDBTM
             'datatype' => 'datetime',
         ];
 
-
         if (Session::getLoginUserID()) {
             $tab[] = [
                 'id'            => '10',
@@ -167,7 +166,7 @@ class Event extends CommonDBTM
                     'condition'
                     => $dbu->getEntitiesRestrictRequest(
                         'AND',
-                        'NEWTABLE'
+                        'NEWTABLE',
                     )],
                 'forcegroupby'  => true,
                 'massiveaction' => false,
@@ -329,7 +328,6 @@ class Event extends CommonDBTM
         $this->fields['impact']   = 3;
     }
 
-
     /**
      * Get default values to search engine to override
      **/
@@ -349,7 +347,6 @@ class Event extends CommonDBTM
 
         return $search;
     }
-
 
     /**
      * @param       $ID
@@ -394,7 +391,7 @@ class Event extends CommonDBTM
             "dropdown_plugin_eventsmanager_origins_id$rand",
             "show_items_id$rand",
             "../ajax/dropdownOrigin.php",
-            $params
+            $params,
         );
 
         $origin_field = ob_get_clean();
@@ -553,7 +550,6 @@ class Event extends CommonDBTM
 
         parent::post_addItem();
     }
-
 
     /**
      * Actions done after the UPDATE of the item in the database

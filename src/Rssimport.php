@@ -1,30 +1,30 @@
 <?php
 
-/*
- -------------------------------------------------------------------------
- eventsmanager plugin for GLPI
- Copyright (C) 2017-2026 by the eventsmanager Development Team.
-
- https://github.com/InfotelGLPI/eventsmanager
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of eventsmanager.
-
- eventsmanager is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 3 of the License, or
- (at your option) any later version.
-
- eventsmanager is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * -------------------------------------------------------------------------
+ * eventsmanager plugin for GLPI
+ * Copyright (C) 2017-2026 by the eventsmanager Development Team.
+ *
+ * https://github.com/InfotelGLPI/eventsmanager
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of eventsmanager.
+ *
+ * eventsmanager is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * eventsmanager is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
+ * --------------------------------------------------------------------------
  */
 
 namespace GlpiPlugin\Eventsmanager;
@@ -45,29 +45,28 @@ if (!defined('GLPI_ROOT')) {
  */
 class Rssimport extends CommonDBTM
 {
-
-   /**
-    * @param int $nb
-    *
-    * @return string
-    */
-    static function getTypeName($nb = 0)
+    /**
+     * @param int $nb
+     *
+     * @return string
+     */
+    public static function getTypeName($nb = 0)
     {
 
         return __('Import RSS feeds for events manager', 'eventsmanager');
     }
 
-    static function getIcon()
+    public static function getIcon()
     {
         return Event::getIcon();
     }
-   /**
-    * @param CommonGLPI $item
-    * @param int        $withtemplate
-    *
-    * @return string
-    */
-    function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
+    /**
+     * @param CommonGLPI $item
+     * @param int        $withtemplate
+     *
+     * @return string
+     */
+    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
 
         if ($item->getType() == 'RSSFeed') {
@@ -76,14 +75,14 @@ class Rssimport extends CommonDBTM
         return '';
     }
 
-   /**
-    * @param CommonGLPI $item
-    * @param int        $tabnum
-    * @param int        $withtemplate
-    *
-    * @return bool
-    */
-    static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
+    /**
+     * @param CommonGLPI $item
+     * @param int        $tabnum
+     * @param int        $withtemplate
+     *
+     * @return bool
+     */
+    public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
 
         $rss = new self();
@@ -91,12 +90,12 @@ class Rssimport extends CommonDBTM
             $idr = $item->getID();
             if (!$rss->getFromDBByCrit(['rssfeeds_id' => $idr])) {
                 $id = $rss->add(['last_rssfeed_url'   => '',
-                             'rssfeeds_id'        => $idr,
-                             'use_with_plugin'    => '0',
-                             'default_impact'     => '0',
-                             'default_eventtype'  => '0',
-                             'default_priority'   => '0',
-                             'entities_id_import' => '0']);
+                    'rssfeeds_id'        => $idr,
+                    'use_with_plugin'    => '0',
+                    'default_impact'     => '0',
+                    'default_eventtype'  => '0',
+                    'default_priority'   => '0',
+                    'entities_id_import' => '0']);
                 $rss->getFromDB($id);
             }
             $rss->showConfig($idr);
@@ -105,10 +104,10 @@ class Rssimport extends CommonDBTM
     }
 
 
-   /**
-    * @param  $item
-    */
-    function showConfig($idr)
+    /**
+     * @param  $item
+     */
+    public function showConfig($idr)
     {
 
         TemplateRenderer::getInstance()->display('@eventsmanager/rssimport.html.twig', [
@@ -118,14 +117,14 @@ class Rssimport extends CommonDBTM
         ]);
     }
 
-   /**
-    * Give localized information about 1 task
-    *
-    * @param $name of the task
-    *
-    * @return array of strings
-    */
-    static function cronInfo($name)
+    /**
+     * Give localized information about 1 task
+     *
+     * @param $name of the task
+     *
+     * @return array of strings
+     */
+    public static function cronInfo($name)
     {
 
         switch ($name) {
@@ -135,17 +134,17 @@ class Rssimport extends CommonDBTM
         return [];
     }
 
-   /**
-    * Execute 1 task manage by the plugin
-    *
-    * @param $task Object of CronTask class for log / stat
-    *
-    * @return integer
-    *    >0 : done
-    *    <0 : to be run again (not finished)
-    *     0 : nothing to do
-    */
-    static function cronRssImport($task = null)
+    /**
+     * Execute 1 task manage by the plugin
+     *
+     * @param $task Object of CronTask class for log / stat
+     *
+     * @return integer
+     *    >0 : done
+     *    <0 : to be run again (not finished)
+     *     0 : nothing to do
+     */
+    public static function cronRssImport($task = null)
     {
         global $DB;
 
@@ -187,7 +186,7 @@ class Rssimport extends CommonDBTM
                             $input['eventtype']     = $data['default_eventtype'];
                             $input['entities_id']   = $data['entities_id_import'];
                             if ($origin->getFromDBByCrit(['itemtype' => Origin::RSS,
-                                                  'items_id' => $data['rssfeeds_id']])) {
+                                'items_id' => $data['rssfeeds_id']])) {
                                 $input['plugin_eventsmanager_origins_id'] = $origin->getID();
                             }
                             $event->add($input);
@@ -198,14 +197,14 @@ class Rssimport extends CommonDBTM
                     }
                     $item = $feed->get_item(0);
                     $rssimport->update(['id'               => $id,
-                                  'last_rssfeed_url' => $item->get_link()], 0);
+                        'last_rssfeed_url' => $item->get_link()], 0);
                 }
             }
         }
         return 1;
     }
 
-    static function addSearchOptions($sopt = [])
+    public static function addSearchOptions($sopt = [])
     {
 
         $dbu = new DbUtils();
@@ -216,7 +215,7 @@ class Rssimport extends CommonDBTM
         $sopt[200]['datatype']      = 'bool';
         $sopt[200]['massiveaction'] = true;
         $sopt[200]['joinparams']    = ['jointype'  => 'child',
-                                     'linkfield' => 'rssfeeds_id'];
+            'linkfield' => 'rssfeeds_id'];
 
         $sopt[201]['table']         = 'glpi_plugin_eventsmanager_rssimports';
         $sopt[201]['field']         = 'default_impact';
@@ -225,7 +224,7 @@ class Rssimport extends CommonDBTM
         $sopt[201]['massiveaction'] = true;
         $sopt[201]['searchtype']    = 'equals';
         $sopt[201]['joinparams']    = ['jointype'  => 'child',
-                                     'linkfield' => 'rssfeeds_id'];
+            'linkfield' => 'rssfeeds_id'];
 
         $sopt[202]['table']         = 'glpi_plugin_eventsmanager_rssimports';
         $sopt[202]['field']         = 'default_priority';
@@ -234,7 +233,7 @@ class Rssimport extends CommonDBTM
         $sopt[202]['massiveaction'] = true;
         $sopt[202]['searchtype']    = 'equals';
         $sopt[202]['joinparams']    = ['jointype'  => 'child',
-                                     'linkfield' => 'rssfeeds_id'];
+            'linkfield' => 'rssfeeds_id'];
 
         $sopt[203]['table']         = 'glpi_plugin_eventsmanager_rssimports';
         $sopt[203]['field']         = 'default_eventtype';
@@ -243,7 +242,7 @@ class Rssimport extends CommonDBTM
         $sopt[203]['massiveaction'] = true;
         $sopt[203]['searchtype']    = 'equals';
         $sopt[203]['joinparams']    = ['jointype'  => 'child',
-                                     'linkfield' => 'rssfeeds_id'];
+            'linkfield' => 'rssfeeds_id'];
 
         $sopt[204]['table']         = $dbu->getTableForItemType('Entity');
         $sopt[204]['field']         = 'name';
@@ -253,24 +252,24 @@ class Rssimport extends CommonDBTM
         $sopt[204]['itemlink_type'] = 'Entity';
         $sopt[204]['massiveaction'] = false;
         $sopt[204]['joinparams']    = ['beforejoin'
-                                     => ['table'      => 'glpi_plugin_eventsmanager_rssimports',
-                                         'joinparams' => ['jointype' => 'child']]];
+            => ['table'      => 'glpi_plugin_eventsmanager_rssimports',
+                'joinparams' => ['jointype' => 'child']]];
 
         return $sopt;
     }
 
-   /**
-    * display a value according to a field
-    *
-    * @since version 0.83
-    *
-    * @param $field     String         name of the field
-    * @param $values    String / Array with the value to display
-    * @param $options   Array          of option
-    *
-    * @return int|string string
-    **/
-    static function getSpecificValueToDisplay($field, $values, array $options = [])
+    /**
+     * display a value according to a field
+     *
+     * @since version 0.83
+     *
+     * @param $field     String         name of the field
+     * @param $values    String / Array with the value to display
+     * @param $options   Array          of option
+     *
+     * @return int|string string
+     **/
+    public static function getSpecificValueToDisplay($field, $values, array $options = [])
     {
 
         if (!is_array($values)) {
@@ -287,15 +286,15 @@ class Rssimport extends CommonDBTM
         return parent::getSpecificValueToDisplay($field, $values, $options);
     }
 
-   /**
-    * @since version 2.3.0
-    *
-    * @param $field
-    * @param $name (default '')
-    * @param $values (defaut '')
-    * @param $options   array
-    **/
-    static function getSpecificValueToSelect($field, $name = '', $values = '', array $options = [])
+    /**
+     * @since version 2.3.0
+     *
+     * @param $field
+     * @param $name (default '')
+     * @param $values (defaut '')
+     * @param $options   array
+     **/
+    public static function getSpecificValueToSelect($field, $name = '', $values = '', array $options = [])
     {
 
         if (!is_array($values)) {

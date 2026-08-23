@@ -1,30 +1,30 @@
 <?php
 
-/*
- -------------------------------------------------------------------------
- eventsmanager plugin for GLPI
- Copyright (C) 2017-2026 by the eventsmanager Development Team.
-
- https://github.com/InfotelGLPI/eventsmanager
- -------------------------------------------------------------------------
-
- LICENSE
-
- This file is part of eventsmanager.
-
- eventsmanager is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 3 of the License, or
- (at your option) any later version.
-
- eventsmanager is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
+/**
+ * -------------------------------------------------------------------------
+ * eventsmanager plugin for GLPI
+ * Copyright (C) 2017-2026 by the eventsmanager Development Team.
+ *
+ * https://github.com/InfotelGLPI/eventsmanager
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of eventsmanager.
+ *
+ * eventsmanager is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * eventsmanager is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with eventsmanager. If not, see <http://www.gnu.org/licenses/>.
+ * --------------------------------------------------------------------------
  */
 
 namespace GlpiPlugin\Eventsmanager;
@@ -75,6 +75,32 @@ class Event_Item extends CommonDBRelation
 
 
     /**
+     * Whether the current user may associate - or be shown - the given item.
+     *
+     * Event_Item takes itemtype/items_id straight from the request. The device
+     * picker only offers a fixed set of asset types restricted to the event
+     * entity, but that restriction is client-side only. Replay it server-side
+     * (type whitelist + view right) so a forged POST can neither attach an item
+     * the user cannot view, nor disclose its name/link on the event sheet
+     * (cross-entity IDOR / broken access control).
+     *
+     * @param string $itemtype
+     * @param int    $items_id
+     * @return bool
+     **/
+    public static function canAssociateItem(string $itemtype, int $items_id): bool
+    {
+        $allowed = ['Computer', 'Monitor', 'NetworkEquipment', 'Peripheral', 'Phone', 'Printer'];
+        if (!in_array($itemtype, $allowed, true)) {
+            return false;
+        }
+        $dbu  = new DbUtils();
+        $item = $dbu->getItemForItemtype($itemtype);
+        return $item !== false && $item->can($items_id, READ);
+    }
+
+
+    /**
      * @since version 0.85.5
      * @see CommonDBRelation::canCreateItem()
      **/
@@ -89,7 +115,25 @@ class Event_Item extends CommonDBRelation
             return false;
         }
 
-        if ($event->canUpdateItem()) {
+        // Broken access control (IDOR): the associated item type/id come straight
+        // from the request. canCreateItem() short-circuits below on the event
+        // UPDATE right, bypassing the HAVE_VIEW_RIGHT_ON_ITEM check parent would
+        // have done on item 2. Enforce the view right on the targeted item here so
+        // no path (controller / ajax / massive action / API) can attach a
+        // cross-entity item.
+        if (!self::canAssociateItem(
+            (string) ($this->fields['itemtype'] ?? ''),
+            (int) ($this->fields['items_id'] ?? 0),
+        )) {
+            return false;
+        }
+
+        // Authorization: Event_Item has no $rightname, so CommonDBRelation::canCreate()
+        // grants CREATE unconditionally and this method is the only gate. Use
+        // can($id, UPDATE) - which checks the plugin_eventsmanager right AND entity
+        // access - instead of canUpdateItem(), which only re-checks the entity and
+        // would let a user without the plugin right attach items to an event.
+        if ($event->can($this->fields['plugin_eventsmanager_events_id'], UPDATE)) {
             return true;
         }
 
@@ -217,7 +261,7 @@ class Event_Item extends CommonDBRelation
                             'rand'    => $rand,
                             'delete'  => $delete,
                             'visible' => ($count <= 5),
-                        ]
+                        ],
                     );
                 }
             }
@@ -273,6 +317,13 @@ class Event_Item extends CommonDBRelation
         }
 
         if (!($item = $dbu->getItemForItemtype($itemtype))) {
+            return '';
+        }
+
+        // Do not render (and thus disclose the name/link of) an item the current
+        // user is not allowed to view - the itemtype/items_id are attacker-supplied
+        // in the ajax "pending to add" list. Mirrors the canCreateItem() guard.
+        if (!self::canAssociateItem($itemtype, (int) $items_id)) {
             return '';
         }
 
@@ -450,7 +501,7 @@ class Event_Item extends CommonDBRelation
                     if ($_SESSION['glpishow_count_on_tabs']) {
                         $nb = $dbu->countElementsInTable(
                             'glpi_plugin_eventsmanager_events_items',
-                            ['plugin_eventsmanager_events_id' => $item->getID()]
+                            ['plugin_eventsmanager_events_id' => $item->getID()],
                         );
                     }
                     return self::createTabEntry(_n('Item', 'Items', Session::getPluralNumber()), $nb);
@@ -545,7 +596,7 @@ class Event_Item extends CommonDBRelation
                 ['emptylabel' => $emptylabel,
                     'value'      => $itemtype,
                     'rand'       => $rand,
-                    'display_emptychoice' => true]
+                    'display_emptychoice' => true],
             );
             $data['itemtypes_dropdown'] = ob_get_clean();
 
@@ -564,7 +615,7 @@ class Event_Item extends CommonDBRelation
                 "dropdown_$myname$rand",
                 "results_$myname$rand",
                 $CFG_GLPI["root_doc"] . "/ajax/dropdownTrackingDeviceType.php",
-                $p
+                $p,
             );
             $data['on_select_js'] = ob_get_clean();
 
@@ -577,7 +628,7 @@ class Event_Item extends CommonDBRelation
                         Dropdown::showFromArray(
                             'items_id',
                             [$items_id => $item->getName()],
-                            ['value' => $items_id]
+                            ['value' => $items_id],
                         );
                         $results = ob_get_clean();
                     }
@@ -587,7 +638,7 @@ class Event_Item extends CommonDBRelation
                     Ajax::updateItemJsCode(
                         "results_$myname$rand",
                         $CFG_GLPI["root_doc"] . "/ajax/dropdownTrackingDeviceType.php",
-                        $p
+                        $p,
                     );
                     $results = Html::scriptBlock('$(function() {' . ob_get_clean() . '});');
                 }
@@ -755,17 +806,17 @@ class Event_Item extends CommonDBRelation
                         $tmp = Dropdown::getDropdownName(
                             $dbu->getTableForItemtype($values['itemtype']),
                             $values[$field],
-                            1
+                            1,
                         );
                         return sprintf(
                             __('%1$s %2$s'),
                             $tmp['name'],
-                            Html::showToolTip($tmp['comment'], ['display' => false])
+                            Html::showToolTip($tmp['comment'], ['display' => false]),
                         );
                     }
                     return Dropdown::getDropdownName(
                         $dbu->getTableForItemtype($values['itemtype']),
-                        $values[$field]
+                        $values[$field],
                     );
                 }
                 break;
@@ -836,7 +887,7 @@ class Event_Item extends CommonDBRelation
                 $item->fields['name'] = sprintf(
                     __('%1$s - ID %2$d'),
                     $item->getTypeName(1),
-                    $item->fields['id']
+                    $item->fields['id'],
                 );
             }
 
@@ -848,7 +899,7 @@ class Event_Item extends CommonDBRelation
             Session::addMessageAfterRedirect(sprintf(
                 __('%1$s: %2$s'),
                 __('Item successfully added'),
-                stripslashes($display)
+                stripslashes($display),
             ));
         }
     }
