@@ -358,23 +358,20 @@ class Event extends CommonDBTM
     {
         $dbu = new DbUtils();
         $this->initForm($ID, $options);
-        $this->showFormHeader($options);
 
-        // Name field
-        $name_field = Html::input('name', ['value' => $this->fields['name'], 'size' => 40]);
-
-        // Associated item add form (echoes HTML + JS)
+        // Associated item add form (echoes HTML + JS): no field-macro equivalent,
+        // so it is captured and injected through fields.htmlField() in the template.
         ob_start();
         Event_Item::itemAddForm($this, $options);
         $item_add_form = ob_get_clean();
 
-        // Impact
+        // Impact (core dropdown with the "major" flag, no field-macro equivalent)
         ob_start();
         \Ticket::dropdownImpact(['value'     => $this->fields['impact'],
             'withmajor' => 1]);
         $impact_field = ob_get_clean();
 
-        // Origin (with dynamic dropdown updated on select)
+        // Origin (core dropdown refreshed on select through an AJAX request)
         $rand = mt_rand();
         ob_start();
         Origin::dropdown([
@@ -410,29 +407,20 @@ class Event extends CommonDBTM
             'item_name'      => $origin_item_name,
         ]);
 
-        // Priority
+        // Priority (core dropdown with the "major" flag, no field-macro equivalent)
         ob_start();
         CommonITILObject::dropdownPriority(['value'     => $this->fields['priority'],
             'withmajor' => 1]);
         $priority_field = ob_get_clean();
 
-        // Event type
-        ob_start();
-        self::dropdownType(['value' => $this->fields['eventtype']]);
-        $type_field = ob_get_clean();
-
-        // User assigned
-        ob_start();
-        User::dropdown(['name'   => "users_assigned",
-            'value'  => $this->fields["users_assigned"],
-            'entity' => $this->fields["entities_id"],
-            'right'  => 'all']);
-        $user_field = ob_get_clean();
-
-        // Time to resolve
-        ob_start();
-        Html::showDateTimeField('time_to_resolve', ['value' => $this->fields["time_to_resolve"]]);
-        $time_field = ob_get_clean();
+        // Event type values, rendered through fields.dropdownArrayField() in the template
+        $eventtype_values = [
+            self::UNDEFINED   => self::getEventTypeName(self::UNDEFINED),
+            self::ALERT       => self::getEventTypeName(self::ALERT),
+            self::EXCEPTION   => self::getEventTypeName(self::EXCEPTION),
+            self::WARNING     => self::getEventTypeName(self::WARNING),
+            self::INFORMATION => self::getEventTypeName(self::INFORMATION),
+        ];
 
         // Status
         $show_status  = ($ID > 0);
@@ -455,22 +443,6 @@ class Event extends CommonDBTM
             ]);
         }
 
-        // Description richtext editor
-        $rand_text  = mt_rand();
-        $content_id = "comment$rand_text";
-        ob_start();
-        Html::initEditorSystem('comment');
-        Html::textarea(['name'              => 'comment',
-            'value'             => $this->fields["comment"],
-            'rand'              => $rand_text,
-            'editor_id'         => $content_id,
-            'enable_richtext'   => true,
-            'enable_fileupload' => false,
-            'enable_images'     => false,
-            'cols'              => 100,
-            'rows'              => 15]);
-        $comment_editor = ob_get_clean();
-
         // Date assign
         $show_date_assign = ($this->fields["users_assigned"] > 0
           && isset($this->fields['date_assign'])
@@ -480,41 +452,35 @@ class Event extends CommonDBTM
             : '';
 
         // User close
-        $show_user_close    = ($this->fields["status"] == self::CLOSED_STATE
+        $show_user_close  = ($this->fields["status"] == self::CLOSED_STATE
           && $this->fields["users_close"] > 0);
-        $user_close_name    = '';
-        $user_close_tooltip = '';
-        $date_close         = '';
+        $user_close_field = '';
+        $date_close       = '';
         if ($show_user_close) {
-            $user               = $dbu->getUserName($this->fields["users_close"], 2);
-            $user_close_name    = $user["name"];
-            $user_close_tooltip = Html::showToolTip($user["comment"], ['display' => false]);
-            $date_close         = Html::convDateTime($this->fields['date_close'], 1);
+            $user             = $dbu->getUserName($this->fields["users_close"], 2);
+            $user_close_field = htmlescape($user["name"])
+                . ' ' . Html::showToolTip($user["comment"], ['display' => false]);
+            $date_close       = Html::convDateTime($this->fields['date_close'], 1);
         }
 
         TemplateRenderer::getInstance()->display('@eventsmanager/event.html.twig', [
-            'name_field'         => $name_field,
-            'item_add_form'      => $item_add_form,
-            'impact_field'       => $impact_field,
-            'origin_field'       => $origin_field,
-            'priority_field'     => $priority_field,
-            'type_field'         => $type_field,
-            'user_field'         => $user_field,
-            'time_field'         => $time_field,
-            'show_status'        => $show_status,
-            'status_field'       => $status_field,
-            'show_actions'       => $show_actions,
-            'actions'            => $actions,
-            'comment_editor'     => $comment_editor,
-            'show_date_assign'   => $show_date_assign,
-            'date_assign'        => $date_assign,
-            'show_user_close'    => $show_user_close,
-            'user_close_name'    => $user_close_name,
-            'user_close_tooltip' => $user_close_tooltip,
-            'date_close'         => $date_close,
+            'item'             => $this,
+            'params'           => $options,
+            'item_add_form'    => $item_add_form,
+            'impact_field'     => $impact_field,
+            'origin_field'     => $origin_field,
+            'priority_field'   => $priority_field,
+            'eventtype_values' => $eventtype_values,
+            'show_status'      => $show_status,
+            'status_field'     => $status_field,
+            'show_actions'     => $show_actions,
+            'actions'          => $actions,
+            'show_date_assign' => $show_date_assign,
+            'date_assign'      => $date_assign,
+            'show_user_close'  => $show_user_close,
+            'user_close_field' => $user_close_field,
+            'date_close'       => $date_close,
         ]);
-
-        $this->showFormButtons($options);
 
         return true;
     }

@@ -25,74 +25,45 @@
  # --------------------------------------------------------------------------
  #}
 
-<tr class="tab_bg_1">
-    <td>{{ __('Name') }}</td>
-    <td>{{ name_field|raw }}</td>
-    <td>{{ __('Associated element', 'eventsmanager') }}</td>
-    <td>{{ item_add_form|raw }}</td>
-</tr>
+{% extends "generic_show_form.html.twig" %}
+{% import "components/form/fields_macros.html.twig" as fields %}
 
-<tr class="tab_bg_1">
-    <td>{{ __('Impact') }}</td>
-    <td>{{ impact_field|raw }}</td>
-    <td>{{ __('Origin', 'eventsmanager') }}</td>
-    <td>{{ origin_field|raw }}</td>
-</tr>
+{% block form_fields %}
+    {{ fields.autoNameField('name', item, __('Name'), withtemplate, field_options) }}
+    {{ fields.htmlField('_item_add_form', item_add_form, __('Associated element', 'eventsmanager'), field_options) }}
 
-<tr class="tab_bg_1">
-    <td>{{ __('Priority') }}</td>
-    <td>{{ priority_field|raw }}</td>
-    <td>{{ __('Event type', 'eventsmanager') }}</td>
-    <td>{{ type_field|raw }}</td>
-</tr>
+    {{ fields.htmlField('impact', impact_field, __('Impact'), field_options) }}
+    {{ fields.htmlField('plugin_eventsmanager_origins_id', origin_field, __('Origin', 'eventsmanager'), field_options) }}
 
-<tr class="tab_bg_1">
-    <td>{{ __('User assigned', 'eventsmanager') }}</td>
-    <td>{{ user_field|raw }}</td>
-    <td>{{ __('Time to resolve') }}</td>
-    <td>{{ time_field|raw }}</td>
-</tr>
+    {{ fields.htmlField('priority', priority_field, __('Priority'), field_options) }}
+    {{ fields.dropdownArrayField('eventtype', item.fields['eventtype'], eventtype_values, __('Event type', 'eventsmanager'), field_options) }}
 
-<tr class="tab_bg_1">
+    {{ fields.dropdownField('User', 'users_assigned', item.fields['users_assigned'], __('User assigned', 'eventsmanager'), field_options|merge({
+        'entity': item.fields['entities_id'],
+        'right': 'all',
+    })) }}
+    {{ fields.datetimeField('time_to_resolve', item.fields['time_to_resolve'], __('Time to resolve'), field_options) }}
+
     {% if show_status %}
-        <td>{{ __('Status') }}</td>
-        <td>{{ status_field|raw }}</td>
-    {% else %}
-        <td colspan="2"></td>
+        {{ fields.htmlField('status', status_field, __('Status'), field_options) }}
     {% endif %}
-
     {% if show_actions %}
-        <td>{{ __('Actions', 'eventsmanager') }}</td>
-        <td>{{ actions|raw }}</td>
-    {% else %}
-        <td colspan="2"></td>
+        {{ fields.htmlField('_actions', actions, __('Actions', 'eventsmanager'), field_options) }}
     {% endif %}
-</tr>
 
-<tr class="tab_bg_1">
-    <td colspan="4">{{ __('Description') }}</td>
-</tr>
+    {{ fields.textareaField('comment', item.fields['comment'], __('Description'), field_options|merge({
+        'enable_richtext': true,
+        'enable_images': false,
+        'enable_fileupload': false,
+        'rows': 15,
+        'full_width': true,
+    })) }}
 
-<tr class="tab_bg_1">
-    <td colspan="4" class="middle">{{ comment_editor|raw }}</td>
-</tr>
-
-<tr class="tab_bg_1">
     {% if show_date_assign %}
-        <td>{{ __('Date Assign', 'eventsmanager') }}</td>
-        <td>{{ date_assign }}</td>
+        {{ fields.htmlField('date_assign', date_assign, __('Date Assign', 'eventsmanager'), field_options) }}
     {% endif %}
-
     {% if show_user_close %}
-        <tr class="tab_bg_1">
-            <td>{{ __('User close', 'eventsmanager') }}</td>
-            <td>
-                {{ user_close_name }}
-                <span style="margin-right:5px">&nbsp;</span>
-                {{ user_close_tooltip|raw }}
-            </td>
-            <td>{{ __('Close date') }}</td>
-            <td>{{ date_close }}</td>
-        </tr>
+        {{ fields.htmlField('users_close', user_close_field, __('User close', 'eventsmanager'), field_options) }}
+        {{ fields.htmlField('date_close', date_close, __('Close date'), field_options) }}
     {% endif %}
-</tr>
+{% endblock %}
