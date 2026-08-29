@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GLPI Project - Eventsmanager plugin\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-24 13:31+0200\n"
-"PO-Revision-Date: 2026-07-24 13:35+0200\n"
+"POT-Creation-Date: 2026-08-29 12:43+0200\n"
+"PO-Revision-Date: 2026-08-29 12:44+0200\n"
 "Last-Translator: Xavier CAILLAUD <tsmr@thetsmr.fr>\n"
 "Language-Team: English (United Kingdom) (http://www.transifex.com/tsmr/"
 "GLPI_tasklists/language/en_GB/)\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid "A ticket will be created from the event"
 msgstr "A ticket will be created from the event"
 
-#: src/Dashboard.php:107 src/Event.php:190 templates/event.html.twig:65
+#: src/Dashboard.php:112 src/Event.php:189 templates/event.html.twig:51
 msgid "Actions"
 msgstr "Actions"
 
@@ -35,7 +35,6 @@ msgstr "Add"
 
 #: templates/event_comments.html.twig:156
 #: templates/event_comments.html.twig:158
-#| msgid "Add a event"
 msgctxt "button"
 msgid "Add a comment"
 msgstr "Add a comment"
@@ -46,29 +45,27 @@ msgid "Add an answer"
 msgstr "Add an answer"
 
 #: templates/ticket_add_block.html.twig:32
-#| msgid "Add a event"
 msgid "Add an event"
 msgstr "Add an event"
 
 #: templates/item_add_block.html.twig:32
-#| msgid "Add a event"
 msgid "Add an item"
 msgstr "Add an item"
 
-#: src/Dashboard.php:186 templates/dashboard_addbutton.html.twig:30
+#: src/Dashboard.php:191 templates/dashboard_addbutton.html.twig:30
 msgid "Add event"
 msgstr "Add event"
 
-#: src/Event.php:833
+#: src/Event.php:803
 msgid "Affect entity for create event"
 msgstr "Affect entity for create event"
 
-#: src/Event.php:1016
+#: src/Event.php:986
 msgctxt "eventtype"
 msgid "Alert"
 msgstr "Alert"
 
-#: src/Event.php:234
+#: src/Event.php:233
 msgid "Assign date"
 msgstr "Assign date"
 
@@ -76,28 +73,24 @@ msgstr "Assign date"
 msgid "Assign me to this event"
 msgstr "Assign me to this event"
 
-#: src/Event.php:251
+#: src/Event.php:250
 msgid "Assign user"
 msgstr "Assign user"
 
-#: src/Event.php:960
+#: src/Event.php:930
 msgctxt "status"
 msgid "Assigned"
 msgstr "Assigned"
 
-#: templates/event.html.twig:31
+#: templates/event.html.twig:33
 msgid "Associated element"
 msgstr "Associated element"
 
 #: templates/event_comments.html.twig:54
-#| msgctxt "status"
-#| msgid "Closed"
 msgid "Close"
 msgstr "Close"
 
-#: templates/event.html.twig:94
-#| msgctxt "status"
-#| msgid "Closed"
+#: templates/event.html.twig:67
 msgid "Close date"
 msgstr "Close date"
 
@@ -105,7 +98,7 @@ msgstr "Close date"
 msgid "Close the event"
 msgstr "Close the event"
 
-#: src/Event.php:963
+#: src/Event.php:933
 msgctxt "status"
 msgid "Closed"
 msgstr "Closed"
@@ -126,21 +119,21 @@ msgstr "Create a new ticket"
 msgid "Create a ticket from the event"
 msgstr "Create a ticket from the event"
 
-#: templates/event.html.twig:82
+#: templates/event.html.twig:63
 msgid "Date Assign"
 msgstr "Date Assign"
 
-#: src/Rssimport.php:241 templates/mailimport.html.twig:61
+#: src/Rssimport.php:240 templates/mailimport.html.twig:61
 #: templates/rssimport.html.twig:75
 msgid "Default event type"
 msgstr "Default event type"
 
-#: src/Rssimport.php:223 templates/mailimport.html.twig:44
+#: src/Rssimport.php:222 templates/mailimport.html.twig:44
 #: templates/rssimport.html.twig:58
 msgid "Default impact"
 msgstr "Default impact"
 
-#: src/Rssimport.php:232 templates/mailimport.html.twig:53
+#: src/Rssimport.php:231 templates/mailimport.html.twig:53
 #: templates/rssimport.html.twig:67
 msgid "Default priority"
 msgstr "Default priority"
@@ -151,7 +144,7 @@ msgctxt "button"
 msgid "Delete permanently"
 msgstr "Delete permanently"
 
-#: templates/event.html.twig:73
+#: templates/event.html.twig:54
 msgid "Description"
 msgstr "Description"
 
@@ -172,26 +165,26 @@ msgstr "Edit comment"
 msgid "Entity"
 msgstr "Entity"
 
-#: setup.php:116 src/Dashboard.php:75 src/Dashboard.php:197
-#: src/Dashboard.php:202 src/Mailimport.php:69 src/Profile.php:61
-#: src/Rssimport.php:74 templates/mailimport.html.twig:33
+#: setup.php:116 src/Dashboard.php:74 src/Dashboard.php:202
+#: src/Dashboard.php:207 src/Mailimport.php:71 src/Profile.php:61
+#: src/Rssimport.php:73 templates/mailimport.html.twig:33
 #: templates/rssimport.html.twig:33
 msgid "Event manager"
 msgid_plural "Events manager"
 msgstr[0] "Event manager"
 msgstr[1] "Events manager"
 
-#: src/Origin.php:61
+#: src/Origin.php:60
 msgid "Event origin"
 msgid_plural "Event origins"
 msgstr[0] "Event origin"
 msgstr[1] "Event origins"
 
-#: src/Dashboard.php:106 src/Event.php:276 templates/event.html.twig:45
+#: src/Dashboard.php:111 src/Event.php:275 templates/event.html.twig:39
 msgid "Event type"
 msgstr "Event type"
 
-#: src/Event.php:1019
+#: src/Event.php:989
 msgctxt "eventtype"
 msgid "Exception"
 msgstr "Exception"
@@ -200,19 +193,19 @@ msgstr "Exception"
 msgid "General setup"
 msgstr "General setup"
 
-#: templates/event.html.twig:36
+#: templates/event.html.twig:35
 msgid "Impact"
 msgstr "Impact"
 
-#: src/Rssimport.php:57 src/Rssimport.php:133
+#: src/Rssimport.php:56 src/Rssimport.php:132
 msgid "Import RSS feeds for events manager"
 msgstr "Import RSS feeds for events manager"
 
-#: src/Mailimport.php:52
+#: src/Mailimport.php:53
 msgid "Import mails for events manager"
 msgstr "Import mails for events manager"
 
-#: src/Event.php:1025
+#: src/Event.php:995
 msgctxt "eventtype"
 msgid "Information"
 msgstr "Information"
@@ -225,21 +218,21 @@ msgstr "Link a existant ticket"
 msgid "Link to tickets"
 msgstr "Link to tickets"
 
-#: src/Ticket.php:96 src/Ticket.php:346
+#: src/Ticket.php:96 src/Ticket.php:351
 msgid "Linked event"
 msgid_plural "Linked events"
 msgstr[0] "Linked event"
 msgstr[1] "Linked events"
 
-#: src/Ticket.php:459
+#: src/Ticket.php:467
 msgid "Linked tickets"
 msgstr "Linked tickets"
 
-#: templates/event.html.twig:29
+#: templates/event.html.twig:32
 msgid "Name"
 msgstr "Name"
 
-#: src/Event.php:957
+#: src/Event.php:927
 msgctxt "status"
 msgid "New"
 msgstr "New"
@@ -248,7 +241,7 @@ msgstr "New"
 msgid "New comment"
 msgstr "New comment"
 
-#: src/Event.php:762
+#: src/Event.php:732
 msgid "No action avalable"
 msgstr "No action avalable"
 
@@ -260,15 +253,15 @@ msgstr "No comments"
 msgid "Or complete search"
 msgstr "Or complete search"
 
-#: src/Event.php:112 templates/event.html.twig:38
+#: src/Event.php:112 templates/event.html.twig:36
 msgid "Origin"
 msgstr "Origin"
 
-#: front/config.form.php:51
+#: front/config.form.php:50
 msgid "Please activate the plugin"
 msgstr "Please activate the plugin"
 
-#: src/Config.php:60
+#: src/Config.php:61
 msgid "Plugin Setup"
 msgstr "Plugin Setup"
 
@@ -277,7 +270,7 @@ msgctxt "button"
 msgid "Post"
 msgstr "Post"
 
-#: templates/event.html.twig:43
+#: templates/event.html.twig:38
 msgid "Priority"
 msgstr "Priority"
 
@@ -288,7 +281,7 @@ msgctxt "button"
 msgid "Save"
 msgstr "Save"
 
-#: templates/event.html.twig:58
+#: templates/event.html.twig:48
 msgid "Status"
 msgstr "Status"
 
@@ -300,37 +293,34 @@ msgstr "The current user will be added"
 msgid "The event will be closed"
 msgstr "The event will be closed"
 
-#: templates/event.html.twig:52
+#: templates/event.html.twig:45
 msgid "Time to resolve"
 msgstr "Time to resolve"
 
-#: src/Event.php:1013
+#: src/Event.php:983
 msgctxt "eventtype"
 msgid "Undefined"
 msgstr "Undefined"
 
 #: templates/config.html.twig:41
-#| msgid ""
-#| "Uto use the automatic closing of an event when creating a ticket from an "
-#| "event"
 msgid ""
 "Use the automatic closing of an event when creating a ticket from an event"
 msgstr ""
 "Use the automatic closing of an event when creating a ticket from an event"
 
-#: src/Rssimport.php:215
+#: src/Rssimport.php:214
 msgid "Use this feed to create events"
 msgstr "Use this feed to create events"
 
-#: templates/event.html.twig:50
+#: templates/event.html.twig:41
 msgid "User assigned"
 msgstr "User assigned"
 
-#: src/Event.php:268 templates/event.html.twig:88
+#: src/Event.php:267 templates/event.html.twig:66
 msgid "User close"
 msgstr "User close"
 
-#: src/Event.php:1022
+#: src/Event.php:992
 msgctxt "eventtype"
 msgid "Warning"
 msgstr "Warning"
