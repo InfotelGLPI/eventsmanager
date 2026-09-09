@@ -1,5 +1,3 @@
-<?php
-
 /**
  * -------------------------------------------------------------------------
  * eventsmanager plugin for GLPI
@@ -27,22 +25,18 @@
  * --------------------------------------------------------------------------
  */
 
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access this file directly.");
-}
+// Plugin web root, mirroring PLUGIN_EVENTMANAGER_WEBDIR from setup.php. GLPI
+// exposes both variables in the page <head> (config_js) before any plugin
+// script is loaded, so no server-side interpolation is needed here.
+var root_eventsmanager_doc = ((window.CFG_GLPI && CFG_GLPI.root_doc) || '')
+   + ((window.GLPI_PLUGINS_PATH && GLPI_PLUGINS_PATH.eventsmanager) || '/plugins/eventsmanager');
 
-//change mimetype
-header("Content-type: application/javascript");
-
-$root_eventsmanager_doc = PLUGIN_EVENTMANAGER_WEBDIR;
-
-$JS = <<<JAVASCRIPT
 // Reload the associated-item add form after an add/delete action.
 // The runtime "rand" and "params" are read from the #itemAddForm{rand} container
 // so the same handler works across the AJAX-reloaded fragments (event delegation).
 function pluginEventsmanagerItemAction(container, rand, action, itemtype, items_id) {
     $.ajax({
-        url: '$root_eventsmanager_doc/ajax/itemevent.php',
+        url: root_eventsmanager_doc + '/ajax/itemevent.php',
         // POST so the mutating 'delete' action is covered by GLPI's CSRF protection
         // (the CheckCsrfListener only validates non-GET requests; the X-Glpi-Csrf-Token
         // header is added automatically to AJAX POST by core common.js).
@@ -76,5 +70,3 @@ $(document).on('click', '.event-item-action', function(e) {
         _btn.data('items_id')
     );
 });
-JAVASCRIPT;
-echo $JS;

@@ -1,5 +1,3 @@
-<?php
-
 /**
  * -------------------------------------------------------------------------
  * eventsmanager plugin for GLPI
@@ -27,24 +25,17 @@
  * --------------------------------------------------------------------------
  */
 
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access this file directly.");
-}
+// Plugin web root, mirroring PLUGIN_EVENTMANAGER_WEBDIR from setup.php. GLPI
+// exposes both variables in the page <head> (config_js) before any plugin
+// script is loaded, so no server-side interpolation is needed here.
+var root_eventsmanger_doc = ((window.CFG_GLPI && CFG_GLPI.root_doc) || '')
+   + ((window.GLPI_PLUGINS_PATH && GLPI_PLUGINS_PATH.eventsmanager) || '/plugins/eventsmanager');
 
-//change mimetype
-header("Content-type: application/javascript");
-
-$confirm_user_event    = __('The current user will be added', 'eventsmanager');
-$confirm_ticket_event   = __('A ticket will be created from the event', 'eventsmanager');
-$confirm_close_event = __('The event will be closed', 'eventsmanager');
-
-$root_eventsmanger_doc = PLUGIN_EVENTMANAGER_WEBDIR;
-$JS = <<<JAVASCRIPT
 function addUserEvent(event) {
-    var conf = confirm('$confirm_user_event');
+    var conf = confirm(__('The current user will be added', 'eventsmanager'));
     if (conf) {
         $.ajax({
-            url: '$root_eventsmanger_doc/ajax/adduser.php',
+            url: root_eventsmanger_doc + '/ajax/adduser.php',
             type: "POST",
             data: {"id": event},
             success: function () {
@@ -56,10 +47,10 @@ function addUserEvent(event) {
 
 
 function createTicketEvent(event) {
-    var conf = confirm('$confirm_ticket_event');
+    var conf = confirm(__('A ticket will be created from the event', 'eventsmanager'));
     if (conf) {
         $.ajax({
-            url: '$root_eventsmanger_doc/ajax/createticket.php',
+            url: root_eventsmanger_doc + '/ajax/createticket.php',
             type: "POST",
             data: {"id": event},
             success: function () {
@@ -70,10 +61,10 @@ function createTicketEvent(event) {
 }
 
 function closeEvent(event) {
-    var conf = confirm('$confirm_close_event');
+    var conf = confirm(__('The event will be closed', 'eventsmanager'));
     if (conf) {
         $.ajax({
-            url: '$root_eventsmanger_doc/ajax/closeevent.php',
+            url: root_eventsmanger_doc + '/ajax/closeevent.php',
             type: "POST",
             data: {"id": event},
             success: function () {
@@ -98,5 +89,3 @@ $(document).on('click', '.event-action', function() {
             break;
     }
 });
-JAVASCRIPT;
-echo $JS;
