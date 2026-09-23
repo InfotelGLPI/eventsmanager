@@ -36,10 +36,6 @@ use Glpi\Application\View\TemplateRenderer;
 use Session;
 use Toolbox;
 
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access this file directly");
-}
-
 /// Class Event_Comment
 class Event_Comment extends CommonDBTM
 {

@@ -36,10 +36,6 @@ use DbUtils;
 use Glpi\Application\View\TemplateRenderer;
 use RSSFeed;
 
-if (!defined('GLPI_ROOT')) {
-    die("Sorry. You can't access directly to this file");
-}
-
 /**
  * Class Rssimport
  */
