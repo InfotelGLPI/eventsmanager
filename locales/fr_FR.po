@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: GLPI Project - Eventsmanager plugin\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-29 12:43+0200\n"
-"PO-Revision-Date: 2026-08-29 12:43+0200\n"
+"PO-Revision-Date: 2026-09-27 16:49+0200\n"
 "Last-Translator: Xavier CAILLAUD <tsmr@thetsmr.fr>\n"
 "Language-Team: French (France) (http://www.transifex.com/tsmr/GLPI_tasklists/"
 "language/fr_FR/)\n"
@@ -280,7 +280,7 @@ msgstr "Priorité"
 #: templates/ticket_link_form.html.twig:48
 msgctxt "button"
 msgid "Save"
-msgstr "Sauver"
+msgstr "Sauvegarder"
 
 #: templates/event.html.twig:48
 msgid "Status"
