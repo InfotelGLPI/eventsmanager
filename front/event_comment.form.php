@@ -76,8 +76,11 @@ if (isset($_POST["edit"])) {
         || (int) $comment->fields['plugin_eventsmanager_events_id'] !== $events_id) {
         throw new AccessDeniedHttpException();
     }
-    $data = array_merge($comment->fields, $_POST);
-    if ($comment->update($data)) {
+    // Editing a comment changes its text and nothing else
+    if ($comment->update([
+        'id'      => $comment->getID(),
+        'comment' => $_POST['comment'] ?? '',
+    ])) {
         //\Glpi\Event::log($_POST["knowbaseitems_id"], "knowbaseitem_comment", 4, "tracking",
         //            sprintf(__('%s edit a comment on knowledge base'), $_SESSION["glpiname"]));
         Session::addMessageAfterRedirect(

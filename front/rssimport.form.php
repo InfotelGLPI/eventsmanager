@@ -33,10 +33,30 @@ use GlpiPlugin\Eventsmanager\Rssimport;
 Session::checkRight('plugin_eventsmanager', UPDATE);
 
 if (isset($_POST['update'])) {
-    if (isset($_POST['id'])) {
-        $rss = new Rssimport();
-        $rss->check((int) $_POST['id'], UPDATE);
-        $rss->update($_POST);
-        Html::back();
+    $rss   = new Rssimport();
+    $input = [
+        'use_with_plugin'    => (int) ($_POST['use_with_plugin'] ?? 0),
+        'default_impact'     => (int) ($_POST['default_impact'] ?? 0),
+        'default_priority'   => (int) ($_POST['default_priority'] ?? 0),
+        'default_eventtype'  => (int) ($_POST['default_eventtype'] ?? 0),
+        'entities_id_import' => (int) ($_POST['entities_id_import'] ?? 0),
+    ];
+    // The import entity is where the cron files the events: it must be one the caller reaches
+    if (!Session::haveAccessToEntity($input['entities_id_import'])) {
+        throw new Glpi\Exception\Http\AccessDeniedHttpException();
     }
+    if ((int) ($_POST['id'] ?? 0) > 0) {
+        // check() replays UPDATE on the RSS feed of the stored row
+        $rss->check((int) $_POST['id'], UPDATE);
+        $rss->update(['id' => $rss->getID()] + $input);
+    } else {
+        // First save: the tab only showed the defaults, the row is created now
+        $input['rssfeeds_id']      = (int) ($_POST['rssfeeds_id'] ?? 0);
+        $input['last_rssfeed_url'] = '';
+        $rss->check(-1, CREATE, $input);
+        if (!$rss->getFromDBByCrit(['rssfeeds_id' => $input['rssfeeds_id']])) {
+            $rss->add($input);
+        }
+    }
+    Html::back();
 }

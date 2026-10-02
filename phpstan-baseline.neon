@@ -289,25 +289,7 @@ parameters:
 			path: src/Event_Item.php
 
 		-
-			message: '#^Offset ''comment'' does not exist on string\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: src/Event_Item.php
-
-		-
-			message: '#^Offset ''name'' does not exist on string\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: src/Event_Item.php
-
-		-
 			message: '#^Parameter \#1 \$event of static method GlpiPlugin\\Eventsmanager\\Event_Item\:\:showForEvent\(\) expects GlpiPlugin\\Eventsmanager\\Event, CommonGLPI given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Event_Item.php
-
-		-
-			message: '#^Parameter \#3 \$withcomment of static method Dropdown\:\:getDropdownName\(\) expects bool, int given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Event_Item.php

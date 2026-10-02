@@ -179,6 +179,12 @@ class Event_Item extends CommonDBRelation
      **/
     public function prepareInputForAdd($input)
     {
+        // The allow-list and the READ check of canAssociateItem() used to guard only the
+        // association form: Event::post_addItem()/post_updateItem() add links straight from
+        // the posted items_id. Checking at the write covers every path.
+        if (!self::canAssociateItem((string) ($input['itemtype'] ?? ''), (int) ($input['items_id'] ?? 0))) {
+            return false;
+        }
 
         $dbu = new DbUtils();
         // Avoid duplicate entry
@@ -798,22 +804,19 @@ class Event_Item extends CommonDBRelation
                 }
 
                 if (isset($values['itemtype'])) {
+                    // Search prints this value as safe HTML, but getDropdownName() returns the
+                    // name as stored, unescaped: a device named "<img onerror=...>" ran script in
+                    // the event list. Same idiom as CommonDBTM::getSpecificValueToDisplay().
+                    $table = $dbu->getTableForItemtype($values['itemtype']);
+                    $name  = htmlescape(Dropdown::getDropdownName($table, $values[$field]));
                     if (isset($options['comments']) && $options['comments']) {
-                        $tmp = Dropdown::getDropdownName(
-                            $dbu->getTableForItemtype($values['itemtype']),
-                            $values[$field],
-                            1,
-                        );
-                        return sprintf(
-                            __('%1$s %2$s'),
-                            $tmp['name'],
-                            Html::showToolTip($tmp['comment'], ['display' => false]),
+                        // getDropdownComments() already returns safe HTML
+                        return $name . '&nbsp;' . Html::showToolTip(
+                            Dropdown::getDropdownComments($table, (int) $values[$field]),
+                            ['display' => false],
                         );
                     }
-                    return Dropdown::getDropdownName(
-                        $dbu->getTableForItemtype($values['itemtype']),
-                        $values[$field],
-                    );
+                    return $name;
                 }
                 break;
         }

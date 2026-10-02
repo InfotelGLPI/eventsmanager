@@ -37,6 +37,7 @@ use Dropdown;
 use Glpi\Application\View\TemplateRenderer;
 use Html;
 use MassiveAction;
+use Profile_User;
 use Session;
 use User;
 
@@ -486,13 +487,74 @@ class Event extends CommonDBTM
      *
      * @param array $input datas used to add the item
      *
-     * @return array the modified $input array
+     * @return array|false the modified $input array, false to cancel the add
      **/
     public function prepareInputForAdd($input)
     {
+        // The entity check(-1, CREATE) ran on is the one the event is created in; a recursive
+        // flag is only allowed where the caller could also see the sub-entities
+        if (!empty($input['is_recursive'])
+            && !Session::haveRecursiveAccessToEntity((int) ($input['entities_id'] ?? 0))) {
+            $input['is_recursive'] = 0;
+        }
+
+        $input = $this->sanitizeWorkflowInput($input, (int) ($input['entities_id'] ?? 0));
+        if ($input === false) {
+            return false;
+        }
+
         if (isset($input["users_assigned"]) && $input["users_assigned"] > 0) {
             $input["status"] = self::ASSIGNED_STATE;
         }
+        return $input;
+    }
+
+    public function prepareInputForUpdate($input)
+    {
+        // check($id, UPDATE) covers the entity the event is in, not the one posted: moving it
+        // takes access to the target entity, as the "transfer" massive action requires
+        if (isset($input['entities_id'])
+            && (int) $input['entities_id'] !== (int) $this->fields['entities_id']
+            && !Session::haveAccessToEntity((int) $input['entities_id'])) {
+            Session::addMessageAfterRedirect(__('You are not allowed to do this action'), false, ERROR);
+            return false;
+        }
+        if (!empty($input['is_recursive'])
+            && !Session::haveRecursiveAccessToEntity((int) ($input['entities_id'] ?? $this->fields['entities_id']))) {
+            unset($input['is_recursive']);
+        }
+
+        return $this->sanitizeWorkflowInput($input, (int) ($input['entities_id'] ?? $this->fields['entities_id']));
+    }
+
+    /**
+     * The assignee is a posted user id: it must be a user of the event's entity, as the form
+     * dropdown offers. Closing is recorded by ajax/closeevent.php with the session user; a
+     * posted closer or close date is only accepted when it is that user closing it now.
+     *
+     * @param array $input
+     *
+     * @return array|false
+     */
+    private function sanitizeWorkflowInput(array $input, int $entities_id)
+    {
+        if (!empty($input['users_assigned'])
+            && (int) $input['users_assigned'] !== (int) ($this->fields['users_assigned'] ?? 0)) {
+            $user_entities = Profile_User::getUserEntities((int) $input['users_assigned']);
+            if (!in_array($entities_id, array_map('intval', $user_entities), true)) {
+                Session::addMessageAfterRedirect(__('You are not allowed to do this action'), false, ERROR);
+                return false;
+            }
+        }
+
+        if (isset($input['users_close'])
+            && (int) $input['users_close'] !== (int) ($this->fields['users_close'] ?? 0)) {
+            $input['users_close'] = (int) Session::getLoginUserID();
+            $input['date_close']  = $_SESSION['glpi_currenttime'];
+        } elseif (isset($input['date_close'])) {
+            unset($input['date_close']);
+        }
+
         return $input;
     }
 

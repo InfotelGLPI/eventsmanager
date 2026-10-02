@@ -170,12 +170,36 @@ class Event_Comment extends CommonDBTM
 
     public function prepareInputForAdd($input)
     {
-        if (!isset($input["users_id"])) {
-            $input["users_id"] = 0;
-            if ($uid = Session::getLoginUserID()) {
-                $input["users_id"] = $uid;
+        // The author is whoever posts the comment, never a posted value: users_id is what the
+        // edit and delete guards check, so a forged one made a comment pass for a colleague's
+        $input["users_id"] = (int) (Session::getLoginUserID() ?: 0);
+
+        // A reply is only ever a reply to a comment of the same event
+        $parent_id = (int) ($input['parent_comment_id'] ?? 0);
+        if ($parent_id > 0) {
+            $parent = new self();
+            if (!$parent->getFromDB($parent_id)
+                || (int) $parent->fields['plugin_eventsmanager_events_id']
+                    !== (int) ($input['plugin_eventsmanager_events_id'] ?? 0)) {
+                return false;
             }
         }
+
+        return $input;
+    }
+
+    /**
+     * Only the text of a comment is editable: its author, event and place in the thread are
+     * set once, on add.
+     */
+    public function prepareInputForUpdate($input)
+    {
+        unset(
+            $input['users_id'],
+            $input['plugin_eventsmanager_events_id'],
+            $input['parent_comment_id'],
+            $input['date_creation'],
+        );
 
         return $input;
     }

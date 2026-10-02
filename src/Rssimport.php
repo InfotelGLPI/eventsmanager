@@ -41,6 +41,42 @@ use RSSFeed;
  */
 class Rssimport extends CommonDBTM
 {
+    // Without a rightname, every can*() of the class answered false and the configuration
+    // could never be saved, not even by a super-admin
+    public static $rightname = 'plugin_eventsmanager';
+
+    /*
+     * The table has no entities_id: each item right replays the right on the RSS feed the row
+     * configures. can() has already checked the plugin right before calling these.
+     */
+    private function canOnFeed(int $right): bool
+    {
+        $feed = new RSSFeed();
+        $id   = (int) ($this->fields['rssfeeds_id'] ?? 0);
+
+        return $id > 0 && $feed->can($id, $right);
+    }
+
+    public function canViewItem(): bool
+    {
+        return $this->canOnFeed(READ);
+    }
+
+    public function canCreateItem(): bool
+    {
+        return $this->canOnFeed(UPDATE);
+    }
+
+    public function canUpdateItem(): bool
+    {
+        return $this->canOnFeed(UPDATE);
+    }
+
+    public function canPurgeItem(): bool
+    {
+        return $this->canOnFeed(UPDATE);
+    }
+
     /**
      * @param int $nb
      *
@@ -65,7 +101,7 @@ class Rssimport extends CommonDBTM
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
 
-        if ($item->getType() == 'RSSFeed') {
+        if ($item->getType() == 'RSSFeed' && self::canUpdate()) {
             return self::createTabEntry(_n('Event manager', 'Events manager', 2, 'eventsmanager'));
         }
         return '';
@@ -81,18 +117,19 @@ class Rssimport extends CommonDBTM
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
 
+        // ajax/common.tabs.php reaches this method without calling getTabNameForItem()
+        if (!self::canUpdate()) {
+            return false;
+        }
+
         $rss = new self();
         if ($item->getType() == 'RSSFeed') {
             $idr = $item->getID();
+            // Read-only path: the defaults are built in memory, the row is created on the
+            // first save (front/rssimport.form.php), not by merely viewing the tab
             if (!$rss->getFromDBByCrit(['rssfeeds_id' => $idr])) {
-                $id = $rss->add(['last_rssfeed_url'   => '',
-                    'rssfeeds_id'        => $idr,
-                    'use_with_plugin'    => '0',
-                    'default_impact'     => '0',
-                    'default_eventtype'  => '0',
-                    'default_priority'   => '0',
-                    'entities_id_import' => '0']);
-                $rss->getFromDB($id);
+                $rss->getEmpty();
+                $rss->fields['rssfeeds_id'] = $idr;
             }
             $rss->showConfig($idr);
         }

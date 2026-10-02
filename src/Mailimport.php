@@ -32,12 +32,49 @@ namespace GlpiPlugin\Eventsmanager;
 use CommonDBTM;
 use CommonGLPI;
 use Glpi\Application\View\TemplateRenderer;
+use MailCollector;
 
 /**
  * Class Mailimport
  */
 class Mailimport extends CommonDBTM
 {
+    // Without a rightname, every can*() of the class answered false and the configuration
+    // could never be saved, not even by a super-admin
+    public static $rightname = 'plugin_eventsmanager';
+
+    /*
+     * The table has no entities_id: each item right replays the right on the mail collector
+     * the row configures. can() has already checked the plugin right before calling these.
+     */
+    private function canOnCollector(int $right): bool
+    {
+        $collector = new MailCollector();
+        $id        = (int) ($this->fields['mailcollectors_id'] ?? 0);
+
+        return $id > 0 && $collector->can($id, $right);
+    }
+
+    public function canViewItem(): bool
+    {
+        return $this->canOnCollector(READ);
+    }
+
+    public function canCreateItem(): bool
+    {
+        return $this->canOnCollector(UPDATE);
+    }
+
+    public function canUpdateItem(): bool
+    {
+        return $this->canOnCollector(UPDATE);
+    }
+
+    public function canPurgeItem(): bool
+    {
+        return $this->canOnCollector(UPDATE);
+    }
+
     /**
      * @param int $nb
      *
@@ -63,7 +100,7 @@ class Mailimport extends CommonDBTM
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
     {
 
-        if ($item->getType() == 'MailCollector') {
+        if ($item->getType() == 'MailCollector' && self::canUpdate()) {
             return self::createTabEntry(_n('Event manager', 'Events manager', 2, 'eventsmanager'));
         }
         return '';
@@ -79,15 +116,19 @@ class Mailimport extends CommonDBTM
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
 
+        // ajax/common.tabs.php reaches this method without calling getTabNameForItem()
+        if (!self::canUpdate()) {
+            return false;
+        }
+
         $mail = new self();
         if ($item->getType() == 'MailCollector') {
             $idr = $item->getID();
-            if (!($res = $mail->getFromDBByCrit(['mailcollectors_id' => $idr]))) {
-                $id = $mail->add(['mailcollectors_id' => $idr,
-                    'default_impact'    => '0',
-                    'default_eventtype' => '0',
-                    'default_priority'  => '0']);
-                $mail->getFromDB($id);
+            // Read-only path: the defaults are built in memory, the row is created on the
+            // first save (front/mailimport.form.php), not by merely viewing the tab
+            if (!$mail->getFromDBByCrit(['mailcollectors_id' => $idr])) {
+                $mail->getEmpty();
+                $mail->fields['mailcollectors_id'] = $idr;
             }
             $mail->showConfig($idr);
         }

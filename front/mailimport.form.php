@@ -33,10 +33,23 @@ use GlpiPlugin\Eventsmanager\Mailimport;
 Session::checkRight('plugin_eventsmanager', UPDATE);
 
 if (isset($_POST['update'])) {
-    if (isset($_POST['id'])) {
-        $mail = new Mailimport();
+    $mail  = new Mailimport();
+    $input = [
+        'default_impact'    => (int) ($_POST['default_impact'] ?? 0),
+        'default_priority'  => (int) ($_POST['default_priority'] ?? 0),
+        'default_eventtype' => (int) ($_POST['default_eventtype'] ?? 0),
+    ];
+    if ((int) ($_POST['id'] ?? 0) > 0) {
+        // check() replays UPDATE on the mail collector of the stored row
         $mail->check((int) $_POST['id'], UPDATE);
-        $mail->update($_POST);
-        Html::back();
+        $mail->update(['id' => $mail->getID()] + $input);
+    } else {
+        // First save: the tab only showed the defaults, the row is created now
+        $input['mailcollectors_id'] = (int) ($_POST['mailcollectors_id'] ?? 0);
+        $mail->check(-1, CREATE, $input);
+        if (!$mail->getFromDBByCrit(['mailcollectors_id' => $input['mailcollectors_id']])) {
+            $mail->add($input);
+        }
     }
+    Html::back();
 }

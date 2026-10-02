@@ -46,6 +46,41 @@ class Ticket extends CommonDBTM
 {
     public static $rightname = 'plugin_eventsmanager';
 
+    /*
+     * The link table has no entities_id, so the default checkEntity() of the item rights is a
+     * no-op: a massive purge would only check the global plugin right and could drop links of
+     * any entity. Each item right replays the rights on both ends: the event (READ to see the
+     * link, UPDATE to change it) and the core ticket (READ).
+     */
+    private function canOnLinkedItems(int $event_right): bool
+    {
+        $event  = new Event();
+        $ticket = new \Ticket();
+
+        return $event->can((int) ($this->fields['plugin_eventsmanager_events_id'] ?? 0), $event_right)
+            && $ticket->can((int) ($this->fields['tickets_id'] ?? 0), READ);
+    }
+
+    public function canViewItem(): bool
+    {
+        return $this->canOnLinkedItems(READ);
+    }
+
+    public function canUpdateItem(): bool
+    {
+        return $this->canOnLinkedItems(UPDATE);
+    }
+
+    public function canDeleteItem(): bool
+    {
+        return $this->canOnLinkedItems(UPDATE);
+    }
+
+    public function canPurgeItem(): bool
+    {
+        return $this->canOnLinkedItems(UPDATE);
+    }
+
     /**
      * Returns the type name with consideration of plural
      *
@@ -109,6 +144,12 @@ class Ticket extends CommonDBTM
      */
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
     {
+        // ajax/common.tabs.php reaches this method without calling getTabNameForItem(), and
+        // checks only the host ticket: the plugin right has to be replayed on the rendering
+        if (!Session::haveRight(self::$rightname, READ)) {
+            return false;
+        }
+
         $ticket = new self();
 
         switch ($item->getType()) {
@@ -365,7 +406,9 @@ class Ticket extends CommonDBTM
                 'priority'    => 'raw_html',
                 'eventtype'   => 'raw_html',
                 'items'       => 'raw_html',
-                'description' => 'raw_html',
+                // No raw_html on description: getTextFromHtml() decodes the entities after
+                // stripping the tags, so a "&lt;img onerror&gt;" typed in the editor would come
+                // back as a live tag. The default formatter escapes the plain text once.
             ],
             'entries'            => $entries,
             'total_number'       => $number,

@@ -142,7 +142,6 @@ function plugin_eventsmanager_uninstall()
 
     $tables = [
         "glpi_plugin_eventsmanager_events",
-        "glpi_plugin_eventmanager_eventtypes",
         "glpi_plugin_eventsmanager_rssimports",
         "glpi_plugin_eventsmanager_tickets",
         "glpi_plugin_eventsmanager_origins",
@@ -161,11 +160,18 @@ function plugin_eventsmanager_uninstall()
         'SavedSearch',
         'DropdownTranslation',
         'NotificationTemplate',
-        'Notification'];
+        'Notification',
+        'Log'];
     foreach ($itemtypes as $itemtype) {
         $item = new $itemtype();
         $item->deleteByCriteria(['itemtype' => Event::class]);
     }
+
+    // The RssImport task registered on install would otherwise stay listed in the automatic
+    // actions, pointing to a class that no longer exists. Deleted by its exact itemtype:
+    // CronTask::unregister()'s LIKE pattern does not match the backslashes of a namespaced
+    // itemtype (checked against the local base), so it removed nothing.
+    $DB->delete('glpi_crontasks', ['itemtype' => Rssimport::class]);
 
     //Delete rights associated with the plugin
     $profileRight = new ProfileRight();

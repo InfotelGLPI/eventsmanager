@@ -286,14 +286,14 @@ class Origin extends CommonDropdown
     {
 
         switch ($values['itemtype']) {
+            // can() rather than getFromDB(): a mail collector or an RSS feed is configuration,
+            // whose name (often the mailbox address) the plugin right alone must not disclose
             case self::Collector:
                 $mail = new MailCollector();
-                $mail->getFromDB($values[$field]);
-                return $mail->getName();
+                return $mail->can((int) $values[$field], READ) ? $mail->getName() : '';
             case self::RSS:
                 $rss = new RSSFeed();
-                $rss->getFromDB($values[$field]);
-                return $rss->getName();
+                return $rss->can((int) $values[$field], READ) ? $rss->getName() : '';
             case self::Api:
                 return __('None');
             case self::Others:

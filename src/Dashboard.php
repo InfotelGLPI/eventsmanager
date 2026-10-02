@@ -34,6 +34,7 @@ use AllowDynamicProperties;
 use CommonGLPI;
 use CommonITILObject;
 use Glpi\Application\View\TemplateRenderer;
+use Glpi\RichText\RichText;
 use GlpiPlugin\Mydashboard\Datatable;
 use GlpiPlugin\Mydashboard\Menu;
 use GlpiPlugin\Mydashboard\Widget;
@@ -146,7 +147,9 @@ class Dashboard extends CommonGLPI
                                 'anchor_id' => 'event' . $data["id"] . $rand,
                                 'url'       => $url,
                                 'name'      => $data['name'],
-                                'tooltip'   => Html::showToolTip($data['comment'], [
+                                // The description is stored rich text, sanitized on display
+                                // only: Html::showToolTip() inserts its content verbatim
+                                'tooltip'   => Html::showToolTip(RichText::getSafeHtml((string) $data['comment']), [
                                     'applyto' => 'event' . $data["id"] . $rand,
                                     'display' => false,
                                 ]),
