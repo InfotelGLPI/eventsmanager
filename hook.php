@@ -27,10 +27,15 @@
  * --------------------------------------------------------------------------
  */
 
+use Glpi\DBAL\QuerySubQuery;
 use GlpiPlugin\Eventsmanager\Event;
+use GlpiPlugin\Eventsmanager\Event_Comment;
+use GlpiPlugin\Eventsmanager\Event_Item;
+use GlpiPlugin\Eventsmanager\Mailimport;
 use GlpiPlugin\Eventsmanager\Origin;
 use GlpiPlugin\Eventsmanager\Profile;
 use GlpiPlugin\Eventsmanager\Rssimport;
+use GlpiPlugin\Eventsmanager\Ticket;
 
 /**
  * @return bool
@@ -162,10 +167,31 @@ function plugin_eventsmanager_uninstall()
         'NotificationTemplate',
         'Notification',
         'Log'];
+    // Every class of the plugin may own display preferences, logs, saved searches...
+    $plugin_itemtypes = [
+        Event::class,
+        Event_Comment::class,
+        Event_Item::class,
+        Mailimport::class,
+        Origin::class,
+        Rssimport::class,
+        Ticket::class,
+    ];
     foreach ($itemtypes as $itemtype) {
         $item = new $itemtype();
-        $item->deleteByCriteria(['itemtype' => Event::class]);
+        $item->deleteByCriteria(['itemtype' => $plugin_itemtypes]);
     }
+
+    // Mail collector rule actions declared by plugin_eventsmanager_getRuleActions():
+    // left behind, they would point to a missing plugin and come back on reinstall
+    $DB->delete('glpi_ruleactions', [
+        'field'    => 'eventsmanager',
+        'rules_id' => new QuerySubQuery([
+            'SELECT' => 'id',
+            'FROM'   => 'glpi_rules',
+            'WHERE'  => ['sub_type' => RuleMailCollector::class],
+        ]),
+    ]);
 
     // The RssImport task registered on install would otherwise stay listed in the automatic
     // actions, pointing to a class that no longer exists. Deleted by its exact itemtype:

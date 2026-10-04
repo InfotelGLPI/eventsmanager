@@ -36,8 +36,6 @@ use DbUtils;
 use Dropdown;
 use Entity;
 use Glpi\Application\View\TemplateRenderer;
-use Glpi\DBAL\QueryExpression;
-use Glpi\DBAL\QueryUnion;
 use Html;
 use Session;
 use Toolbox;
@@ -677,82 +675,6 @@ class Event_Item extends CommonDBRelation
         return TemplateRenderer::getInstance()->render('@eventsmanager/dropdown_all_devices.html.twig', $data);
     }
 
-
-    /**
-     * Make a select box with all glpi items
-     *
-     * @param $options array of possible options:
-     *    - name         : string / name of the select (default is users_id)
-     *    - value
-     *    - comments     : boolean / is the comments displayed near the dropdown (default true)
-     *    - entity       : integer or array / restrict to a defined entity or array of entities
-     *                      (default -1 : no restriction)
-     *    - entity_sons  : boolean / if entity restrict specified auto select its sons
-     *                      only available if entity is a single value not an array(default false)
-     *    - rand         : integer / already computed rand value
-     *    - toupdate     : array / Update a specific item on select change on dropdown
-     *                      (need value_fieldname, to_update, url
-     *                      (see Ajax::updateItemOnSelectEvent for information)
-     *                      and may have moreparams)
-     *    - used         : array / Already used items ID: not to display in dropdown (default empty)
-     *    - on_change    : string / value to transmit to "onChange"
-     *    - display      : boolean / display or get string (default true)
-     *    - width        : specific width needed (default 80%)
-     *
-     **/
-    public static function dropdown($options = [])
-    {
-        global $DB;
-
-        // Default values
-        $p['name']        = 'items';
-        $p['value']       = '';
-        $p['all']         = 0;
-        $p['on_change']   = '';
-        $p['comments']    = 1;
-        $p['width']       = '80%';
-        $p['entity']      = -1;
-        $p['entity_sons'] = false;
-        $p['used']        = [];
-        $p['toupdate']    = '';
-        $p['rand']        = mt_rand();
-        $p['display']     = true;
-        $dbu = new DbUtils();
-
-        if (is_array($options) && count($options)) {
-            foreach ($options as $key => $val) {
-                $p[$key] = $val;
-            }
-        }
-
-        $itemtypes = ['Computer', 'Monitor', 'NetworkEquipment', 'Peripheral', 'Phone', 'Printer'];
-
-        $union = new QueryUnion();
-        foreach ($itemtypes as $type) {
-            $table = $dbu->getTableForItemType($type);
-            $union->addQuery([
-                'SELECT' => [
-                    'id',
-                    new QueryExpression($DB::quoteValue($type), 'itemtype'),
-                    'name',
-                ],
-                'FROM'   => $table,
-                'WHERE'  => [
-                    'NOT'         => ['id' => null],
-                    'is_deleted'  => 0,
-                    'is_template' => 0,
-                ],
-            ]);
-        }
-
-        $output = [];
-        foreach ($DB->request(['FROM' => $union]) as $data) {
-            $item                                          = $dbu->getItemForItemtype($data['itemtype']);
-            $output[$data['itemtype'] . "_" . $data['id']] = $item->getTypeName() . " - " . $data['name'];
-        }
-
-        return Dropdown::showFromArray($p['name'], $output, $p);
-    }
 
     /**
      * Return used items for a event

@@ -53,7 +53,7 @@ if (isset($_POST["add"])) {
     $event->delete($_POST);
     $event->redirectToList();
 } elseif (isset($_POST["restore"])) {
-    $event->check($_POST['id'], PURGE);
+    $event->check($_POST['id'], DELETE);
     $event->restore($_POST);
     $event->redirectToList();
 } elseif (isset($_POST["purge"])) {
@@ -79,8 +79,11 @@ if (isset($_POST["add"])) {
     Html::back();
 } elseif (isset($_POST["assign"])) {
     $event->check($_POST['id'], UPDATE);
-    $_POST['status'] = Event::ASSIGNED_STATE;
-    $event->update($_POST);
+    $event->update([
+        'id'             => $_POST['id'],
+        'users_assigned' => $_POST['users_assigned'] ?? 0,
+        'status'         => Event::ASSIGNED_STATE,
+    ]);
     Html::back();
 } else {
     $event->checkGlobal(READ);
