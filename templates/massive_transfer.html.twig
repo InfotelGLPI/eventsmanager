@@ -25,31 +25,9 @@
  # --------------------------------------------------------------------------
  #}
 
-<div id="itemAddForm{{ rand }}" data-rand="{{ rand }}" data-params="{{ opt|json_encode }}">
-    {% if canedit %}
-        <div style="float:left">
-            {{ devices_dropdown|raw }}
-            <span id="item_event_selection_information"></span>
-        </div>
-        <a href="#" class="event-item-action vsubmit" data-item-action="add"
-           style="float:left">{{ _x('button', 'Add') }}</a>
-    {% endif %}
-
-    <div style="clear:both;">
-        {% for row in item_rows %}
-            {{ row|raw }}
-        {% endfor %}
-
-        {% if count == 0 %}
-            {{ empty_hidden|raw }}
-        {% endif %}
-
-        {% if not_saved_msg is not empty %}
-            <i>{{ not_saved_msg }}</i>
-        {% endif %}
-
-        {% if display_all is not empty %}
-            <i><a href="{{ display_all.url }}">{{ __('Display all items') }} ({{ display_all.count }})</a></i>
-        {% endif %}
-    </div>
+{# Sub form of the "transfer" massive action (Event::showMassiveActionsSubForm()):
+   target entity, core dropdown #}
+<div class="d-flex flex-wrap align-items-center gap-2">
+    {{ entity_dropdown|raw }}
+    <button type="submit" name="massiveaction" class="btn btn-primary">{{ _x('button', 'Post') }}</button>
 </div>

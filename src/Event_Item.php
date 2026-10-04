@@ -84,7 +84,14 @@ class Event_Item extends CommonDBRelation
      **/
     public static function canAssociateItem(string $itemtype, int $items_id): bool
     {
-        $allowed = ['Computer', 'Monitor', 'NetworkEquipment', 'Peripheral', 'Phone', 'Printer'];
+        $allowed = [
+            \Computer::class,
+            \Monitor::class,
+            \NetworkEquipment::class,
+            \Peripheral::class,
+            \Phone::class,
+            \Printer::class,
+        ];
         if (!in_array($itemtype, $allowed, true)) {
             return false;
         }
@@ -197,27 +204,7 @@ class Event_Item extends CommonDBRelation
 
 
     /**
-     * Print the HTML ajax associated item add
-     *
-     * @param $event Event object
-     * @param $options   array of possible options:
-     *    - id                  : ID of the event
-     *    - _users_id_requester : ID of the requester user
-     *    - items_id            : array of elements (itemtype => array(id1, id2, id3, ...))
-     *
-     * @return Nothing (display)
-     **/
-    public static function itemAddForm(Event $event, $options = [])
-    {
-        $html = self::renderItemAddForm($event, $options);
-        if ($html === false) {
-            return false;
-        }
-        echo $html;
-    }
-
-    /**
-     * Same as itemAddForm(), returned as a string (false when the event cannot be read)
+     * HTML of the associated item add form (false when the event cannot be read)
      *
      * @return string|false
      */
@@ -261,7 +248,7 @@ class Event_Item extends CommonDBRelation
         // Build the linked-item rows
         $item_rows = [];
         if (!empty($params['items_id'])) {
-            $delete = $event->canAddItem(__CLASS__);
+            $delete = $event->canAddItem(self::class);
             foreach ($params['items_id'] as $itemtype => $items) {
                 foreach ($items as $items_id) {
                     $count++;
@@ -290,10 +277,16 @@ class Event_Item extends CommonDBRelation
             $count_notsaved = $count - $usedcount;
             $not_saved_msg  = sprintf(_n('%1$s item not saved', '%1$s items not saved', $count_notsaved), $count_notsaved);
         }
-        $display_all_link = '';
+        // Link to the items tab of the event (templates/item_add_form.html.twig)
+        $display_all = null;
         if ($params['id'] > 0 && $usedcount > 5) {
-            $display_all_link = "<a href='" . $event->getFormURL() . "?id=" . $params['id'] . "&amp;forcetab=GlpiPlugin\Eventsmanager\Event_Item$1'>"
-              . __('Display all items') . " (" . $usedcount . ")</a>";
+            $display_all = [
+                'url'   => $event->getFormURL() . '?' . http_build_query([
+                    'id'       => (int) $params['id'],
+                    'forcetab' => self::class . '$1',
+                ]),
+                'count' => (int) $usedcount,
+            ];
         }
 
         $opt = [];
@@ -310,7 +303,7 @@ class Event_Item extends CommonDBRelation
             'count'            => $count,
             'empty_hidden'     => $empty_hidden,
             'not_saved_msg'    => $not_saved_msg,
-            'display_all_link' => $display_all_link,
+            'display_all'      => $display_all,
         ]);
     }
 
@@ -390,7 +383,7 @@ class Event_Item extends CommonDBRelation
             $devices_dropdown = self::renderAllDevices("itemtype", null, 0, 1, 0, $event->fields["entities_id"], ['plugin_eventsmanager_events_id' => $instID]);
 
             TemplateRenderer::getInstance()->display('@eventsmanager/item_add_block.html.twig', [
-                'add_form_action'  => Toolbox::getItemTypeFormURL(__CLASS__),
+                'add_form_action'  => Toolbox::getItemTypeFormURL(self::class),
                 'instID'           => $instID,
                 'devices_dropdown' => $devices_dropdown,
             ]);
@@ -538,38 +531,7 @@ class Event_Item extends CommonDBRelation
     }
 
     /**
-     * Make a select box for Tracking All Devices
-     *
-     * @param $myname             select name
-     * @param $itemtype           preselected value.for item type
-     * @param $items_id           preselected value for item ID (default 0)
-     * @param $admin              is an admin access ? (default 0)
-     * @param $users_id           user ID used to display my devices (default 0
-     * @param $entity_restrict    Restrict to a defined entity (default -1)
-     * @param $options   array of possible options:
-     *    - plugin_eventsmanager_events_id : ID of the event
-     *    - used       : ID of the requester user
-     *    - multiple   : allow multiple choice
-     *    - rand       : random number
-     *
-     * @return int|null random id of the dropdowns (prints out an HTML select box)
-     **/
-    public static function dropdownAllDevices(
-        $myname,
-        $itemtype,
-        $items_id = 0,
-        $admin = 0,
-        $users_id = 0,
-        $entity_restrict = -1,
-        $options = []
-    ) {
-        echo self::renderAllDevices($myname, $itemtype, $items_id, $admin, $users_id, $entity_restrict, $options, $rand);
-
-        return $rand;
-    }
-
-    /**
-     * Same as dropdownAllDevices(), returned as a string
+     * Select box of every device type, then of the devices of the chosen type
      *
      * @param int|null $rand set to the random id of the dropdowns
      */
@@ -793,8 +755,7 @@ class Event_Item extends CommonDBRelation
                     $options['value'] = $values[$field];
                     return Dropdown::show($values['itemtype'], $options);
                 } else {
-                    self::dropdownAllDevices($name, 0, 0);
-                    return ' ';
+                    return self::renderAllDevices($name, 0, 0);
                 }
                 break;
         }

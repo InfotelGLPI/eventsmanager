@@ -48,13 +48,10 @@ Session::checkRight('plugin_eventsmanager', UPDATE);
 $item_ticket = new Event_Item();
 switch ($_POST['action'] ?? '') {
     case 'add':
-        //      if (isset($_POST['my_items']) && !empty($_POST['my_items'])) {
-        //         list($_POST['itemtype'], $_POST['items_id']) = explode('_', $_POST['my_items']);
-        //      }
         if (isset($_POST['items_id']) && isset($_POST['itemtype']) && !empty($_POST['items_id'])) {
             $_POST['params']['items_id'][$_POST['itemtype']][$_POST['items_id']] = $_POST['items_id'];
         }
-        Event_Item::itemAddForm(new Event(), $_POST['params']);
+        echo (string) Event_Item::renderItemAddForm(new Event(), $_POST['params']);
         break;
 
     case 'delete':
@@ -75,7 +72,7 @@ switch ($_POST['action'] ?? '') {
             if ($deleted) {
                 unset($_POST['params']['items_id'][$_POST['itemtype']][array_search($_POST['items_id'], $_POST['params']['items_id'][$_POST['itemtype']])]);
             }
-            Event_Item::itemAddForm(new Event(), $_POST['params']);
+            echo (string) Event_Item::renderItemAddForm(new Event(), $_POST['params']);
         }
 
         break;

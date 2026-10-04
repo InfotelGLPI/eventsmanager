@@ -367,15 +367,17 @@ class Ticket extends CommonDBTM
                 if (!($item = $dbu_inner->getItemForItemtype($itemtype))) {
                     continue;
                 }
-                $typenames = '';
+                // One link per item: the type name used to be concatenated once per item and
+                // only the last item of the type was linked
                 foreach ($items_id as $item_id) {
-                    $typenames .= $item::getTypeName();
+                    if (!$item->getFromDB((int) $item_id)) {
+                        continue;
+                    }
+                    $item_rows[] = [
+                        'typename' => $item::getTypeName(1),
+                        'link'     => $item->getLink(),
+                    ];
                 }
-                $item->getFromDB($item_id);
-                $item_rows[] = [
-                    'typenames' => $typenames,
-                    'link'      => $item->getLink(),
-                ];
             }
             $entry['items'] = TemplateRenderer::getInstance()->render('@eventsmanager/associated_items_cell.html.twig', [
                 'items' => $item_rows,
@@ -481,15 +483,17 @@ class Ticket extends CommonDBTM
                 if (!($item = $dbu_inner->getItemForItemtype($itemtype))) {
                     continue;
                 }
-                $typenames = '';
+                // One link per item: the type name used to be concatenated once per item and
+                // only the last item of the type was linked
                 foreach ($items_id as $item_id) {
-                    $typenames .= $item::getTypeName();
+                    if (!$item->getFromDB((int) $item_id)) {
+                        continue;
+                    }
+                    $item_rows[] = [
+                        'typename' => $item::getTypeName(1),
+                        'link'     => $item->getLink(),
+                    ];
                 }
-                $item->getFromDB($item_id);
-                $item_rows[] = [
-                    'typenames' => $typenames,
-                    'link'      => $item->getLink(),
-                ];
             }
             $items_html = TemplateRenderer::getInstance()->render('@eventsmanager/associated_items_cell.html.twig', [
                 'items' => $item_rows,

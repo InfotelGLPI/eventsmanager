@@ -105,25 +105,10 @@ function plugin_eventsmanager_install()
                         ]);
                         if (count($iterator2) > 0) {
                             foreach ($iterator2 as $dataid) {
-                                $query = $DB->buildDelete(
-                                    'glpi_displaypreferences',
-                                    [
-                                        'id' => $dataid['id'],
-                                    ],
-                                );
-                                $DB->doQuery($query);
+                                $DB->delete('glpi_displaypreferences', ['id' => $dataid['id']]);
                             }
                         } else {
-                            $query = $DB->buildUpdate(
-                                'glpi_displaypreferences',
-                                [
-                                    'itemtype' => $new,
-                                ],
-                                [
-                                    'id' => $data['id'],
-                                ],
-                            );
-                            $DB->doQuery($query);
+                            $DB->update('glpi_displaypreferences', ['itemtype' => $new], ['id' => $data['id']]);
                         }
                     }
                 }
@@ -155,18 +140,20 @@ function plugin_eventsmanager_uninstall()
         "glpi_plugin_eventsmanager_events_comments",
         "glpi_plugin_eventsmanager_mailimports"];
 
-    $itemtypes = ['Alert',
-        'DisplayPreference',
-        'Document_Item',
-        'ImpactItem',
-        'Item_Ticket',
-        'Link_Itemtype',
-        'Notepad',
-        'SavedSearch',
-        'DropdownTranslation',
-        'NotificationTemplate',
-        'Notification',
-        'Log'];
+    $itemtypes = [
+        \Alert::class,
+        \DisplayPreference::class,
+        \Document_Item::class,
+        \ImpactItem::class,
+        \Item_Ticket::class,
+        \Link_Itemtype::class,
+        \Notepad::class,
+        \SavedSearch::class,
+        \DropdownTranslation::class,
+        \NotificationTemplate::class,
+        \Notification::class,
+        \Log::class,
+    ];
     // Every class of the plugin may own display preferences, logs, saved searches...
     $plugin_itemtypes = [
         Event::class,

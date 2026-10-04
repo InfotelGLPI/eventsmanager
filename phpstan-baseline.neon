@@ -201,7 +201,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 5
+			count: 4
 			path: src/Event.php
 
 		-
@@ -242,24 +242,6 @@ parameters:
 
 		-
 			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:getUsedItems\(\) should return GlpiPlugin\\Eventsmanager\\type but returns array\<list\>\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Event_Item.php
-
-		-
-			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:itemAddForm\(\) has invalid return type GlpiPlugin\\Eventsmanager\\Nothing\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/Event_Item.php
-
-		-
-			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:itemAddForm\(\) should return GlpiPlugin\\Eventsmanager\\Nothing but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/Event_Item.php
-
-		-
-			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:itemAddForm\(\) should return GlpiPlugin\\Eventsmanager\\Nothing but returns false\.$#'
 			identifier: return.type
 			count: 1
 			path: src/Event_Item.php
@@ -396,8 +378,3 @@ parameters:
 			count: 2
 			path: src/Ticket.php
 
-		-
-			message: '#^Variable \$item_id might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: src/Ticket.php

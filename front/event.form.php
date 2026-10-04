@@ -71,9 +71,6 @@ if (isset($_POST["add"])) {
     if (!$core_ticket->can((int) $_POST['tickets_id'], READ)) {
         throw new AccessDeniedHttpException();
     }
-    //   $_POST['id'] = Event::CLOSED_STATE;
-    //      $_POST['status'] = $_POST['plugin_eventsmanager_events_id'];
-    //      $event->update($_POST);
     $ticket->add(['tickets_id'                     => $_POST['tickets_id'],
         'plugin_eventsmanager_events_id' => $_POST['plugin_eventsmanager_events_id']]);
     Html::back();

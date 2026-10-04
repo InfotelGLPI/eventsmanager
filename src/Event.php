@@ -596,6 +596,11 @@ class Event extends CommonDBTM
         $ti = new Ticket();
         $ti->deleteByCriteria(['plugin_eventsmanager_events_id' => $this->fields['id']]);
 
+        // Comments only exist through their event: left behind, they would outlive the access
+        // control of their parent
+        $comment = new Event_Comment();
+        $comment->deleteByCriteria(['plugin_eventsmanager_events_id' => $this->fields['id']]);
+
         parent::cleanDBonPurge();
     }
 
@@ -644,10 +649,10 @@ class Event extends CommonDBTM
 
         switch ($ma->getAction()) {
             case "transfer":
-                Dropdown::show('Entity');
-                echo Html::submit(_x('button', 'Post'), ['name' => 'massiveaction', 'class' => 'btn btn-primary']);
+                TemplateRenderer::getInstance()->display('@eventsmanager/massive_transfer.html.twig', [
+                    'entity_dropdown' => Dropdown::show('Entity', ['display' => false]),
+                ]);
                 return true;
-                break;
         }
         return parent::showMassiveActionsSubForm($ma);
     }
@@ -696,48 +701,6 @@ class Event extends CommonDBTM
     }
 
     /**
-     * For other plugins, add a type to the linkable types
-     *
-     * @param $type string class name
-     * *@since version 1.3.0
-     *
-     */
-    //   static function registerType($type) {
-    //      if (!in_array($type, self::$types)) {
-    //         self::$types[] = $type;
-    //      }
-    //   }
-
-    /**
-     * Type than could be linked to a Rack
-     *
-     * @param $all boolean, all type, or only allowed ones
-     *
-     * @return array of types
-     * */
-    //   static function getTypes($all = false) {
-    //
-    //      if ($all) {
-    //         return self::$types;
-    //      }
-    //
-    //      // Only allowed types
-    //      $types = self::$types;
-    //
-    //      foreach ($types as $key => $type) {
-    //         if (!class_exists($type)) {
-    //            continue;
-    //         }
-    //
-    //         $item = new $type();
-    //         if (!$item->canView()) {
-    //            unset($types[$key]);
-    //         }
-    //      }
-    //      return $types;
-    //   }
-
-    /**
      * display a value according to a field
      *
      * @param $field     String         name of the field
@@ -759,30 +722,15 @@ class Event extends CommonDBTM
         switch ($field) {
             case 'priority':
                 return CommonITILObject::getPriorityName($values[$field]);
-            case 'items_id':
-                if (isset($values['itemtype'])) {
-                    $item = $dbu->getItemForItemtype($values['itemtype']);
-                    $item->getFromDB($values[$field]);
-                    return $item->getName();
-                } else {
-                    return "";
-                }
-                // no break
-            case 'itemtype':
-                return __($values[$field]);
+
             case 'status':
                 return self::getStatusName($values[$field]);
             case 'action':
                 if ($values['status'] < self::CLOSED_STATE) {
                     return self::getActionAff($values['id'], $values['status']);
                 } else {
-                    return __('No action avalable', 'eventsmanager');
+                    return __('No action available', 'eventsmanager');
                 }
-                //         case 'ticket':
-                //            $ticket = new Ticket();
-                //            $ticket->getFromDB($values[$field]);
-                //            $url = Toolbox::getItemTypeFormURL('Ticket') . "?id=" . $values[$field];
-                //            return "<a id='ticket" . $values[$field] . "' target='_blank' href='$url'>" . $ticket->getName() . "</a>";
                 // no break
             case 'eventtype':
                 return static::getEventTypeName($values[$field]);

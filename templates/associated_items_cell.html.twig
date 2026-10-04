@@ -26,5 +26,5 @@
  #}
 
 {%- for row in items -%}
-    {{ row.typenames }}<br>{{ row.link|raw }}<br>
+    {{ row.typename }} : {{ row.link|raw }}<br>
 {%- endfor -%}
