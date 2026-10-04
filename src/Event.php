@@ -382,18 +382,10 @@ class Event extends CommonDBTM
             false,
         );
 
-        $origin_itemtype_label = '';
-        $origin_item_name      = '';
-        $origin = new Origin();
-        if ($origin->getFromDB($this->fields["plugin_eventsmanager_origins_id"])) {
-            $origin_itemtype_label = Origin::getItemtypeOrigin($origin->fields['itemtype']);
-            $origin_item_name      = Origin::getItemOrigin('items_id', ["itemtype" => $origin->fields['itemtype'],
-                "items_id" => $origin->fields['items_id']]);
-        }
         $origin_item = TemplateRenderer::getInstance()->render('@eventsmanager/origin_item.html.twig', [
-            'rand'           => $rand,
-            'itemtype_label' => $origin_itemtype_label,
-            'item_name'      => $origin_item_name,
+            'rand'  => $rand,
+            // Escaped by origin_item_label.html.twig
+            'label' => Origin::renderItemLabel((int) $this->fields["plugin_eventsmanager_origins_id"]),
         ]);
 
         $priority_field = CommonITILObject::dropdownPriority([

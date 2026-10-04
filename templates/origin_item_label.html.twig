@@ -25,6 +25,6 @@
  # --------------------------------------------------------------------------
  #}
 
-<br><span id="show_items_id{{ rand }}">
-    {{- label|raw -}}
-</span>
+{%- if itemtype_label is not empty -%}
+    {{ itemtype_label }} - {{ item_name }}
+{%- endif -%}

@@ -224,7 +224,7 @@ class Origin extends CommonDropdown
 
         $dropdown = self::dropdownItems(
             $origin->fields['itemtype'],
-            ['value' => $origin->fields['items_id'], 'display' => false],
+            ['value' => $origin->fields['items_id']],
         );
 
         TemplateRenderer::getInstance()->display('@eventsmanager/origin_item_span.html.twig', [
@@ -233,11 +233,36 @@ class Origin extends CommonDropdown
     }
 
 
-    public static function dropdownItems($itemtype, $options = [])
+    /**
+     * Label "<source type> - <item>" of an origin (empty when the origin does not exist)
+     */
+    public static function renderItemLabel(int $origins_id): string
+    {
+        $origin = new self();
+        $data   = ['itemtype_label' => '', 'item_name' => ''];
+        if ($origins_id > 0 && $origin->getFromDB($origins_id)) {
+            $data = [
+                'itemtype_label' => self::getItemtypeOrigin($origin->fields['itemtype']),
+                'item_name'      => self::getItemOrigin('items_id', [
+                    'itemtype' => $origin->fields['itemtype'],
+                    'items_id' => $origin->fields['items_id'],
+                ]),
+            ];
+        }
+
+        return TemplateRenderer::getInstance()->render('@eventsmanager/origin_item_label.html.twig', $data);
+    }
+
+    /**
+     * Item selector of a source type (mail collector, RSS feed...)
+     *
+     * @param mixed                $itemtype one of the Origin source type constants
+     * @param array<string, mixed> $options  options of the core dropdown
+     */
+    public static function dropdownItems($itemtype, $options = []): string
     {
 
         $p['name']    = 'items_id';
-        $p['display'] = true;
         $p['values']  = [];
 
         if (is_array($options) && count($options)) {
@@ -246,8 +271,6 @@ class Origin extends CommonDropdown
             }
         }
 
-        // The 'display' option is now honoured: false returns the HTML instead of printing it
-        $display      = (bool) $p['display'];
         $p['display'] = false;
         switch ($itemtype) {
             case self::Collector:
@@ -264,12 +287,7 @@ class Origin extends CommonDropdown
                 $html = '';
         }
 
-        if (!$display) {
-            return $html;
-        }
-        echo $html;
-
-        return false;
+        return $html;
     }
 
     /**
