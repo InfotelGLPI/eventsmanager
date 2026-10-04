@@ -235,12 +235,6 @@ parameters:
 			path: src/Event_Item.php
 
 		-
-			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:dropdownAllDevices\(\) has invalid return type GlpiPlugin\\Eventsmanager\\nothing\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/Event_Item.php
-
-		-
 			message: '#^Method GlpiPlugin\\Eventsmanager\\Event_Item\:\:getUsedItems\(\) has invalid return type GlpiPlugin\\Eventsmanager\\type\.$#'
 			identifier: class.notFound
 			count: 1

@@ -310,12 +310,13 @@ class Ticket extends CommonDBTM
         }
         $number  = count($tickets);
 
-        // "Add an event" block (captured Event::dropdown)
+        // "Add an event" block
         if ($canedit) {
-            ob_start();
-            Event::dropdown(['used'   => $used,
-                'entity' => $ticket->getEntityID()]);
-            $event_dropdown = ob_get_clean();
+            $event_dropdown = Event::dropdown([
+                'used'    => $used,
+                'entity'  => $ticket->getEntityID(),
+                'display' => false,
+            ]);
 
             TemplateRenderer::getInstance()->display('@eventsmanager/ticket_add_block.html.twig', [
                 'add_form_action' => Toolbox::getItemTypeFormURL(__CLASS__),
@@ -439,12 +440,13 @@ class Ticket extends CommonDBTM
 
         $ticket_dropdown = '';
         if ($show_link_form) {
-            ob_start();
-            \Ticket::dropdown(['name'        => "tickets_id",
+            $ticket_dropdown = \Ticket::dropdown([
+                'name'        => "tickets_id",
                 'entity'      => $event->getEntityID(),
                 'entity_sons' => $event->isRecursive(),
-                'displaywith' => ['id']]);
-            $ticket_dropdown = ob_get_clean();
+                'displaywith' => ['id'],
+                'display'     => false,
+            ]);
         }
 
         // "Link to tickets" form block

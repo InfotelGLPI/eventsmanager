@@ -211,6 +211,20 @@ class Event_Item extends CommonDBRelation
      **/
     public static function itemAddForm(Event $event, $options = [])
     {
+        $html = self::renderItemAddForm($event, $options);
+        if ($html === false) {
+            return false;
+        }
+        echo $html;
+    }
+
+    /**
+     * Same as itemAddForm(), returned as a string (false when the event cannot be read)
+     *
+     * @return string|false
+     */
+    public static function renderItemAddForm(Event $event, $options = [])
+    {
         $params = ['id'                  => (isset($event->fields['id'])
                                            && $event->fields['id'] != '')
          ? $event->fields['id']
@@ -243,9 +257,7 @@ class Event_Item extends CommonDBRelation
                 'rand'                           => $rand,
                 'plugin_eventsmanager_events_id' => $params['id']];
 
-            ob_start();
-            self::dropdownAllDevices("itemtype", $params['itemtype'], 0, 1, $params['_users_id_requester'], $event->fields["entities_id"], $p);
-            $devices_dropdown = ob_get_clean();
+            $devices_dropdown = self::renderAllDevices("itemtype", $params['itemtype'], 0, 1, $params['_users_id_requester'], $event->fields["entities_id"], $p);
         }
 
         // Build the linked-item rows
@@ -291,7 +303,7 @@ class Event_Item extends CommonDBRelation
             $opt[$key] = $params[$key];
         }
 
-        TemplateRenderer::getInstance()->display('@eventsmanager/item_add_form.html.twig', [
+        return TemplateRenderer::getInstance()->render('@eventsmanager/item_add_form.html.twig', [
             'rand'             => $rand,
             'opt'              => $opt,
             'canedit'          => $canedit,
@@ -375,11 +387,9 @@ class Event_Item extends CommonDBRelation
             'ORDER'    => 'itemtype',
         ]);
 
-        // "Add an item" block (captured GLPI helpers)
+        // "Add an item" block
         if ($canedit) {
-            ob_start();
-            self::dropdownAllDevices("itemtype", null, 0, 1, 0, $event->fields["entities_id"], ['plugin_eventsmanager_events_id' => $instID]);
-            $devices_dropdown = ob_get_clean();
+            $devices_dropdown = self::renderAllDevices("itemtype", null, 0, 1, 0, $event->fields["entities_id"], ['plugin_eventsmanager_events_id' => $instID]);
 
             TemplateRenderer::getInstance()->display('@eventsmanager/item_add_block.html.twig', [
                 'add_form_action'  => Toolbox::getItemTypeFormURL(__CLASS__),
@@ -544,7 +554,7 @@ class Event_Item extends CommonDBRelation
      *    - multiple   : allow multiple choice
      *    - rand       : random number
      *
-     * @return nothing (print out an HTML select box)
+     * @return int|null random id of the dropdowns (prints out an HTML select box)
      **/
     public static function dropdownAllDevices(
         $myname,
@@ -555,6 +565,26 @@ class Event_Item extends CommonDBRelation
         $entity_restrict = -1,
         $options = []
     ) {
+        echo self::renderAllDevices($myname, $itemtype, $items_id, $admin, $users_id, $entity_restrict, $options, $rand);
+
+        return $rand;
+    }
+
+    /**
+     * Same as dropdownAllDevices(), returned as a string
+     *
+     * @param int|null $rand set to the random id of the dropdowns
+     */
+    public static function renderAllDevices(
+        $myname,
+        $itemtype,
+        $items_id = 0,
+        $admin = 0,
+        $users_id = 0,
+        $entity_restrict = -1,
+        $options = [],
+        &$rand = null
+    ): string {
         global $CFG_GLPI, $DB;
         $dbu = new DbUtils();
         $params = ['plugin_eventsmanager_events_id' => 0,
@@ -591,16 +621,15 @@ class Event_Item extends CommonDBRelation
                 $emptylabel = Dropdown::EMPTY_VALUE;
             }
 
-            ob_start();
-            Dropdown::showItemTypes(
+            $data['itemtypes_dropdown'] = Dropdown::showItemTypes(
                 $myname,
                 array_keys($types),
                 ['emptylabel' => $emptylabel,
                     'value'      => $itemtype,
                     'rand'       => $rand,
-                    'display_emptychoice' => true],
+                    'display_emptychoice' => true,
+                    'display'    => false],
             );
-            $data['itemtypes_dropdown'] = ob_get_clean();
 
             $found_type = isset($types[$itemtype]);
 
@@ -612,45 +641,40 @@ class Event_Item extends CommonDBRelation
                 'rand'            => $rand,
                 'myname'          => "add_items_id"];
 
-            ob_start();
-            Ajax::updateItemOnSelectEvent(
+            $data['on_select_js'] = Ajax::updateItemOnSelectEvent(
                 "dropdown_$myname$rand",
                 "results_$myname$rand",
                 $CFG_GLPI["root_doc"] . "/ajax/dropdownTrackingDeviceType.php",
                 $p,
+                false,
             );
-            $data['on_select_js'] = ob_get_clean();
 
             // Display default value if itemtype is displayed
             $results = '';
             if ($found_type && $itemtype) {
                 if (($item = $dbu->getItemForItemtype($itemtype)) && $items_id) {
                     if ($item->getFromDB($items_id)) {
-                        ob_start();
-                        Dropdown::showFromArray(
+                        $results = Dropdown::showFromArray(
                             'items_id',
                             [$items_id => $item->getName()],
-                            ['value' => $items_id],
+                            ['value' => $items_id, 'display' => false],
                         );
-                        $results = ob_get_clean();
                     }
                 } else {
                     $p['itemtype'] = $itemtype;
-                    ob_start();
-                    Ajax::updateItemJsCode(
+                    $results = Html::scriptBlock('$(function() {' . Ajax::updateItemJsCode(
                         "results_$myname$rand",
                         $CFG_GLPI["root_doc"] . "/ajax/dropdownTrackingDeviceType.php",
                         $p,
-                    );
-                    $results = Html::scriptBlock('$(function() {' . ob_get_clean() . '});');
+                        "",
+                        false,
+                    ) . '});');
                 }
             }
             $data['results'] = $results;
         }
 
-        TemplateRenderer::getInstance()->display('@eventsmanager/dropdown_all_devices.html.twig', $data);
-
-        return $rand;
+        return TemplateRenderer::getInstance()->render('@eventsmanager/dropdown_all_devices.html.twig', $data);
     }
 
 

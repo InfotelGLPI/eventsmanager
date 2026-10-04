@@ -33,7 +33,10 @@
     {{ fields.htmlField('_item_add_form', item_add_form, __('Associated element', 'eventsmanager'), field_options) }}
 
     {{ fields.htmlField('impact', impact_field, __('Impact'), field_options) }}
-    {{ fields.htmlField('plugin_eventsmanager_origins_id', origin_field, __('Origin', 'eventsmanager'), field_options) }}
+    {{ fields.dropdownField('GlpiPlugin\\Eventsmanager\\Origin', 'plugin_eventsmanager_origins_id', item.fields['plugin_eventsmanager_origins_id'], __('Origin', 'eventsmanager'), field_options|merge({
+        'rand': origin_rand,
+        'add_field_html': origin_item ~ origin_script,
+    })) }}
 
     {{ fields.htmlField('priority', priority_field, __('Priority'), field_options) }}
     {{ fields.dropdownArrayField('eventtype', item.fields['eventtype'], eventtype_values, __('Event type', 'eventsmanager'), field_options) }}
@@ -45,7 +48,7 @@
     {{ fields.datetimeField('time_to_resolve', item.fields['time_to_resolve'], __('Time to resolve'), field_options) }}
 
     {% if show_status %}
-        {{ fields.htmlField('status', status_field, __('Status'), field_options) }}
+        {{ fields.dropdownArrayField('status', status, status_values, __('Status'), field_options) }}
     {% endif %}
     {% if show_actions %}
         {{ fields.htmlField('_actions', actions, __('Actions', 'eventsmanager'), field_options) }}
@@ -63,7 +66,8 @@
         {{ fields.htmlField('date_assign', date_assign, __('Date Assign', 'eventsmanager'), field_options) }}
     {% endif %}
     {% if show_user_close %}
-        {{ fields.htmlField('users_close', user_close_field, __('User close', 'eventsmanager'), field_options) }}
+        {% set user_close %}{{ user_close_name }} {{ user_close_tooltip|raw }}{% endset %}
+        {{ fields.htmlField('users_close', user_close, __('User close', 'eventsmanager'), field_options) }}
         {{ fields.htmlField('date_close', date_close, __('Close date'), field_options) }}
     {% endif %}
 {% endblock %}

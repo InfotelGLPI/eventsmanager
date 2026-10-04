@@ -222,12 +222,10 @@ class Origin extends CommonDropdown
     public static function selectItems(CommonDBTM $origin)
     {
 
-        ob_start();
-        self::dropdownItems(
+        $dropdown = self::dropdownItems(
             $origin->fields['itemtype'],
-            ['value' => $origin->fields['items_id']],
+            ['value' => $origin->fields['items_id'], 'display' => false],
         );
-        $dropdown = ob_get_clean();
 
         TemplateRenderer::getInstance()->display('@eventsmanager/origin_item_span.html.twig', [
             'dropdown' => $dropdown,
@@ -248,20 +246,28 @@ class Origin extends CommonDropdown
             }
         }
 
+        // The 'display' option is now honoured: false returns the HTML instead of printing it
+        $display      = (bool) $p['display'];
+        $p['display'] = false;
         switch ($itemtype) {
             case self::Collector:
-                MailCollector::dropdown($p);
+                $html = (string) MailCollector::dropdown($p);
                 break;
             case self::RSS:
-                RSSFeed::dropdown($p);
+                $html = (string) RSSFeed::dropdown($p);
                 break;
             case self::Api:
-                echo __('None');
-                break;
             case self::Others:
-                echo __('None');
+                $html = htmlescape(__('None'));
                 break;
+            default:
+                $html = '';
         }
+
+        if (!$display) {
+            return $html;
+        }
+        echo $html;
 
         return false;
     }

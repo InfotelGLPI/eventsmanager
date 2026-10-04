@@ -356,39 +356,31 @@ class Event extends CommonDBTM
         $dbu = new DbUtils();
         $this->initForm($ID, $options);
 
-        // Associated item add form (echoes HTML + JS): no field-macro equivalent,
-        // so it is captured and injected through fields.htmlField() in the template.
-        ob_start();
-        Event_Item::itemAddForm($this, $options);
-        $item_add_form = ob_get_clean();
+        // Associated item add form: plugin widget (item type then item, loaded over AJAX),
+        // injected through fields.htmlField() in the template
+        $item_add_form = (string) Event_Item::renderItemAddForm($this, $options);
 
-        // Impact (core dropdown with the "major" flag, no field-macro equivalent)
-        ob_start();
-        \Ticket::dropdownImpact(['value'     => $this->fields['impact'],
-            'withmajor' => 1]);
-        $impact_field = ob_get_clean();
-
-        // Origin (core dropdown refreshed on select through an AJAX request)
-        $rand = mt_rand();
-        ob_start();
-        Origin::dropdown([
-            'name'  => "plugin_eventsmanager_origins_id",
-            'rand'  => $rand,
-            'value' => $this->fields["plugin_eventsmanager_origins_id"],
+        // Impact and priority: core widgets (impact mask of the configuration, coloured
+        // priority templates, "major" level) the field macros do not reproduce
+        $impact_field = \Ticket::dropdownImpact([
+            'value'     => $this->fields['impact'],
+            'withmajor' => 1,
+            'display'   => false,
         ]);
 
-        $params = [
-            'plugin_eventsmanager_origins_id' => '__VALUE__',
-            'fieldname'                       => 'items_id',
-        ];
-        Ajax::updateItemOnSelectEvent(
+        // Origin: fields.dropdownField() in the template, the item of the origin shown under
+        // it and refreshed on change (ajax/dropdownOrigin.php)
+        $rand          = mt_rand();
+        $origin_script = Ajax::updateItemOnSelectEvent(
             "dropdown_plugin_eventsmanager_origins_id$rand",
             "show_items_id$rand",
             "../ajax/dropdownOrigin.php",
-            $params,
+            [
+                'plugin_eventsmanager_origins_id' => '__VALUE__',
+                'fieldname'                       => 'items_id',
+            ],
+            false,
         );
-
-        $origin_field = ob_get_clean();
 
         $origin_itemtype_label = '';
         $origin_item_name      = '';
@@ -398,17 +390,17 @@ class Event extends CommonDBTM
             $origin_item_name      = Origin::getItemOrigin('items_id', ["itemtype" => $origin->fields['itemtype'],
                 "items_id" => $origin->fields['items_id']]);
         }
-        $origin_field .= TemplateRenderer::getInstance()->render('@eventsmanager/origin_item.html.twig', [
+        $origin_item = TemplateRenderer::getInstance()->render('@eventsmanager/origin_item.html.twig', [
             'rand'           => $rand,
             'itemtype_label' => $origin_itemtype_label,
             'item_name'      => $origin_item_name,
         ]);
 
-        // Priority (core dropdown with the "major" flag, no field-macro equivalent)
-        ob_start();
-        CommonITILObject::dropdownPriority(['value'     => $this->fields['priority'],
-            'withmajor' => 1]);
-        $priority_field = ob_get_clean();
+        $priority_field = CommonITILObject::dropdownPriority([
+            'value'     => $this->fields['priority'],
+            'withmajor' => 1,
+            'display'   => false,
+        ]);
 
         // Event type values, rendered through fields.dropdownArrayField() in the template
         $eventtype_values = [
@@ -420,14 +412,14 @@ class Event extends CommonDBTM
         ];
 
         // Status
-        $show_status  = ($ID > 0);
-        $status_field = '';
-        if ($show_status) {
-            $status = ($this->fields['status'] > 0) ? $this->fields['status'] : self::NEW_STATE;
-            ob_start();
-            self::dropdownStatus(['value' => $status]);
-            $status_field = ob_get_clean();
-        }
+        $show_status   = ($ID > 0);
+        $status        = ($this->fields['status'] > 0) ? $this->fields['status'] : self::NEW_STATE;
+        $status_values = [
+            0                    => static::getStatusName(0),
+            self::NEW_STATE      => static::getStatusName(self::NEW_STATE),
+            self::ASSIGNED_STATE => static::getStatusName(self::ASSIGNED_STATE),
+            self::CLOSED_STATE   => static::getStatusName(self::CLOSED_STATE),
+        ];
 
         // Actions (assign / create ticket / close)
         $show_actions = ($this->fields['status'] < self::CLOSED_STATE
@@ -451,13 +443,14 @@ class Event extends CommonDBTM
         // User close
         $show_user_close  = ($this->fields["status"] == self::CLOSED_STATE
           && $this->fields["users_close"] > 0);
-        $user_close_field = '';
-        $date_close       = '';
+        $user_close_name    = '';
+        $user_close_tooltip = '';
+        $date_close         = '';
         if ($show_user_close) {
-            $user             = $dbu->getUserName($this->fields["users_close"], 2);
-            $user_close_field = htmlescape($user["name"])
-                . ' ' . Html::showToolTip($user["comment"], ['display' => false]);
-            $date_close       = Html::convDateTime($this->fields['date_close'], 1);
+            $user               = $dbu->getUserName($this->fields["users_close"], 2);
+            $user_close_name    = (string) $user["name"];
+            $user_close_tooltip = Html::showToolTip($user["comment"], ['display' => false]);
+            $date_close         = Html::convDateTime($this->fields['date_close'], 1);
         }
 
         TemplateRenderer::getInstance()->display('@eventsmanager/event.html.twig', [
@@ -465,17 +458,21 @@ class Event extends CommonDBTM
             'params'           => $options,
             'item_add_form'    => $item_add_form,
             'impact_field'     => $impact_field,
-            'origin_field'     => $origin_field,
+            'origin_rand'      => $rand,
+            'origin_script'    => $origin_script,
+            'origin_item'      => $origin_item,
             'priority_field'   => $priority_field,
             'eventtype_values' => $eventtype_values,
             'show_status'      => $show_status,
-            'status_field'     => $status_field,
+            'status'           => $status,
+            'status_values'    => $status_values,
             'show_actions'     => $show_actions,
             'actions'          => $actions,
             'show_date_assign' => $show_date_assign,
             'date_assign'      => $date_assign,
             'show_user_close'  => $show_user_close,
-            'user_close_field' => $user_close_field,
+            'user_close_name'    => $user_close_name,
+            'user_close_tooltip' => $user_close_tooltip,
             'date_close'       => $date_close,
         ]);
 
