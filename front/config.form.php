@@ -34,12 +34,12 @@ use GlpiPlugin\Eventsmanager\Config;
 if (Plugin::isPluginActive("eventsmanager")) {
     $config = new Config();
     if (isset($_POST["update_config"])) {
-        Session::checkRight("config", UPDATE);
+        Session::checkRight(\Config::$rightname, UPDATE);
         $config->update($_POST);
         Html::back();
 
     } else {
-        Session::checkRight("config", READ);
+        Session::checkRight(\Config::$rightname, READ);
         Html::header(Event::getTypeName(), '', "helpdesk", Event::class, "config");
         $config->showConfigForm();
         Html::footer();

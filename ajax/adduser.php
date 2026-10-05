@@ -36,7 +36,7 @@ if (strpos($_SERVER['PHP_SELF'], "adduser.php")) {
     Html::header_nocache();
 }
 
-Session::checkRight('plugin_eventsmanager', READ);
+Session::checkRight(Event::$rightname, READ);
 
 $user = $_SESSION['glpiID'];
 $date = $_SESSION['glpi_currenttime'];

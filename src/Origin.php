@@ -44,9 +44,9 @@ class Origin extends CommonDropdown
     public const Api       = 3;
     public const Others    = 4;
 
-    public $dohistory         = true;
-    public static $rightname         = 'plugin_eventsmanager';
-    public $can_be_translated = false;
+    public bool $dohistory         = true;
+    public static string $rightname         = 'plugin_eventsmanager';
+    public bool $can_be_translated = false;
 
     /**
      * Returns the type name with consideration of plural

@@ -43,7 +43,7 @@ class Rssimport extends CommonDBTM
 {
     // Without a rightname, every can*() of the class answered false and the configuration
     // could never be saved, not even by a super-admin
-    public static $rightname = 'plugin_eventsmanager';
+    public static string $rightname = 'plugin_eventsmanager';
 
     /*
      * The table has no entities_id: each item right replays the right on the RSS feed the row

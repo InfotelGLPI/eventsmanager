@@ -97,7 +97,7 @@ class Dashboard extends CommonGLPI
         // Defense in depth: do not disclose event data to a central-interface user who
         // lacks the plugin READ right, rather than relying on the host dashboard plugin's
         // own access control.
-        if (!Session::haveRight('plugin_eventsmanager', READ)) {
+        if (!Session::haveRight(Event::$rightname, READ)) {
             return new Datatable();
         }
         switch ($widgetId) {

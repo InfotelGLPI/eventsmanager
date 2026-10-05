@@ -28,9 +28,10 @@
  */
 
 use GlpiPlugin\Eventsmanager\Rssimport;
+use GlpiPlugin\Eventsmanager\Event;
 
 // Import configuration drives automated event creation; require the plugin UPDATE right.
-Session::checkRight('plugin_eventsmanager', UPDATE);
+Session::checkRight(Event::$rightname, UPDATE);
 
 if (isset($_POST['update'])) {
     $rss   = new Rssimport();

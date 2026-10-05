@@ -37,7 +37,7 @@ if (strpos($_SERVER['PHP_SELF'], "createticket.php")) {
     Html::header_nocache();
 }
 
-Session::checkRight('plugin_eventsmanager', READ);
+Session::checkRight(Event::$rightname, READ);
 
 if (isset($_POST['id'])) {
     $id    = (int) $_POST['id'];

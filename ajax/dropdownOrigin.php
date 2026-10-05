@@ -28,12 +28,13 @@
  */
 
 use GlpiPlugin\Eventsmanager\Origin;
+use GlpiPlugin\Eventsmanager\Event;
 
 if (strpos($_SERVER['PHP_SELF'], "dropdownOrigin.php")) {
     header("Content-Type: text/html; charset=UTF-8");
     Html::header_nocache();
 }
-Session::checkRight('plugin_eventsmanager', READ);
+Session::checkRight(Event::$rightname, READ);
 
 // Label of the selected origin, refreshed under the origin dropdown of the event form
 echo Origin::renderItemLabel((int) ($_POST["plugin_eventsmanager_origins_id"] ?? 0));

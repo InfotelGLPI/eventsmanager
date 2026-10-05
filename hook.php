@@ -249,7 +249,7 @@ function plugin_eventsmanager_getAddSearchOptions($itemtype)
     $sopt = [];
 
     if ($itemtype == 'RSSFeed') {
-        if (Session::haveRight("plugin_eventsmanager", READ)) {
+        if (Session::haveRight(Event::$rightname, READ)) {
             $sopt = Rssimport::addSearchOptions($sopt);
         }
     }

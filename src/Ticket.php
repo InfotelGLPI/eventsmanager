@@ -44,7 +44,7 @@ use Toolbox;
 
 class Ticket extends CommonDBTM
 {
-    public static $rightname = 'plugin_eventsmanager';
+    public static string $rightname = 'plugin_eventsmanager';
 
     /*
      * The link table has no entities_id, so the default checkEntity() of the item rights is a

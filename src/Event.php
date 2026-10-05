@@ -46,9 +46,9 @@ use User;
  */
 class Event extends CommonDBTM
 {
-    public $dohistory  = true;
-    public static $rightname  = 'plugin_eventsmanager';
-    protected $usenotepad = true;
+    public bool $dohistory  = true;
+    public static string $rightname  = 'plugin_eventsmanager';
+    protected bool $usenotepad = true;
 
     public const NEW_STATE      = 1;
     public const ASSIGNED_STATE = 2;
@@ -161,10 +161,7 @@ class Event extends CommonDBTM
                                         => ['jointype'
                                             => 'child']],
                     'condition'
-                    => $dbu->getEntitiesRestrictRequest(
-                        'AND',
-                        'NEWTABLE',
-                    )],
+                    => $dbu->getEntitiesRestrictCriteria('NEWTABLE')],
                 'forcegroupby'  => true,
                 'massiveaction' => false,
             ];
@@ -626,7 +623,7 @@ class Event extends CommonDBTM
 
         if (Session::getCurrentInterface() == 'central') {
             if ($isadmin) {
-                if (Session::haveRight('transfer', READ) && Session::isMultiEntitiesMode()
+                if (Session::haveRight(\Transfer::$rightname, READ) && Session::isMultiEntitiesMode()
                 ) {
                     $actions['GlpiPlugin\Eventsmanager\Event' . MassiveAction::CLASS_ACTION_SEPARATOR . 'transfer'] = __('Transfer');
                 }

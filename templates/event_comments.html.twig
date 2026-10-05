@@ -37,7 +37,6 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <form action="{{ url }}" method="post" autocomplete="off" data-submit-once>
-                    <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}" />
                     <input type="hidden" name="plugin_eventsmanager_events_id" value="{{ event_id }}" />
                     {% if comment_id is not null %}
                         <input type="hidden" name="id" value="{{ comment_id }}" />
@@ -114,7 +113,6 @@
                                 </button>
                                 <form action="{{ url }}" method="post" class="d-inline"
                                       onsubmit="return confirm('{{ __('Confirm the final deletion?')|e('js') }}');">
-                                    <input type="hidden" name="_glpi_csrf_token" value="{{ csrf_token() }}" />
                                     <input type="hidden" name="plugin_eventsmanager_events_id" value="{{ event_id }}" />
                                     <input type="hidden" name="id" value="{{ comment.id }}" />
                                     <button type="submit" name="purge" value="1"

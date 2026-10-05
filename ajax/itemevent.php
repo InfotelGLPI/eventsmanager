@@ -35,15 +35,15 @@ use GlpiPlugin\Eventsmanager\Event_Item;
 header("Content-Type: text/html; charset=UTF-8");
 Html::header_nocache();
 
-// The 'delete' branch below mutates state (deleteByCriteria). GLPI 11's CheckCsrfListener
-// only validates non-GET requests, so require POST for the whole endpoint to keep the
-// mutating action behind CSRF protection (the caller sends POST; core adds the token
-// header automatically). Reading from $_POST also prevents GET-based CSRF via <img>.
+// The 'delete' branch below mutates state (deleteByCriteria). GLPI's CheckCsrfListener
+// validates the request origin (Sec-Fetch-Site / Origin headers) on non-GET requests only,
+// so require POST for the whole endpoint to keep the mutating action behind CSRF protection.
+// Reading from $_POST also prevents GET-based CSRF via <img>.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     throw new BadRequestHttpException();
 }
 
-Session::checkRight('plugin_eventsmanager', UPDATE);
+Session::checkRight(Event::$rightname, UPDATE);
 
 $item_ticket = new Event_Item();
 switch ($_POST['action'] ?? '') {

@@ -70,12 +70,12 @@ function plugin_init_eventsmanager()
             ['addtabon' => 'Profile'],
         );
 
-        if (Session::haveRight("plugin_eventsmanager", UPDATE)) {
+        if (Session::haveRight(Event::$rightname, UPDATE)) {
             $PLUGIN_HOOKS[Hooks::USE_MASSIVE_ACTION]['eventsmanager'] = 1;
             $PLUGIN_HOOKS[Hooks::CONFIG_PAGE]['eventsmanager']        = 'front/config.form.php';
         }
 
-        if (Session::haveRight("plugin_eventsmanager", READ)) {
+        if (Session::haveRight(Event::$rightname, READ)) {
             $PLUGIN_HOOKS[Hooks::MENU_TOADD]['eventsmanager'] = ['helpdesk' => Event::class];
         }
 
@@ -83,7 +83,7 @@ function plugin_init_eventsmanager()
             $PLUGIN_HOOKS['mydashboard']['eventsmanager'] = [Dashboard::class];
         }
 
-        if (Session::haveRight("plugin_eventsmanager", CREATE)) {
+        if (Session::haveRight(Event::$rightname, CREATE)) {
             $PLUGIN_HOOKS[Hooks::USE_MASSIVE_ACTION]['eventsmanager'] = 1;
         }
 
@@ -120,8 +120,8 @@ function plugin_version_eventsmanager()
         'homepage'       => 'https://github.com/InfotelGLPI/eventsmanager',
         'requirements' => [
             'glpi' => [
-                'min' => '11.0',
-                'max' => '12.0',
+                'min' => '11.0.99',
+                'max' => '12.0.99',
                 'dev' => false,
             ],
         ],
