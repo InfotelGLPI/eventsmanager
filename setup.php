@@ -39,7 +39,7 @@ use GlpiPlugin\Mydashboard\Alert;
 
 global $CFG_GLPI;
 
-define('PLUGIN_EVENTMANAGER_VERSION', '4.0.3');
+define('PLUGIN_EVENTMANAGER_VERSION', '4.1.0');
 
 if (!defined("PLUGIN_EVENTMANAGER_DIR")) {
     define("PLUGIN_EVENTMANAGER_DIR", Plugin::getPhpDir("eventsmanager"));
